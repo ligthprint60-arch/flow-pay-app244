@@ -20,11 +20,11 @@ type Wallet = {
 type Tx = {
   id: string;
   type: string;
-  rflow_delta: number;
-  fflow_pending_delta: number;
-  fflow_active_delta: number;
-  counterparty: string | null;
-  note: string | null;
+const FRAGMENT_TIERS: { id: string; pending: number; cost: number; label: string; badge?: string }[] = [
+  { id: "x1", pending: 100, cost: 1000, label: "Mode ×1" },
+  { id: "x2", pending: 200, cost: 1800, label: "Mode ×2", badge: "−10%" },
+  { id: "x5", pending: 500, cost: 4000, label: "Mode ×5", badge: "−20%" },
+];
   created_at: string;
 };
 

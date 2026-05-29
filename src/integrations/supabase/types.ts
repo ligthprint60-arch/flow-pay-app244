@@ -14,7 +14,196 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      posts: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          likes: number
+          topic: string | null
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          likes?: number
+          topic?: string | null
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string
+          id: string
+          is_author: boolean
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name: string
+          id: string
+          is_author?: boolean
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_author?: boolean
+          username?: string
+        }
+        Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          chosen_index: number
+          correct: boolean
+          created_at: string
+          id: string
+          quiz_id: string
+          user_id: string
+        }
+        Insert: {
+          chosen_index: number
+          correct: boolean
+          created_at?: string
+          id?: string
+          quiz_id: string
+          user_id: string
+        }
+        Update: {
+          chosen_index?: number
+          correct?: boolean
+          created_at?: string
+          id?: string
+          quiz_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quizzes: {
+        Row: {
+          active_date: string
+          correct_index: number
+          created_at: string
+          id: string
+          options: Json
+          question: string
+          reward: number
+        }
+        Insert: {
+          active_date?: string
+          correct_index: number
+          created_at?: string
+          id?: string
+          options: Json
+          question: string
+          reward?: number
+        }
+        Update: {
+          active_date?: string
+          correct_index?: number
+          created_at?: string
+          id?: string
+          options?: Json
+          question?: string
+          reward?: number
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          counterparty: string | null
+          created_at: string
+          fflow_active_delta: number
+          fflow_pending_delta: number
+          id: string
+          note: string | null
+          rflow_delta: number
+          type: Database["public"]["Enums"]["tx_type"]
+          user_id: string
+        }
+        Insert: {
+          counterparty?: string | null
+          created_at?: string
+          fflow_active_delta?: number
+          fflow_pending_delta?: number
+          id?: string
+          note?: string | null
+          rflow_delta?: number
+          type: Database["public"]["Enums"]["tx_type"]
+          user_id: string
+        }
+        Update: {
+          counterparty?: string | null
+          created_at?: string
+          fflow_active_delta?: number
+          fflow_pending_delta?: number
+          id?: string
+          note?: string | null
+          rflow_delta?: number
+          type?: Database["public"]["Enums"]["tx_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          fflow_active: number
+          fflow_pending: number
+          rflow_balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          fflow_active?: number
+          fflow_pending?: number
+          rflow_balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          fflow_active?: number
+          fflow_pending?: number
+          rflow_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +212,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      tx_type:
+        | "payment"
+        | "transfer"
+        | "fragmentation"
+        | "donation"
+        | "quiz_reward"
+        | "spend_reward"
+        | "liquidity_lock"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +346,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      tx_type: [
+        "payment",
+        "transfer",
+        "fragmentation",
+        "donation",
+        "quiz_reward",
+        "spend_reward",
+        "liquidity_lock",
+      ],
+    },
   },
 } as const

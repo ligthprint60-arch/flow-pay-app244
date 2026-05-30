@@ -26,20 +26,20 @@ function AppLayout() {
   if (loading || !user) {
     return (
       <div className="flex min-h-svh items-center justify-center">
-        <div className="size-2 animate-pulse rounded-full bg-eco" />
+        <div className="size-3 animate-pulse rounded-full bg-eco glow-eco" />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-svh bg-background">
-      <main className="mx-auto max-w-md pb-28">
+    <div className="relative min-h-svh">
+      <main className="relative z-10 mx-auto max-w-md pb-32">
         <Outlet />
       </main>
 
-      {/* Bottom Nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-md items-stretch justify-around px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-2">
+      {/* Floating glass nav dock (Fluid Navigation) */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(env(safe-area-inset-bottom),14px)] pt-2 pointer-events-none">
+        <div className="lrf lrf-thick pointer-events-auto mx-4 flex w-[min(100%,420px)] items-stretch justify-around px-2 py-2">
           {tabs.map((t) => {
             const active = pathname === t.to || pathname.startsWith(t.to + "/");
             const Icon = t.icon;
@@ -47,16 +47,18 @@ function AppLayout() {
               <Link
                 key={t.to}
                 to={t.to}
-                className="group flex flex-1 flex-col items-center gap-1 py-2"
+                className="group relative z-10 flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition-all"
               >
+                {active && (
+                  <span className="absolute inset-1 rounded-2xl bg-gradient-to-br from-eco/30 to-fiat/20 emissive-eco" />
+                )}
                 <Icon
-                  className={`size-[22px] transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}
+                  className={`relative size-[22px] transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}
                   strokeWidth={active ? 2.4 : 1.8}
                 />
-                <span className={`text-[10px] font-medium tracking-wide transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}>
+                <span className={`relative text-[10px] font-medium tracking-wide transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}>
                   {t.label}
                 </span>
-                {active && <span className="absolute bottom-0 mt-1 h-0.5 w-6 rounded-full bg-eco glow-eco" />}
               </Link>
             );
           })}

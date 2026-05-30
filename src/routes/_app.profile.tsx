@@ -55,9 +55,9 @@ function ProfilePage() {
         <h1 className="mt-1 text-2xl font-bold tracking-tight">Аккаунт</h1>
       </div>
 
-      <div className="rounded-3xl border border-border bg-surface p-5">
-        <div className="flex items-center gap-4">
-          <div className="grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/30 font-mono text-lg font-bold">
+      <div className="lrf lrf-thick p-5">
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-eco/50 to-fiat/40 font-mono text-lg font-bold emissive-eco">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
@@ -72,10 +72,12 @@ function ProfilePage() {
       </div>
 
       {/* Balance summary */}
-      <div className="mt-3 grid grid-cols-3 gap-2 rounded-2xl border border-border bg-surface p-4">
-        <Stat label="rFLOW" value={fmt(wallet?.rflow_balance ?? 0)} accent="fiat" />
-        <Stat label="Active" value={fmt(wallet?.fflow_active ?? 0)} accent="eco" />
-        <Stat label="Pending" value={fmt(wallet?.fflow_pending ?? 0)} accent="warning" />
+      <div className="lrf mt-3 p-4">
+        <div className="relative z-10 grid grid-cols-3 gap-2">
+          <Stat label="rFLOW" value={fmt(wallet?.rflow_balance ?? 0)} accent="fiat" />
+          <Stat label="Active" value={fmt(wallet?.fflow_active ?? 0)} accent="eco" />
+          <Stat label="Pending" value={fmt(wallet?.fflow_pending ?? 0)} accent="warning" />
+        </div>
       </div>
 
       {/* Author CTA */}
@@ -83,16 +85,18 @@ function ProfilePage() {
         <button
           onClick={() => applyAuthor.mutate()}
           disabled={applyAuthor.isPending}
-          className="mt-3 flex w-full items-center justify-between rounded-2xl border border-eco/40 bg-eco/5 p-4 text-left hover:bg-eco/10"
+          className="lrf mt-3 flex w-full items-center justify-between p-4 text-left transition-transform active:scale-[0.99]"
         >
-          <div className="flex items-center gap-3">
-            <Shield className="size-5 text-eco" />
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-2xl bg-eco/20 emissive-eco">
+              <Shield className="size-5 text-eco" />
+            </div>
             <div>
               <p className="text-sm font-semibold">Стать автором</p>
               <p className="text-xs text-muted-foreground">Публикуйте контент о финансах</p>
             </div>
           </div>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-eco">demo</span>
+          <span className="relative z-10 font-mono text-[10px] uppercase tracking-widest text-eco">demo</span>
         </button>
       )}
 
@@ -109,7 +113,7 @@ function ProfilePage() {
       </div>
 
       <p className="mt-8 text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        FLOW Network · v0.2 · Май 2026
+        FLOW Network · v0.2 · FLDS 3.0
       </p>
     </div>
   );
@@ -127,7 +131,7 @@ function Stat({ label, value, accent }: { label: string; value: string; accent: 
 
 function Row({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
   return (
-    <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm hover:bg-surface">
+    <button className="acrylic flex w-full items-center gap-3 px-4 py-3 text-left text-sm hover:bg-white/[0.05]">
       <Icon className="size-4 text-muted-foreground" />
       <span>{label}</span>
     </button>

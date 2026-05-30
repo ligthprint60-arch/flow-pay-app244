@@ -134,39 +134,46 @@ function WalletPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Кошелёк</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">FLOW</h1>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Spatial Wallet</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight chromatic">FLOW</h1>
         </div>
-        <button className="size-10 rounded-full border border-border bg-surface grid place-items-center">
-          <QrCode className="size-4" />
+        <button className="lrf grid size-11 place-items-center !rounded-2xl">
+          <QrCode className="relative z-10 size-4" />
         </button>
       </div>
 
-      {/* Main balance card */}
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-surface p-6">
-        <div className="absolute -right-12 -top-12 size-40 rounded-full bg-fiat/15 blur-3xl" />
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Available Liquidity · rFLOW</p>
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-4xl font-bold tabular tracking-tight">{fmt(wallet?.rflow_balance ?? 0)}</span>
-          <span className="text-sm text-muted-foreground">UZS</span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">≈ ${((wallet?.rflow_balance ?? 0) / 12500).toFixed(2)} USD</p>
+      {/* Main balance — Thick LRF lens */}
+      <div className="lrf lrf-thick relative p-6">
+        <div className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full bg-fiat/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-10 size-40 rounded-full bg-eco/20 blur-3xl" />
+        <div className="relative z-10">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Available Liquidity · rFLOW</p>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-[44px] font-bold leading-none tabular tracking-tight">{fmt(wallet?.rflow_balance ?? 0)}</span>
+            <span className="text-sm text-muted-foreground">UZS</span>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">≈ ${((wallet?.rflow_balance ?? 0) / 12500).toFixed(2)} USD</p>
+          <div className="mt-2 h-px overflow-hidden rounded-full">
+            <div className="h-full w-full shimmer-line" />
+          </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <button
-            onClick={() => payQR.mutate()}
-            disabled={payQR.isPending}
-            className="flex h-11 items-center justify-center gap-2 rounded-xl bg-foreground text-sm font-semibold text-background disabled:opacity-50"
-          >
-            <QrCode className="size-4" /> Pay QR
-          </button>
-          <button className="flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-surface-2 text-sm font-semibold">
-            <ArrowUpRight className="size-4" /> Send
-          </button>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => payQR.mutate()}
+              disabled={payQR.isPending}
+              className="mercury flex h-12 items-center justify-center gap-2 rounded-2xl text-sm font-semibold disabled:opacity-50"
+            >
+              <QrCode className="size-4" /> Pay QR
+            </button>
+            <button className="lrf flex h-12 items-center justify-center gap-2 !rounded-2xl text-sm font-semibold">
+              <ArrowUpRight className="relative z-10 size-4" />
+              <span className="relative z-10">Send</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Dual token */}
+      {/* Dual token lenses */}
       <div className="mt-3 grid grid-cols-2 gap-3">
         <TokenCard label="Active" value={wallet?.fflow_active ?? 0} accent="fflow" />
         <TokenCard label="Pending" value={wallet?.fflow_pending ?? 0} accent="pending" />
@@ -175,10 +182,10 @@ function WalletPage() {
       {/* Fragmentation CTA */}
       <button
         onClick={() => setSheet(true)}
-        className="mt-3 flex w-full items-center justify-between rounded-2xl border border-dashed border-eco/40 bg-eco/5 p-4 text-left transition-colors hover:bg-eco/10"
+        className="lrf mt-3 flex w-full items-center justify-between p-4 text-left transition-transform active:scale-[0.99]"
       >
-        <div className="flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-xl bg-eco/15">
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="grid size-11 place-items-center rounded-2xl bg-eco/20 emissive-eco">
             <Zap className="size-4 text-eco" />
           </div>
           <div>
@@ -186,7 +193,7 @@ function WalletPage() {
             <p className="text-xs text-muted-foreground">Превратить pending → active</p>
           </div>
         </div>
-        <ChevronRight className="size-4 text-muted-foreground" />
+        <ChevronRight className="relative z-10 size-4 text-muted-foreground" />
       </button>
 
       {/* Transactions */}
@@ -197,13 +204,13 @@ function WalletPage() {
         </div>
 
         {(!txs || txs.length === 0) ? (
-          <div className="rounded-2xl border border-dashed border-border p-8 text-center">
+          <div className="acrylic p-8 text-center">
             <Sparkles className="mx-auto size-5 text-muted-foreground" />
             <p className="mt-3 text-sm text-muted-foreground">Здесь появятся ваши транзакции.</p>
             <p className="mt-1 text-xs text-muted-foreground">Попробуйте «Pay QR» выше.</p>
           </div>
         ) : (
-          <ul className="space-y-1">
+          <ul className="acrylic divide-y divide-white/5 overflow-hidden">
             {txs.map((t) => <TxRow key={t.id} tx={t} />)}
           </ul>
         )}
@@ -211,53 +218,55 @@ function WalletPage() {
 
       {/* Fragmentation sheet */}
       {sheet && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm" onClick={() => setSheet(false)}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-md" onClick={() => setSheet(false)}>
           <div
-            className="w-full max-w-md rounded-t-3xl border-t border-border bg-surface p-6 pb-[max(env(safe-area-inset-bottom),24px)]"
+            className="lrf lrf-thick w-full max-w-md !rounded-t-[36px] !rounded-b-none p-6 pb-[max(env(safe-area-inset-bottom),24px)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-start justify-between">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-eco">Fragmentation Engine</p>
-                <h3 className="mt-1 text-xl font-bold">Активируйте fFLOW</h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Pending: <span className="text-foreground tabular">{fmt(wallet?.fflow_pending ?? 0)}</span>
-                </p>
+            <div className="relative z-10">
+              <div className="mb-4 flex items-start justify-between">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-eco">Fragmentation Engine</p>
+                  <h3 className="mt-1 text-xl font-bold">Активируйте fFLOW</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Pending: <span className="text-foreground tabular">{fmt(wallet?.fflow_pending ?? 0)}</span>
+                  </p>
+                </div>
+                <button onClick={() => setSheet(false)} className="lrf grid size-10 place-items-center !rounded-2xl">
+                  <X className="relative z-10 size-4" />
+                </button>
               </div>
-              <button onClick={() => setSheet(false)} className="size-9 rounded-full border border-border grid place-items-center">
-                <X className="size-4" />
-              </button>
-            </div>
 
-            <div className="space-y-2">
-              {FRAGMENT_TIERS.map((t) => {
-                const disabled = (wallet?.fflow_pending ?? 0) < t.pending || (wallet?.rflow_balance ?? 0) < t.cost;
-                return (
-                  <button
-                    key={t.id}
-                    disabled={disabled || fragment.isPending}
-                    onClick={() => fragment.mutate(t)}
-                    className="flex w-full items-center justify-between rounded-2xl border border-border bg-surface-2 p-4 text-left transition-all hover:border-eco/50 disabled:opacity-40"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-eco">{t.label}</span>
-                        {t.badge && <span className="rounded-full bg-eco/15 px-2 py-0.5 font-mono text-[9px] text-eco">{t.badge}</span>}
+              <div className="space-y-2">
+                {FRAGMENT_TIERS.map((t) => {
+                  const disabled = (wallet?.fflow_pending ?? 0) < t.pending || (wallet?.rflow_balance ?? 0) < t.cost;
+                  return (
+                    <button
+                      key={t.id}
+                      disabled={disabled || fragment.isPending}
+                      onClick={() => fragment.mutate(t)}
+                      className="lrf flex w-full items-center justify-between p-4 text-left transition-all active:scale-[0.99] disabled:opacity-40"
+                    >
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-eco">{t.label}</span>
+                          {t.badge && <span className="rounded-full bg-eco/20 px-2 py-0.5 font-mono text-[9px] text-eco">{t.badge}</span>}
+                        </div>
+                        <p className="mt-1 text-base font-semibold tabular">+{t.pending} fFLOW</p>
                       </div>
-                      <p className="mt-1 text-base font-semibold tabular">+{t.pending} fFLOW</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Комиссия</p>
-                      <p className="mt-1 text-sm font-medium tabular">{fmtUZS(t.cost)}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                      <div className="relative z-10 text-right">
+                        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Комиссия</p>
+                        <p className="mt-1 text-sm font-medium tabular">{fmtUZS(t.cost)}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
 
-            <p className="mt-4 text-center text-[11px] text-muted-foreground">
-              Комиссия списывается в rFLOW. Active fFLOW тратится на донаты, курсы и кастомизацию.
-            </p>
+              <p className="mt-4 text-center text-[11px] text-muted-foreground">
+                Комиссия списывается в rFLOW. Active fFLOW тратится на донаты, курсы и кастомизацию.
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -266,15 +275,17 @@ function WalletPage() {
 }
 
 function TokenCard({ label, value, accent }: { label: string; value: number; accent: "fflow" | "pending" }) {
-  const colorCls = accent === "fflow" ? "bg-eco" : "bg-warning";
+  const dotCls = accent === "fflow" ? "bg-eco emissive-eco" : "bg-warning";
   const textCls = accent === "fflow" ? "text-eco" : "text-warning";
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-center gap-2">
-        <div className={`size-1.5 rounded-full ${colorCls}`} />
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label} · fFLOW</span>
+    <div className="lrf relative p-4">
+      <div className="relative z-10">
+        <div className="flex items-center gap-2">
+          <div className={`size-1.5 rounded-full ${dotCls}`} />
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label} · fFLOW</span>
+        </div>
+        <p className={`mt-3 text-2xl font-bold tabular ${textCls}`}>{fmt(value)}</p>
       </div>
-      <p className={`mt-3 text-2xl font-bold tabular ${textCls}`}>{fmt(value)}</p>
     </div>
   );
 }
@@ -290,8 +301,8 @@ function TxRow({ tx }: { tx: Tx }) {
       : `${tx.fflow_pending_delta > 0 ? "+" : ""}${fmt(tx.fflow_pending_delta)} pending`;
   const date = new Date(tx.created_at).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
   return (
-    <li className="flex items-center gap-3 rounded-2xl px-2 py-3 hover:bg-surface/50">
-      <div className={`grid size-10 place-items-center rounded-xl ${positive ? "bg-success/15 text-success" : "bg-surface text-muted-foreground"}`}>
+    <li className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03]">
+      <div className={`grid size-10 place-items-center rounded-2xl ${positive ? "bg-success/15 text-success emissive-eco" : "bg-white/5 text-muted-foreground"}`}>
         <Icon className="size-4" />
       </div>
       <div className="min-w-0 flex-1">

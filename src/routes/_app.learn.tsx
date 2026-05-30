@@ -113,50 +113,52 @@ function LearnPage() {
         <h1 className="mt-1 text-2xl font-bold tracking-tight">Финансовая грамотность</h1>
       </div>
 
-      {/* Daily quiz */}
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-surface p-5">
-        <div className="absolute -right-10 -top-10 size-32 rounded-full bg-eco/20 blur-3xl" />
-        <div className="flex items-center gap-2">
-          <Brain className="size-4 text-eco" />
-          <p className="font-mono text-[10px] uppercase tracking-widest text-eco">Daily Quiz · +{quiz?.reward ?? 20} pending</p>
+      {/* Daily quiz — LRF lens */}
+      <div className="lrf lrf-thick relative p-5">
+        <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-eco/30 blur-3xl" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2">
+            <Brain className="size-4 text-eco" />
+            <p className="font-mono text-[10px] uppercase tracking-widest text-eco">Daily Quiz · +{quiz?.reward ?? 20} pending</p>
+          </div>
+
+          {quiz ? (
+            <>
+              <p className="mt-3 text-base font-semibold leading-snug text-balance">{quiz.question}</p>
+
+              <div className="mt-4 space-y-2">
+                {quiz.options.map((opt, i) => {
+                  const isPicked = answered === i;
+                  const isCorrect = done && i === quiz.correct_index;
+                  const isWrong = done && isPicked && !isCorrect;
+                  return (
+                    <button
+                      key={i}
+                      disabled={done || submit.isPending}
+                      onClick={() => { setPicked(i); submit.mutate(i); }}
+                      className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm transition-all
+                        ${isCorrect ? "border-success/60 bg-success/15 emissive-eco" : ""}
+                        ${isWrong ? "border-destructive/60 bg-destructive/15 emissive-rose" : ""}
+                        ${!done ? "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-eco/40" : ""}
+                        disabled:cursor-not-allowed`}
+                    >
+                      <span>{opt}</span>
+                      {isCorrect && <Check className="size-4 text-success" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {done && (
+                <p className="mt-3 text-center text-xs text-muted-foreground">
+                  Возвращайтесь завтра за новым вопросом.
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">Квиз скоро появится.</p>
+          )}
         </div>
-
-        {quiz ? (
-          <>
-            <p className="mt-3 text-base font-semibold leading-snug text-balance">{quiz.question}</p>
-
-            <div className="mt-4 space-y-2">
-              {quiz.options.map((opt, i) => {
-                const isPicked = answered === i;
-                const isCorrect = done && i === quiz.correct_index;
-                const isWrong = done && isPicked && !isCorrect;
-                return (
-                  <button
-                    key={i}
-                    disabled={done || submit.isPending}
-                    onClick={() => { setPicked(i); submit.mutate(i); }}
-                    className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition-all
-                      ${isCorrect ? "border-success/60 bg-success/10" : ""}
-                      ${isWrong ? "border-destructive/60 bg-destructive/10" : ""}
-                      ${!done ? "border-border bg-surface-2 hover:border-eco/50" : ""}
-                      disabled:cursor-not-allowed`}
-                  >
-                    <span>{opt}</span>
-                    {isCorrect && <Check className="size-4 text-success" />}
-                  </button>
-                );
-              })}
-            </div>
-
-            {done && (
-              <p className="mt-3 text-center text-xs text-muted-foreground">
-                Возвращайтесь завтра за новым вопросом.
-              </p>
-            )}
-          </>
-        ) : (
-          <p className="mt-3 text-sm text-muted-foreground">Квиз скоро появится.</p>
-        )}
       </div>
 
       {/* Courses */}
@@ -167,12 +169,12 @@ function LearnPage() {
         </div>
         <ul className="space-y-2">
           {courses.map((c) => (
-            <li key={c.title} className="flex items-center justify-between rounded-2xl border border-border bg-surface p-4">
-              <div className="min-w-0">
+            <li key={c.title} className="lrf flex items-center justify-between p-4">
+              <div className="relative z-10 min-w-0">
                 <p className="truncate text-sm font-semibold">{c.title}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{c.lessons} уроков · 100% сжигается</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="relative z-10 flex items-center gap-2">
                 <span className="font-mono text-sm font-semibold tabular text-eco">{c.price} fFLOW</span>
                 {c.locked ? <Lock className="size-4 text-muted-foreground" /> : <Sparkles className="size-4 text-eco" />}
               </div>

@@ -53,16 +53,12 @@ function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-background grain">
-      {/* Aurora */}
-      <div className="pointer-events-none absolute -top-32 left-1/2 size-[480px] -translate-x-1/2 rounded-full bg-eco/20 blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 size-[320px] rounded-full bg-fiat/15 blur-[100px]" />
-
+    <div className="relative min-h-svh overflow-hidden">
       <div className="relative mx-auto flex min-h-svh max-w-md flex-col px-6 pb-10 pt-16">
         <div className="mb-12 flex items-center gap-2">
-          <div className="size-7 rounded-md bg-foreground" />
-          <span className="text-lg font-bold tracking-tight">FLOW</span>
-          <span className="ml-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">v0.2</span>
+          <div className="size-7 rounded-xl bg-gradient-to-br from-eco to-fiat emissive-eco" />
+          <span className="text-lg font-bold tracking-tight chromatic">FLOW</span>
+          <span className="ml-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">FLDS 3.0</span>
         </div>
 
         <h1 className="text-3xl font-bold tracking-tight text-balance">
@@ -74,39 +70,41 @@ function AuthPage() {
             : "Получите 500 000 rFLOW на старт и доступ к экосистеме."}
         </p>
 
-        <form onSubmit={submit} className="mt-10 space-y-3">
-          {mode === "signup" && (
+        <form onSubmit={submit} className="lrf lrf-thick mt-10 p-5">
+          <div className="relative z-10 space-y-3">
+            {mode === "signup" && (
+              <Field
+                label="Имя"
+                value={displayName}
+                onChange={setDisplayName}
+                placeholder="Как вас называть"
+              />
+            )}
             <Field
-              label="Имя"
-              value={displayName}
-              onChange={setDisplayName}
-              placeholder="Как вас называть"
+              label="Email"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="you@flow.network"
+              required
             />
-          )}
-          <Field
-            label="Email"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            placeholder="you@flow.network"
-            required
-          />
-          <Field
-            label="Пароль"
-            type="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="Минимум 6 символов"
-            required
-          />
+            <Field
+              label="Пароль"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Минимум 6 символов"
+              required
+            />
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-foreground text-sm font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {busy ? "..." : mode === "signin" ? "Войти" : "Создать аккаунт"}
-          </button>
+            <button
+              type="submit"
+              disabled={busy}
+              className="mercury mt-6 flex h-12 w-full items-center justify-center rounded-2xl text-sm font-semibold disabled:opacity-50"
+            >
+              {busy ? "..." : mode === "signin" ? "Войти" : "Создать аккаунт"}
+            </button>
+          </div>
         </form>
 
         <button
@@ -121,7 +119,7 @@ function AuthPage() {
         </button>
 
         <div className="mt-auto pt-12 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          FLOW NETWORK · 2026
+          FLOW NETWORK · 2026 · Spatial Glass
         </div>
       </div>
     </div>
@@ -147,7 +145,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm outline-none placeholder:text-muted-foreground/60 focus:border-eco/60 focus:ring-2 focus:ring-eco/20"
+        className="h-12 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm outline-none placeholder:text-muted-foreground/60 focus:border-eco/60 focus:ring-2 focus:ring-eco/30"
       />
     </label>
   );

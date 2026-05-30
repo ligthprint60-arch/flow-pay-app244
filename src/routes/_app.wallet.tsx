@@ -301,8 +301,8 @@ function TxRow({ tx }: { tx: Tx }) {
       : `${tx.fflow_pending_delta > 0 ? "+" : ""}${fmt(tx.fflow_pending_delta)} pending`;
   const date = new Date(tx.created_at).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
   return (
-    <li className="flex items-center gap-3 rounded-2xl px-2 py-3 hover:bg-surface/50">
-      <div className={`grid size-10 place-items-center rounded-xl ${positive ? "bg-success/15 text-success" : "bg-surface text-muted-foreground"}`}>
+    <li className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03]">
+      <div className={`grid size-10 place-items-center rounded-2xl ${positive ? "bg-success/15 text-success emissive-eco" : "bg-white/5 text-muted-foreground"}`}>
         <Icon className="size-4" />
       </div>
       <div className="min-w-0 flex-1">

@@ -72,8 +72,8 @@ function ProfilePage() {
       </div>
 
       {/* Balance summary */}
-      <div className="lrf mt-3 grid grid-cols-3 gap-2 p-4">
-        <div className="relative z-10 contents">
+      <div className="lrf mt-3 p-4">
+        <div className="relative z-10 grid grid-cols-3 gap-2">
           <Stat label="rFLOW" value={fmt(wallet?.rflow_balance ?? 0)} accent="fiat" />
           <Stat label="Active" value={fmt(wallet?.fflow_active ?? 0)} accent="eco" />
           <Stat label="Pending" value={fmt(wallet?.fflow_pending ?? 0)} accent="warning" />

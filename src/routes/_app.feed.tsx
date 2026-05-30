@@ -73,27 +73,29 @@ function FeedPage() {
       </div>
 
       {profile?.is_author ? (
-        <div className="mb-6 rounded-2xl border border-border bg-surface p-4">
-          <textarea
-            value={composer}
-            onChange={(e) => setComposer(e.target.value)}
-            rows={3}
-            placeholder="Поделитесь финансовой мыслью…"
-            className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
-          />
-          <div className="mt-2 flex items-center justify-between">
-            <span className="font-mono text-[10px] text-muted-foreground">{composer.length}/500</span>
-            <button
-              onClick={() => createPost.mutate()}
-              disabled={!composer.trim() || createPost.isPending}
-              className="h-9 rounded-full bg-foreground px-4 text-sm font-semibold text-background disabled:opacity-40"
-            >
-              Опубликовать
-            </button>
+        <div className="lrf mb-6 p-4">
+          <div className="relative z-10">
+            <textarea
+              value={composer}
+              onChange={(e) => setComposer(e.target.value)}
+              rows={3}
+              placeholder="Поделитесь финансовой мыслью…"
+              className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+            />
+            <div className="mt-2 flex items-center justify-between">
+              <span className="font-mono text-[10px] text-muted-foreground">{composer.length}/500</span>
+              <button
+                onClick={() => createPost.mutate()}
+                disabled={!composer.trim() || createPost.isPending}
+                className="mercury h-9 rounded-full px-4 text-sm font-semibold disabled:opacity-40"
+              >
+                Опубликовать
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-dashed border-border p-4">
+        <div className="acrylic mb-6 flex items-start gap-3 p-4">
           <Sparkles className="mt-0.5 size-4 shrink-0 text-eco" />
           <div className="text-xs text-muted-foreground">
             Только верифицированные авторы могут публиковать.{" "}
@@ -119,9 +121,9 @@ function PostCard({ post }: { post: Post }) {
   const ago = timeAgo(post.created_at);
   const initials = (post.author?.display_name ?? "??").slice(0, 2).toUpperCase();
   return (
-    <li className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-start gap-3">
-        <div className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-eco/30 to-fiat/30 font-mono text-[10px] font-semibold">
+    <li className="lrf p-4">
+      <div className="relative z-10 flex items-start gap-3">
+        <div className="grid size-10 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/40 font-mono text-[11px] font-semibold emissive-eco">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
@@ -149,7 +151,7 @@ function PostCard({ post }: { post: Post }) {
 
 function Empty() {
   return (
-    <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+    <div className="acrylic p-10 text-center">
       <p className="text-sm text-muted-foreground">Лента пока пуста.</p>
       <p className="mt-1 text-xs text-muted-foreground">Станьте автором — расскажите комьюнити о финансах.</p>
     </div>
@@ -160,7 +162,7 @@ function SkeletonFeed() {
   return (
     <div className="space-y-3">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-24 animate-pulse rounded-2xl border border-border bg-surface/60" />
+        <div key={i} className="h-24 animate-pulse rounded-3xl bg-white/[0.04]" />
       ))}
     </div>
   );

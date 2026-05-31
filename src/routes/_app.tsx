@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
+import { ThemeApplier } from "@/lib/theme";
 import { Wallet, Newspaper, GraduationCap, User as UserIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_app")({
@@ -33,12 +34,12 @@ function AppLayout() {
 
   return (
     <div className="relative min-h-svh">
+      <ThemeApplier />
       <main className="relative z-10 mx-auto max-w-md pb-32">
         <Outlet />
       </main>
 
-      {/* Floating glass nav dock (Fluid Navigation) */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(env(safe-area-inset-bottom),14px)] pt-2 pointer-events-none">
+      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(env(safe-area-inset-bottom),14px)] pt-2">
         <div className="lrf lrf-thick pointer-events-auto mx-4 flex w-[min(100%,420px)] items-stretch justify-around px-2 py-2">
           {tabs.map((t) => {
             const active = pathname === t.to || pathname.startsWith(t.to + "/");
@@ -47,10 +48,10 @@ function AppLayout() {
               <Link
                 key={t.to}
                 to={t.to}
-                className="group relative z-10 flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition-all"
+                className="lrf-tap group relative z-10 flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition-all"
               >
                 {active && (
-                  <span className="absolute inset-1 rounded-2xl bg-gradient-to-br from-eco/30 to-fiat/20 emissive-eco" />
+                  <span className="absolute inset-1 rounded-2xl bg-gradient-to-br from-eco/35 to-fiat/20 emissive-eco" />
                 )}
                 <Icon
                   className={`relative size-[22px] transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}

@@ -44,51 +44,54 @@
 :root {
   --radius: 1.25rem;
 
-  /* FLDS 3.0 — Neutral Dark */
-  --background: #0E1117;
-  --foreground: #F8FAFC;
+  --background: #0A0E14;
+  --foreground: #F5F7FA;
 
-  --surface: rgba(23, 28, 36, 0.55);
-  --surface-2: rgba(33, 39, 52, 0.7);
+  --surface: rgba(20, 26, 36, 0.55);
+  --surface-2: rgba(30, 38, 52, 0.7);
 
-  --card: rgba(23, 28, 36, 0.55);
-  --card-foreground: #F8FAFC;
-  --popover: rgba(23, 28, 36, 0.85);
-  --popover-foreground: #F8FAFC;
+  --card: rgba(20, 26, 36, 0.55);
+  --card-foreground: #F5F7FA;
+  --popover: rgba(20, 26, 36, 0.85);
+  --popover-foreground: #F5F7FA;
 
-  --primary: #F8FAFC;
-  --primary-foreground: #0E1117;
+  --primary: #F5F7FA;
+  --primary-foreground: #0A0E14;
 
   --secondary: rgba(50, 58, 73, 0.6);
-  --secondary-foreground: #F8FAFC;
+  --secondary-foreground: #F5F7FA;
 
   --muted: rgba(50, 58, 73, 0.35);
   --muted-foreground: #94A3B8;
 
   --accent: rgba(50, 58, 73, 0.6);
-  --accent-foreground: #F8FAFC;
+  --accent-foreground: #F5F7FA;
 
   --destructive: #F43F5E;
-  --destructive-foreground: #F8FAFC;
+  --destructive-foreground: #F5F7FA;
 
   --border: rgba(255, 255, 255, 0.10);
   --input: rgba(255, 255, 255, 0.14);
   --ring: #2563EB;
 
-  /* Dynamic Emissive Engine */
-  --fiat: #2563EB;          /* rFLOW — Ocean Blue */
-  --eco: #10B981;           /* fFLOW — Emerald */
+  /* Dynamic Emissive Engine — overridable per accent theme */
+  --fiat: #2563EB;
+  --eco: #10B981;
   --eco-glow: rgba(16, 185, 129, 0.45);
   --rose: #F43F5E;
 
   --success: #10B981;
   --warning: #F59E0B;
+
+  /* Glass tuning vars */
+  --glass-blur: 32px;
+  --glass-sat: 200%;
+  --glass-tint: rgba(255, 255, 255, 0.06);
+  --glass-edge: rgba(255, 255, 255, 0.22);
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
-  }
+  * { border-color: var(--color-border); }
   html, body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -97,20 +100,20 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    background-color: #0E1117;
+    background-color: #0A0E14;
     background-image:
-      radial-gradient(60% 50% at 12% 8%, rgba(37, 99, 235, 0.35), transparent 70%),
-      radial-gradient(55% 45% at 88% 22%, rgba(16, 185, 129, 0.30), transparent 72%),
-      radial-gradient(70% 60% at 50% 100%, rgba(244, 63, 94, 0.22), transparent 70%),
-      radial-gradient(40% 30% at 90% 90%, rgba(37, 99, 235, 0.18), transparent 75%);
+      radial-gradient(58% 50% at 8% 6%, color-mix(in oklab, var(--fiat) 38%, transparent), transparent 70%),
+      radial-gradient(55% 45% at 92% 18%, color-mix(in oklab, var(--eco) 32%, transparent), transparent 72%),
+      radial-gradient(70% 60% at 50% 102%, rgba(244, 63, 94, 0.18), transparent 70%),
+      radial-gradient(40% 30% at 90% 90%, color-mix(in oklab, var(--fiat) 20%, transparent), transparent 75%);
     background-attachment: fixed;
   }
   body::before {
     content: "";
     position: fixed; inset: -10%;
     background:
-      radial-gradient(circle at 30% 40%, rgba(255,255,255,0.04) 0 1px, transparent 1.5px),
-      radial-gradient(circle at 70% 60%, rgba(255,255,255,0.03) 0 1px, transparent 1.5px);
+      radial-gradient(circle at 30% 40%, rgba(255,255,255,0.05) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,0.035) 0 1px, transparent 1.5px);
     background-size: 28px 28px, 36px 36px;
     pointer-events: none;
     z-index: 0;
@@ -123,135 +126,177 @@
   0%   { background-position: 0 0, 0 0; transform: translate3d(0,0,0); }
   100% { background-position: 60px 40px, -40px 80px; transform: translate3d(0,-12px,0); }
 }
-
 @keyframes liquid-float {
   0%, 100% { transform: translate3d(0,0,0) scale(1); }
   50%      { transform: translate3d(8px,-14px,0) scale(1.03); }
 }
-
 @keyframes lrf-settle {
-  0%   { transform: scale(0.97); }
-  60%  { transform: scale(1.012); }
-  100% { transform: scale(1); }
+  0%   { transform: scale(0.97); opacity: 0; }
+  60%  { transform: scale(1.012); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
-
 @keyframes shimmer {
   0%   { background-position: -160% 0; }
   100% { background-position: 260% 0; }
 }
+@keyframes specular-drift {
+  0%, 100% { transform: translate3d(0,0,0); }
+  50%      { transform: translate3d(20px, 10px, 0); }
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 var(--eco-glow); }
+  100% { box-shadow: 0 0 0 14px transparent; }
+}
 
 @layer utilities {
   .font-mono { font-family: var(--font-mono); }
-  .tabular { font-variant-numeric: tabular-nums; }
+  .tabular  { font-variant-numeric: tabular-nums; }
 
-  /* === LRF (Liquid Refraction Flow) — main glass lens === */
+  /* === LRF (Liquid Refraction Flow) — Luminous 3D Water Glass === */
   .lrf {
     position: relative;
-    background: linear-gradient(
-      140deg,
-      rgba(255,255,255,0.10) 0%,
-      rgba(255,255,255,0.04) 38%,
-      rgba(255,255,255,0.02) 62%,
-      rgba(255,255,255,0.08) 100%
-    );
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.14);
+    isolation: isolate;
+    background:
+      linear-gradient(140deg,
+        rgba(255,255,255,0.14) 0%,
+        rgba(255,255,255,0.05) 30%,
+        rgba(255,255,255,0.02) 62%,
+        rgba(255,255,255,0.10) 100%),
+      var(--glass-tint);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    border: 1px solid var(--glass-edge);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.22),
-      inset 0 -1px 0 rgba(0,0,0,0.25),
-      0 18px 48px -16px rgba(0,0,0,0.55),
-      0 2px 0 rgba(255,255,255,0.04);
+      inset 0 1px 0 rgba(255,255,255,0.28),
+      inset 0 -1px 0 rgba(0,0,0,0.28),
+      inset 1px 0 0 rgba(255,255,255,0.06),
+      inset -1px 0 0 rgba(0,0,0,0.18),
+      0 22px 60px -18px rgba(0,0,0,0.65),
+      0 2px 0 rgba(255,255,255,0.05);
     border-radius: 28px;
     overflow: hidden;
     will-change: transform;
-    animation: lrf-settle 0.6s ease-out;
+    animation: lrf-settle 0.6s cubic-bezier(.2,.9,.2,1.05);
   }
+  /* Specular highlight (Layer 3) */
   .lrf::before {
-    /* Layer 3 — specular highlight */
     content: "";
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(120% 60% at 20% -10%, rgba(255,255,255,0.35), transparent 55%),
-      radial-gradient(80% 50% at 110% 110%, rgba(37,99,235,0.18), transparent 60%);
+      radial-gradient(140% 70% at 18% -18%, rgba(255,255,255,0.45), transparent 55%),
+      radial-gradient(80% 50% at 110% 110%, color-mix(in oklab, var(--fiat) 22%, transparent), transparent 60%),
+      radial-gradient(60% 40% at 50% 0%,    rgba(255,255,255,0.10), transparent 70%);
     pointer-events: none;
     mix-blend-mode: screen;
+    z-index: 0;
+    animation: specular-drift 18s ease-in-out infinite alternate;
   }
+  /* Refraction noise (Layer 2) */
   .lrf::after {
-    /* Layer 2 — liquid wave refraction simulacrum */
     content: "";
     position: absolute;
     inset: -2px;
     background:
-      repeating-radial-gradient(circle at 30% 40%, rgba(255,255,255,0.04) 0 2px, transparent 2px 14px),
+      repeating-radial-gradient(circle at 30% 40%, rgba(255,255,255,0.045) 0 2px, transparent 2px 14px),
       repeating-radial-gradient(circle at 70% 70%, rgba(255,255,255,0.03) 0 2px, transparent 2px 18px);
     mix-blend-mode: overlay;
     pointer-events: none;
     animation: liquid-float 14s ease-in-out infinite;
+    z-index: 0;
   }
+  .lrf > * { position: relative; z-index: 1; }
+
   .lrf-thick {
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.28),
-      inset 0 -1px 0 rgba(0,0,0,0.32),
-      0 28px 64px -18px rgba(0,0,0,0.6),
-      0 2px 0 rgba(255,255,255,0.06);
+      inset 0 1px 0 rgba(255,255,255,0.34),
+      inset 0 -1px 0 rgba(0,0,0,0.35),
+      inset 1px 0 0 rgba(255,255,255,0.08),
+      inset -1px 0 0 rgba(0,0,0,0.22),
+      0 32px 72px -18px rgba(0,0,0,0.7),
+      0 2px 0 rgba(255,255,255,0.07);
   }
 
-  /* === Acrylic — semi-frosted panel === */
+  /* Tap response — chromatic pulse */
+  .lrf-tap:active { transform: scale(0.985); }
+
+  /* Acrylic — secondary frosted surface */
   .acrylic {
-    background: rgba(23, 28, 36, 0.55);
+    background: rgba(20, 26, 36, 0.55);
     backdrop-filter: blur(22px) saturate(160%);
     -webkit-backdrop-filter: blur(22px) saturate(160%);
     border: 1px solid rgba(255,255,255,0.10);
     border-radius: 24px;
   }
-
-  /* Opaque surface for second-tier content */
   .opaque {
-    background: #171C24;
+    background: #141A24;
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 20px;
   }
 
-  /* Emissive accent — chromatic dispersion ring */
-  .emissive-blue   { box-shadow: 0 0 0 1px rgba(37,99,235,0.35), 0 8px 32px -6px rgba(37,99,235,0.45); }
-  .emissive-eco    { box-shadow: 0 0 0 1px rgba(16,185,129,0.35), 0 8px 32px -6px rgba(16,185,129,0.45); }
-  .emissive-rose   { box-shadow: 0 0 0 1px rgba(244,63,94,0.35), 0 8px 32px -6px rgba(244,63,94,0.45); }
+  .emissive-blue { box-shadow: 0 0 0 1px rgba(37,99,235,0.35), 0 8px 32px -6px rgba(37,99,235,0.45); }
+  .emissive-eco  { box-shadow: 0 0 0 1px color-mix(in oklab, var(--eco) 40%, transparent), 0 8px 32px -6px var(--eco-glow); }
+  .emissive-rose { box-shadow: 0 0 0 1px rgba(244,63,94,0.35), 0 8px 32px -6px rgba(244,63,94,0.45); }
 
-  /* Chromatic aberration — text */
   .chromatic {
     text-shadow:
       -0.5px 0 rgba(244,63,94,0.55),
-      0.5px 0 rgba(37,99,235,0.55);
+      0.5px 0 color-mix(in oklab, var(--fiat) 60%, transparent);
   }
 
-  /* Mercury button: solid liquid metal */
   .mercury {
     background: linear-gradient(160deg, #F8FAFC 0%, #CBD5E1 45%, #E2E8F0 65%, #94A3B8 100%);
-    color: #0E1117;
-    border: 1px solid rgba(255,255,255,0.5);
+    color: #0A0E14;
+    border: 1px solid rgba(255,255,255,0.55);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.8),
-      inset 0 -2px 0 rgba(0,0,0,0.18),
-      0 12px 28px -10px rgba(0,0,0,0.5);
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      inset 0 -2px 0 rgba(0,0,0,0.20),
+      0 14px 30px -10px rgba(0,0,0,0.55);
+    transition: filter .2s, transform .15s;
   }
-  .mercury:hover { filter: brightness(1.05); }
+  .mercury:hover  { filter: brightness(1.06); }
+  .mercury:active { transform: scale(0.985); }
 
   .shimmer-line {
-    background: linear-gradient(90deg,
-      transparent 0%,
-      rgba(255,255,255,0.45) 50%,
-      transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
     background-size: 200% 100%;
     animation: shimmer 3.2s ease-in-out infinite;
   }
 
-  .glow-eco { box-shadow: 0 0 28px -4px var(--eco-glow); }
+  .glow-eco  { box-shadow: 0 0 28px -4px var(--eco-glow); }
+  .pulse-eco { animation: pulse-ring 1.8s ease-out infinite; }
+
+  /* === Card skins for the main balance lens === */
+  .skin-default { }
+  .skin-aurora {
+    background:
+      linear-gradient(140deg, rgba(167,139,250,0.22), rgba(56,189,248,0.12) 50%, rgba(16,185,129,0.18)),
+      var(--glass-tint);
+  }
+  .skin-magma {
+    background:
+      linear-gradient(140deg, rgba(244,63,94,0.22), rgba(245,158,11,0.14) 60%, rgba(217,70,239,0.18)),
+      var(--glass-tint);
+  }
+  .skin-arctic {
+    background:
+      linear-gradient(140deg, rgba(186,230,253,0.22), rgba(255,255,255,0.05) 50%, rgba(59,130,246,0.18)),
+      var(--glass-tint);
+  }
+  .skin-noir {
+    background:
+      linear-gradient(140deg, rgba(255,255,255,0.10), rgba(0,0,0,0.4) 100%),
+      rgba(0,0,0,0.35);
+  }
+  .skin-gold {
+    background:
+      linear-gradient(140deg, rgba(250,204,21,0.28), rgba(180,83,9,0.16) 60%, rgba(120,53,15,0.22)),
+      var(--glass-tint);
+  }
 
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .lrf, .lrf::after, body::before { animation: none !important; }
-    .lrf { backdrop-filter: none; background: #171C24; }
+    .lrf, .lrf::after, .lrf::before, body::before { animation: none !important; }
+    .lrf { backdrop-filter: none; background: #141A24; }
   }
 }

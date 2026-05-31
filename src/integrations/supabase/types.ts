@@ -51,30 +51,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accent_theme: string
           avatar_url: string | null
           bio: string | null
+          card_skin: string
           created_at: string
           display_name: string
           id: string
           is_author: boolean
+          owned_accents: string[]
+          owned_skins: string[]
           username: string
         }
         Insert: {
+          accent_theme?: string
           avatar_url?: string | null
           bio?: string | null
+          card_skin?: string
           created_at?: string
           display_name: string
           id: string
           is_author?: boolean
+          owned_accents?: string[]
+          owned_skins?: string[]
           username: string
         }
         Update: {
+          accent_theme?: string
           avatar_url?: string | null
           bio?: string | null
+          card_skin?: string
           created_at?: string
           display_name?: string
           id?: string
           is_author?: boolean
+          owned_accents?: string[]
+          owned_skins?: string[]
           username?: string
         }
         Relationships: []
@@ -209,7 +221,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      app_p2p_transfer: {
+        Args: { amount: number; memo?: string; recipient_username: string }
+        Returns: Json
+      }
+      app_purchase_customization: {
+        Args: { cost: number; item_id: string; item_type: string }
+        Returns: Json
+      }
     }
     Enums: {
       tx_type:

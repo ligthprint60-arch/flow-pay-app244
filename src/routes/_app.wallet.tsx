@@ -23,11 +23,12 @@ type Tx = {
   counterparty: string | null; note: string | null; created_at: string;
 };
 
-const FRAGMENT_TIERS = [
+type Tier = { id: string; pending: number; cost: number; label: string; badge?: string };
+const FRAGMENT_TIERS: Tier[] = [
   { id: "x1", pending: 100, cost: 1000, label: "Mode ×1" },
   { id: "x2", pending: 200, cost: 1800, label: "Mode ×2", badge: "−10%" },
   { id: "x5", pending: 500, cost: 4000, label: "Mode ×5", badge: "−20%" },
-] as const;
+];
 
 type Sheet = null | "fragment" | "p2p" | "topup";
 
@@ -244,7 +245,7 @@ function SheetShell({ children, onClose, title, badge }: { children: React.React
 function FragmentSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onClose: () => void; onDone: () => void }) {
   const { user } = useAuth();
   const m = useMutation({
-    mutationFn: async (tier: typeof FRAGMENT_TIERS[number]) => {
+    mutationFn: async (tier: Tier) => {
       if (!wallet) throw new Error("Кошелёк не загружен");
       if (wallet.fflow_pending < tier.pending) throw new Error("Недостаточно pending fFLOW");
       if (wallet.rflow_balance < tier.cost) throw new Error("Недостаточно rFLOW для комиссии");
@@ -314,7 +315,7 @@ function P2PSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onC
       if (!Number.isFinite(amt) || amt <= 0) throw new Error("Сумма должна быть > 0");
       if (wallet && amt > wallet.rflow_balance) throw new Error("Недостаточно rFLOW");
       const { data, error } = await supabase.rpc("app_p2p_transfer", {
-        recipient_username: u, amount: amt, memo: memo.trim() || null,
+        recipient_username: u, amount: amt, memo: memo.trim() || undefined,
       });
       if (error) {
         const map: Record<string, string> = {

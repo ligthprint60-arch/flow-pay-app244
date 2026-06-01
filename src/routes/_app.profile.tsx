@@ -8,7 +8,8 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { fmt } from "@/lib/format";
 import { LogOut, BadgeCheck, Sparkles, Check, Palette, Layers, Shield, Ban } from "lucide-react";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+
+
 
 import { useQuery } from "@tanstack/react-query";
 

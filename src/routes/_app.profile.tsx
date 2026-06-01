@@ -92,13 +92,59 @@ function ProfilePage() {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <h2 className="truncate text-lg font-semibold">{profile?.display_name}</h2>
-              {profile?.is_author && <BadgeCheck className="size-4 text-eco" />}
+              <VerifiedBadge isVerified={profile?.is_verified} isAuthor={profile?.is_author} size={16} />
             </div>
             <p className="truncate text-sm text-muted-foreground">@{profile?.username}</p>
             <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
           </div>
         </div>
+        {profile?.is_blocked && (
+          <div className="mt-3 flex items-center gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+            <Ban className="size-4" />
+            Аккаунт ограничен модерацией. Переводы и публикации недоступны.
+          </div>
+        )}
       </div>
+
+      {isAdmin && (
+        <Link to="/admin" className="lrf lrf-tap mt-3 flex w-full items-center justify-between !rounded-3xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-2xl bg-fiat/20 emissive-blue">
+              <Shield className="size-5 text-fiat" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Admin Panel</p>
+              <p className="text-xs text-muted-foreground">Treasury, верификация, блокировки</p>
+            </div>
+          </div>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-fiat">root</span>
+        </Link>
+      )}
+
+      {/* Verification request — blue check */}
+      {!profile?.is_verified && (
+        <button
+          onClick={() => requestVerif.mutate()}
+          disabled={requestVerif.isPending || profile?.verification_requested}
+          className="lrf lrf-tap mt-3 flex w-full items-center justify-between !rounded-3xl p-4 text-left disabled:opacity-60"
+        >
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-2xl bg-fiat/20 emissive-blue">
+              <BadgeCheck className="size-5 text-fiat" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Синяя верификация</p>
+              <p className="text-xs text-muted-foreground">
+                {profile?.verification_requested ? "Заявка на рассмотрении" : "Для известных персон — подать заявку"}
+              </p>
+            </div>
+          </div>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-fiat">
+            {profile?.verification_requested ? "pending" : "apply"}
+          </span>
+        </button>
+      )}
+
 
       {/* Balances */}
       <div className="lrf mt-3 p-4">

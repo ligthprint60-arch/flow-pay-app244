@@ -108,29 +108,28 @@ function WalletPage() {
         </button>
       </div>
 
-      {/* Main balance lens */}
-      <div className={`lrf lrf-thick relative p-6 ${skinClass}`}>
-        <div className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full bg-fiat/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-12 -left-10 size-40 rounded-full bg-eco/20 blur-3xl" />
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Available Liquidity · rFLOW</p>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-[44px] font-bold leading-none tabular tracking-tight">{fmt(wallet?.rflow_balance ?? 0)}</span>
-            <span className="text-sm text-muted-foreground">UZS</span>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">≈ ${((wallet?.rflow_balance ?? 0) / 12500).toFixed(2)} USD</p>
-          <div className="mt-2 h-px overflow-hidden rounded-full">
-            <div className="h-full w-full shimmer-line" />
-          </div>
+      {/* Main balance lens — compact */}
+      <div className={`lrf lrf-thick relative p-5 ${skinClass}`}>
+        <div className="pointer-events-none absolute -right-8 -top-8 size-32 rounded-full bg-fiat/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 -left-8 size-28 rounded-full bg-eco/20 blur-3xl" />
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Available · rFLOW</p>
+        <div className="mt-1.5 flex items-baseline gap-2">
+          <span className="text-[36px] font-bold leading-none tabular tracking-tight">{fmt(wallet?.rflow_balance ?? 0)}</span>
+          <span className="text-xs text-muted-foreground">UZS</span>
+        </div>
+        <p className="mt-1 text-[11px] text-muted-foreground">≈ ${((wallet?.rflow_balance ?? 0) / 12500).toFixed(2)}</p>
+        <div className="mt-2 h-px overflow-hidden rounded-full">
+          <div className="h-full w-full shimmer-line" />
+        </div>
 
-          <div className="mt-6 grid grid-cols-4 gap-2">
-            <ActionBtn icon={QrCode} label="Pay" onClick={() => payQR.mutate()} loading={payQR.isPending} />
-            <ActionBtn icon={Send}     label="P2P"    onClick={() => setSheet("p2p")} />
-            <ActionBtn icon={Plus}     label="Top-up" onClick={() => setSheet("topup")} />
-            <ActionBtn icon={Zap}      label="Fragment" onClick={() => setSheet("fragment")} accent />
-          </div>
+        <div className="mt-4 grid grid-cols-4 gap-2">
+          <ActionBtn icon={QrCode} label="Pay" onClick={() => payQR.mutate()} loading={payQR.isPending} />
+          <ActionBtn icon={Send}     label="P2P"    onClick={() => setSheet("p2p")} />
+          <ActionBtn icon={Plus}     label="Top-up" onClick={() => setSheet("topup")} />
+          <ActionBtn icon={Zap}      label="Fragm." onClick={() => setSheet("fragment")} accent />
         </div>
       </div>
+
 
       {/* Dual token */}
       <div className="mt-3 grid grid-cols-2 gap-3">

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useProfile, ACCENTS, SKINS } from "@/lib/theme";
@@ -9,9 +9,6 @@ import { fmt } from "@/lib/format";
 import { LogOut, BadgeCheck, Sparkles, Check, Palette, Layers, Shield, Ban } from "lucide-react";
 import { toast } from "sonner";
 
-
-
-import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_app/profile")({
   head: () => ({ meta: [{ title: "Профиль — FLOW" }] }),

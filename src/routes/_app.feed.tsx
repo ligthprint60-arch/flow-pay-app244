@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { Heart, MessageCircle, Sparkles, BadgeCheck } from "lucide-react";
+import { Heart, MessageCircle, Sparkles } from "lucide-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -18,7 +20,7 @@ type Post = {
   topic: string | null;
   likes: number;
   created_at: string;
-  author: { username: string; display_name: string; is_author: boolean } | null;
+  author: { username: string; display_name: string; is_author: boolean; is_verified: boolean } | null;
 };
 
 function FeedPage() {
@@ -40,7 +42,7 @@ function FeedPage() {
     queryFn: async (): Promise<Post[]> => {
       const { data, error } = await supabase
         .from("posts")
-        .select("id,author_id,body,topic,likes,created_at,author:profiles!posts_author_id_fkey(username,display_name,is_author)")
+        .select("id,author_id,body,topic,likes,created_at,author:profiles!posts_author_id_fkey(username,display_name,is_author,is_verified)")
         .order("created_at", { ascending: false })
         .limit(30);
       if (error) throw error;
@@ -129,7 +131,7 @@ function PostCard({ post }: { post: Post }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-sm font-semibold">{post.author?.display_name ?? "Аноним"}</span>
-            {post.author?.is_author && <BadgeCheck className="size-3.5 text-eco" />}
+            {post.author && <VerifiedBadge isVerified={post.author.is_verified} isAuthor={post.author.is_author} />}
             <span className="truncate text-xs text-muted-foreground">@{post.author?.username}</span>
             <span className="text-muted-foreground">·</span>
             <span className="shrink-0 text-xs text-muted-foreground">{ago}</span>

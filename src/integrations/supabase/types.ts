@@ -59,9 +59,13 @@ export type Database = {
           display_name: string
           id: string
           is_author: boolean
+          is_blocked: boolean
+          is_verified: boolean
           owned_accents: string[]
           owned_skins: string[]
           username: string
+          verification_note: string | null
+          verification_requested: boolean
         }
         Insert: {
           accent_theme?: string
@@ -72,9 +76,13 @@ export type Database = {
           display_name: string
           id: string
           is_author?: boolean
+          is_blocked?: boolean
+          is_verified?: boolean
           owned_accents?: string[]
           owned_skins?: string[]
           username: string
+          verification_note?: string | null
+          verification_requested?: boolean
         }
         Update: {
           accent_theme?: string
@@ -85,9 +93,13 @@ export type Database = {
           display_name?: string
           id?: string
           is_author?: boolean
+          is_blocked?: boolean
+          is_verified?: boolean
           owned_accents?: string[]
           owned_skins?: string[]
           username?: string
+          verification_note?: string | null
+          verification_requested?: boolean
         }
         Relationships: []
       }
@@ -221,6 +233,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      app_admin_burn_fflow_global: { Args: { amount: number }; Returns: Json }
+      app_admin_list_users: {
+        Args: { only_pending?: boolean; search?: string }
+        Returns: {
+          display_name: string
+          fflow_active: number
+          fflow_pending: number
+          id: string
+          is_author: boolean
+          is_blocked: boolean
+          is_verified: boolean
+          rflow_balance: number
+          username: string
+          verification_note: string
+          verification_requested: boolean
+        }[]
+      }
+      app_admin_mint_fflow: {
+        Args: { amount: number; kind?: string; target_username: string }
+        Returns: Json
+      }
+      app_admin_set_flag: {
+        Args: { flag: string; target_username: string; value: boolean }
+        Returns: Json
+      }
+      app_admin_stats: { Args: never; Returns: Json }
       app_p2p_transfer: {
         Args: { amount: number; memo?: string; recipient_username: string }
         Returns: Json
@@ -229,6 +267,8 @@ export type Database = {
         Args: { cost: number; item_id: string; item_type: string }
         Returns: Json
       }
+      app_request_verification: { Args: { note?: string }; Returns: Json }
+      is_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       tx_type:

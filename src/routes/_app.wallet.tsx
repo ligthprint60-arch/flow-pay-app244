@@ -223,10 +223,10 @@ function SheetShell({ children, onClose, title, badge }: { children: React.React
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 backdrop-blur-md animate-in fade-in" onClick={onClose}>
       <div
-        className="lrf lrf-thick w-full max-w-md !rounded-t-[36px] !rounded-b-none p-6 pb-[max(env(safe-area-inset-bottom),24px)] animate-in slide-in-from-bottom"
+        className="lrf lrf-thick w-full max-w-md !rounded-t-[32px] !rounded-b-none p-5 pb-[max(env(safe-area-inset-bottom),20px)] animate-in slide-in-from-bottom"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-start justify-between">
+        <div className="mb-3 flex items-start justify-between">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-widest text-eco">{badge}</p>
             <h3 className="mt-1 text-xl font-bold">{title}</h3>
@@ -235,11 +235,14 @@ function SheetShell({ children, onClose, title, badge }: { children: React.React
             <X className="size-4" />
           </button>
         </div>
-        {children}
+        <div className="sheet-scroll -mx-1 px-1">
+          {children}
+        </div>
       </div>
     </div>
   );
 }
+
 
 function FragmentSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onClose: () => void; onDone: () => void }) {
   const { user } = useAuth();

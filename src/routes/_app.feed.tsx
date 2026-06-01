@@ -131,7 +131,7 @@ function PostCard({ post }: { post: Post }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-sm font-semibold">{post.author?.display_name ?? "Аноним"}</span>
-            {post.author?.is_author && <BadgeCheck className="size-3.5 text-eco" />}
+            {post.author && <VerifiedBadge isVerified={post.author.is_verified} isAuthor={post.author.is_author} />}
             <span className="truncate text-xs text-muted-foreground">@{post.author?.username}</span>
             <span className="text-muted-foreground">·</span>
             <span className="shrink-0 text-xs text-muted-foreground">{ago}</span>

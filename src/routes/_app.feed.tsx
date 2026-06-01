@@ -18,7 +18,7 @@ type Post = {
   topic: string | null;
   likes: number;
   created_at: string;
-  author: { username: string; display_name: string; is_author: boolean } | null;
+  author: { username: string; display_name: string; is_author: boolean; is_verified: boolean } | null;
 };
 
 function FeedPage() {

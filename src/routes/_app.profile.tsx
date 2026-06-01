@@ -20,6 +20,17 @@ function ProfilePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: profile } = useProfile();
+  const isAdmin = useIsAdmin();
+
+  const requestVerif = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc("app_request_verification", { note: "Прошу синюю верификацию" });
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => { toast.success("Заявка отправлена"); qc.invalidateQueries({ queryKey: ["profile"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const { data: wallet } = useQuery({
     queryKey: ["wallet", user?.id],

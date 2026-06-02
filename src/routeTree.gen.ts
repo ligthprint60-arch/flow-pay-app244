@@ -18,6 +18,7 @@ import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
 import { Route as AppChatsRouteImport } from './routes/_app.chats'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
 import { Route as AppChatsChatIdRouteImport } from './routes/_app.chats.$chatId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -64,6 +65,11 @@ const AppAdminRoute = AppAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSandboxUsernameRoute = AppSandboxUsernameRouteImport.update({
+  id: '/sandbox/$username',
+  path: '/sandbox/$username',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppChatsChatIdRoute = AppChatsChatIdRouteImport.update({
   id: '/$chatId',
   path: '/$chatId',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AppProfileRoute
   '/wallet': typeof AppWalletRoute
   '/chats/$chatId': typeof AppChatsChatIdRoute
+  '/sandbox/$username': typeof AppSandboxUsernameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AppProfileRoute
   '/wallet': typeof AppWalletRoute
   '/chats/$chatId': typeof AppChatsChatIdRoute
+  '/sandbox/$username': typeof AppSandboxUsernameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/_app/profile': typeof AppProfileRoute
   '/_app/wallet': typeof AppWalletRoute
   '/_app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/_app/sandbox/$username': typeof AppSandboxUsernameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/wallet'
     | '/chats/$chatId'
+    | '/sandbox/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/wallet'
     | '/chats/$chatId'
+    | '/sandbox/$username'
   id:
     | '__root__'
     | '/'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_app/profile'
     | '/_app/wallet'
     | '/_app/chats/$chatId'
+    | '/_app/sandbox/$username'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -213,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/sandbox/$username': {
+      id: '/_app/sandbox/$username'
+      path: '/sandbox/$username'
+      fullPath: '/sandbox/$username'
+      preLoaderRoute: typeof AppSandboxUsernameRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/chats/$chatId': {
       id: '/_app/chats/$chatId'
       path: '/$chatId'
@@ -242,6 +261,7 @@ interface AppRouteChildren {
   AppLearnRoute: typeof AppLearnRoute
   AppProfileRoute: typeof AppProfileRoute
   AppWalletRoute: typeof AppWalletRoute
+  AppSandboxUsernameRoute: typeof AppSandboxUsernameRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -251,6 +271,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLearnRoute: AppLearnRoute,
   AppProfileRoute: AppProfileRoute,
   AppWalletRoute: AppWalletRoute,
+  AppSandboxUsernameRoute: AppSandboxUsernameRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

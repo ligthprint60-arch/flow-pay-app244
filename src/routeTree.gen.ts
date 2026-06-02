@@ -16,6 +16,7 @@ import { Route as AppWalletRouteImport } from './routes/_app.wallet'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
+import { Route as AppChatsRouteImport } from './routes/_app.chats'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 
 const AuthRoute = AuthRouteImport.update({
@@ -52,6 +53,11 @@ const AppFeedRoute = AppFeedRouteImport.update({
   path: '/feed',
   getParentRoute: () => AppRoute,
 } as any)
+const AppChatsRoute = AppChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -62,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
+  '/chats': typeof AppChatsRoute
   '/feed': typeof AppFeedRoute
   '/learn': typeof AppLearnRoute
   '/profile': typeof AppProfileRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
+  '/chats': typeof AppChatsRoute
   '/feed': typeof AppFeedRoute
   '/learn': typeof AppLearnRoute
   '/profile': typeof AppProfileRoute
@@ -82,6 +90,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/_app/admin': typeof AppAdminRoute
+  '/_app/chats': typeof AppChatsRoute
   '/_app/feed': typeof AppFeedRoute
   '/_app/learn': typeof AppLearnRoute
   '/_app/profile': typeof AppProfileRoute
@@ -93,18 +102,28 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/chats'
     | '/feed'
     | '/learn'
     | '/profile'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/admin' | '/feed' | '/learn' | '/profile' | '/wallet'
+  to:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/chats'
+    | '/feed'
+    | '/learn'
+    | '/profile'
+    | '/wallet'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/auth'
     | '/_app/admin'
+    | '/_app/chats'
     | '/_app/feed'
     | '/_app/learn'
     | '/_app/profile'
@@ -168,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFeedRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/chats': {
+      id: '/_app/chats'
+      path: '/chats'
+      fullPath: '/chats'
+      preLoaderRoute: typeof AppChatsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin': {
       id: '/_app/admin'
       path: '/admin'
@@ -180,6 +206,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
+  AppChatsRoute: typeof AppChatsRoute
   AppFeedRoute: typeof AppFeedRoute
   AppLearnRoute: typeof AppLearnRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -188,6 +215,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
+  AppChatsRoute: AppChatsRoute,
   AppFeedRoute: AppFeedRoute,
   AppLearnRoute: AppLearnRoute,
   AppProfileRoute: AppProfileRoute,
@@ -204,3 +232,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

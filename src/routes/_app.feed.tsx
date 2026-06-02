@@ -90,18 +90,36 @@ function FeedPage() {
               value={composer}
               onChange={(e) => setComposer(e.target.value)}
               rows={3}
-              placeholder="Поделитесь финансовой мыслью…"
+              placeholder="Поделитесь мыслью… используйте :flow: :rocket:"
               className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
             />
+            <AnimatePresence>
+              {emojiOpen && availableEmojis.length > 0 && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                  className="mt-2 flex flex-wrap gap-1.5 overflow-hidden">
+                  {availableEmojis.map((e) => (
+                    <button key={e.id} type="button" onClick={() => setComposer((t) => t + `:${e.id}:`)}
+                      className="rounded-lg bg-white/[0.05] px-2 py-1 text-lg hover:bg-white/[0.12]">
+                      {e.char}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
             <div className="mt-2 flex items-center justify-between">
-              <span className="font-mono text-[10px] text-muted-foreground">{composer.length}/500</span>
-              <button
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setEmojiOpen((v) => !v)}
+                  className="grid size-8 place-items-center rounded-full bg-white/[0.05] text-muted-foreground hover:text-eco">
+                  <Smile className="size-4" />
+                </button>
+                <span className="font-mono text-[10px] text-muted-foreground">{composer.length}/500</span>
+              </div>
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => createPost.mutate()}
                 disabled={!composer.trim() || createPost.isPending}
-                className="mercury h-9 rounded-full px-4 text-sm font-semibold disabled:opacity-40"
-              >
+                className="mercury h-9 rounded-full px-4 text-sm font-semibold disabled:opacity-40">
                 Опубликовать
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -110,7 +128,7 @@ function FeedPage() {
           <Sparkles className="mt-0.5 size-4 shrink-0 text-eco" />
           <div className="text-xs text-muted-foreground">
             Только верифицированные авторы могут публиковать.{" "}
-            <span className="text-foreground">Подайте заявку в профиле</span> — модерация защищает ленту от скама.
+            <span className="text-foreground">Подайте заявку в профиле</span>.
           </div>
         </div>
       )}
@@ -121,14 +139,19 @@ function FeedPage() {
         <Empty />
       ) : (
         <ul className="space-y-3">
-          {posts.map((p) => <PostCard key={p.id} post={p} />)}
+          {posts.map((p, i) => (
+            <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}>
+              <PostCard post={p} onMessage={(u) => openChat.mutate(u)} />
+            </motion.div>
+          ))}
         </ul>
       )}
     </div>
   );
 }
 
-function PostCard({ post }: { post: Post }) {
+function PostCard({ post, onMessage }: { post: Post; onMessage: (u: string) => void }) {
   const ago = timeAgo(post.created_at);
   const initials = (post.author?.display_name ?? "??").slice(0, 2).toUpperCase();
   return (
@@ -145,13 +168,14 @@ function PostCard({ post }: { post: Post }) {
             <span className="text-muted-foreground">·</span>
             <span className="shrink-0 text-xs text-muted-foreground">{ago}</span>
           </div>
-          <p className="mt-2 whitespace-pre-wrap text-[14px] leading-relaxed">{post.body}</p>
+          <p className="mt-2 whitespace-pre-wrap text-[14px] leading-relaxed">{renderWithEmojis(post.body)}</p>
           <div className="mt-3 flex items-center gap-4 text-muted-foreground">
             <button className="flex items-center gap-1.5 text-xs hover:text-eco">
               <Heart className="size-3.5" /> {post.likes}
             </button>
-            <button className="flex items-center gap-1.5 text-xs hover:text-foreground">
-              <MessageCircle className="size-3.5" /> Ответить
+            <button onClick={() => post.author && onMessage(post.author.username)}
+              className="flex items-center gap-1.5 text-xs hover:text-foreground">
+              <MessageCircle className="size-3.5" /> Написать
             </button>
           </div>
         </div>

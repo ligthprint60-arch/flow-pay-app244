@@ -29,15 +29,21 @@ type Post = {
 function FeedPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [composer, setComposer] = useState("");
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const { data: profile } = useProfile();
+  const ownedEmojis = profile?.owned_emojis ?? [];
+  const availableEmojis = CUSTOM_EMOJIS.filter((e) => ownedEmojis.includes(e.id));
 
-  const { data: profile } = useQuery({
-    queryKey: ["profile", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("is_author,display_name,username").eq("id", user!.id).maybeSingle();
-      return data;
+  const openChat = useMutation({
+    mutationFn: async (username: string) => {
+      const { data, error } = await supabase.rpc("app_open_chat", { other_username: username });
+      if (error) throw new Error(error.message);
+      return data as { chat_id: string };
     },
+    onSuccess: (d) => navigate({ to: "/chats/$chatId", params: { chatId: d.chat_id } }),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const { data: posts, isLoading } = useQuery({

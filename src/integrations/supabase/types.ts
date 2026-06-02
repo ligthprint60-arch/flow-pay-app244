@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      chats: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          chat_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          chat_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          chat_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author_id: string
@@ -52,6 +108,7 @@ export type Database = {
       profiles: {
         Row: {
           accent_theme: string
+          audio_url: string | null
           avatar_url: string | null
           bio: string | null
           card_skin: string
@@ -62,13 +119,18 @@ export type Database = {
           is_blocked: boolean
           is_verified: boolean
           owned_accents: string[]
+          owned_emojis: string[]
           owned_skins: string[]
+          premium_until: string | null
+          sandbox_html: string | null
+          social_links: Json
           username: string
           verification_note: string | null
           verification_requested: boolean
         }
         Insert: {
           accent_theme?: string
+          audio_url?: string | null
           avatar_url?: string | null
           bio?: string | null
           card_skin?: string
@@ -79,13 +141,18 @@ export type Database = {
           is_blocked?: boolean
           is_verified?: boolean
           owned_accents?: string[]
+          owned_emojis?: string[]
           owned_skins?: string[]
+          premium_until?: string | null
+          sandbox_html?: string | null
+          social_links?: Json
           username: string
           verification_note?: string | null
           verification_requested?: boolean
         }
         Update: {
           accent_theme?: string
+          audio_url?: string | null
           avatar_url?: string | null
           bio?: string | null
           card_skin?: string
@@ -96,7 +163,11 @@ export type Database = {
           is_blocked?: boolean
           is_verified?: boolean
           owned_accents?: string[]
+          owned_emojis?: string[]
           owned_skins?: string[]
+          premium_until?: string | null
+          sandbox_html?: string | null
+          social_links?: Json
           username?: string
           verification_note?: string | null
           verification_requested?: boolean
@@ -259,6 +330,20 @@ export type Database = {
         Returns: Json
       }
       app_admin_stats: { Args: never; Returns: Json }
+      app_list_chats: {
+        Args: never
+        Returns: {
+          chat_id: string
+          last_body: string
+          last_message_at: string
+          other_display_name: string
+          other_id: string
+          other_is_author: boolean
+          other_is_verified: boolean
+          other_username: string
+        }[]
+      }
+      app_open_chat: { Args: { other_username: string }; Returns: Json }
       app_p2p_transfer: {
         Args: { amount: number; memo?: string; recipient_username: string }
         Returns: Json
@@ -267,7 +352,28 @@ export type Database = {
         Args: { cost: number; item_id: string; item_type: string }
         Returns: Json
       }
+      app_purchase_emoji: {
+        Args: { cost: number; currency?: string; emoji_id: string }
+        Returns: Json
+      }
       app_request_verification: { Args: { note?: string }; Returns: Json }
+      app_send_message: {
+        Args: { body: string; chat_id: string }
+        Returns: Json
+      }
+      app_subscribe_premium: {
+        Args: { currency: string; months: number }
+        Returns: Json
+      }
+      app_update_profile_extras: {
+        Args: {
+          p_audio_url?: string
+          p_bio?: string
+          p_sandbox_html?: string
+          p_social_links?: Json
+        }
+        Returns: Json
+      }
       is_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {

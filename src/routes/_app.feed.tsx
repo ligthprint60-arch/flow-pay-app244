@@ -1,9 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { Heart, MessageCircle, Sparkles } from "lucide-react";
+import { Heart, MessageCircle, Sparkles, Smile } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { motion, AnimatePresence } from "framer-motion";
+import { renderWithEmojis, CUSTOM_EMOJIS } from "@/lib/emoji";
+import { useProfile } from "@/lib/theme";
 
 import { useState } from "react";
 import { toast } from "sonner";

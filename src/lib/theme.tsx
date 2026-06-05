@@ -6,10 +6,10 @@ import { useEffect } from "react";
 export type AccentTheme = {
   id: string;
   name: string;
-  eco: string;       // hex
-  ecoGlow: string;   // rgba
+  eco: string;
+  ecoGlow: string;
   fiat: string;
-  price: number;     // active fFLOW
+  price: number;
 };
 
 export const ACCENTS: AccentTheme[] = [
@@ -21,12 +21,7 @@ export const ACCENTS: AccentTheme[] = [
   { id: "lime",    name: "Acid Lime",         eco: "#A3E635", ecoGlow: "rgba(163,230,53,0.45)",  fiat: "#65A30D", price: 80 },
 ];
 
-export type CardSkin = {
-  id: string;
-  name: string;
-  className: string;
-  price: number;
-};
+export type CardSkin = { id: string; name: string; className: string; price: number; };
 
 export const SKINS: CardSkin[] = [
   { id: "default", name: "Clear Glass",    className: "skin-default", price: 0   },
@@ -59,6 +54,21 @@ export function ThemeApplier() {
     root.style.setProperty("--fiat", accent.fiat);
     root.style.setProperty("--success", accent.eco);
   }, [profile?.accent_theme]);
+
+  // App background (user image)
+  useEffect(() => {
+    const bg = (profile as { app_background_url?: string | null } | null | undefined)?.app_background_url;
+    const el = document.getElementById("flow-app-bg");
+    if (!el) return;
+    if (bg) {
+      el.style.backgroundImage = `url("${bg}")`;
+      el.style.opacity = "0.55";
+    } else {
+      el.style.backgroundImage = "";
+      el.style.opacity = "0";
+    }
+  }, [(profile as { app_background_url?: string | null } | null | undefined)?.app_background_url]);
+
   return null;
 }
 

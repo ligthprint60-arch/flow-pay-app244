@@ -1,6 +1,8 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-// Catalog of custom emojis. `premium` = requires Flow Premium to use.
+// Catalog of built-in emojis. `premium` = requires Flow Premium to use.
 export const CUSTOM_EMOJIS: { id: string; char: string; price: number; premium: boolean; label: string }[] = [
   { id: "flow",     char: "💧", price: 40,  premium: false, label: "Flow drop" },
   { id: "coin",     char: "🪙", price: 50,  premium: false, label: "Coin" },
@@ -16,14 +18,52 @@ export const CUSTOM_EMOJIS: { id: string; char: string; price: number; premium: 
 
 const MAP = new Map(CUSTOM_EMOJIS.map((e) => [e.id, e]));
 
+export type CustomImageEmoji = { id: string; owner_id: string; shortcode: string; image_url: string };
+
+/** Globally fetched user-created image emojis (visible to everyone). */
+export function useImageEmojis() {
+  return useQuery({
+    queryKey: ["custom-emojis-global"],
+    queryFn: async (): Promise<CustomImageEmoji[]> => {
+      const { data } = await supabase.from("custom_emojis" as never)
+        .select("id,owner_id,shortcode,image_url")
+        .order("created_at", { ascending: false })
+        .limit(500);
+      return (data as CustomImageEmoji[] | null) ?? [];
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function buildImageEmojiMap(list: CustomImageEmoji[] | undefined) {
+  const m = new Map<string, CustomImageEmoji>();
+  (list ?? []).forEach((e) => { if (!m.has(e.shortcode)) m.set(e.shortcode, e); });
+  return m;
+}
+
 /**
- * Renders text replacing `:emoji_id:` with a glowing span (premium-styled if applicable).
+ * Renders text replacing `:emoji_id:` with built-in glyph or custom image.
  */
-export function renderWithEmojis(text: string): React.ReactNode {
-  const parts = text.split(/(:[a-z_]+:)/g);
+export function renderWithEmojis(
+  text: string,
+  imageMap?: Map<string, CustomImageEmoji>,
+): React.ReactNode {
+  const parts = text.split(/(:[a-z0-9_]+:)/g);
   return parts.map((part, i) => {
-    const m = part.match(/^:([a-z_]+):$/);
+    const m = part.match(/^:([a-z0-9_]+):$/);
     if (!m) return <React.Fragment key={i}>{part}</React.Fragment>;
+    const img = imageMap?.get(m[1]);
+    if (img) {
+      return (
+        <img
+          key={i}
+          src={img.image_url}
+          alt={`:${img.shortcode}:`}
+          className="inline-block align-[-4px] size-[1.35em] rounded-sm"
+          loading="lazy"
+        />
+      );
+    }
     const e = MAP.get(m[1]);
     if (!e) return <React.Fragment key={i}>{part}</React.Fragment>;
     return (

@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_settings: {
+        Row: {
+          background_url: string | null
+          chat_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_url?: string | null
+          chat_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_url?: string | null
+          chat_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_settings_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chats: {
         Row: {
           created_at: string
@@ -35,6 +64,30 @@ export type Database = {
           last_message_at?: string
           user_a?: string
           user_b?: string
+        }
+        Relationships: []
+      }
+      custom_emojis: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          owner_id: string
+          shortcode: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          owner_id: string
+          shortcode: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          owner_id?: string
+          shortcode?: string
         }
         Relationships: []
       }
@@ -69,6 +122,59 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_reads: {
+        Row: {
+          notification_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          notification_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          notification_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          title?: string
+        }
+        Relationships: []
       }
       posts: {
         Row: {
@@ -108,6 +214,7 @@ export type Database = {
       profiles: {
         Row: {
           accent_theme: string
+          app_background_url: string | null
           audio_url: string | null
           avatar_url: string | null
           bio: string | null
@@ -130,6 +237,7 @@ export type Database = {
         }
         Insert: {
           accent_theme?: string
+          app_background_url?: string | null
           audio_url?: string | null
           avatar_url?: string | null
           bio?: string | null
@@ -152,6 +260,7 @@ export type Database = {
         }
         Update: {
           accent_theme?: string
+          app_background_url?: string | null
           audio_url?: string | null
           avatar_url?: string | null
           bio?: string | null
@@ -304,6 +413,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      app_admin_broadcast: {
+        Args: { p_body: string; p_kind?: string; p_title: string }
+        Returns: Json
+      }
       app_admin_burn_fflow_global: { Args: { amount: number }; Returns: Json }
       app_admin_list_users: {
         Args: { only_pending?: boolean; search?: string }
@@ -330,6 +443,11 @@ export type Database = {
         Returns: Json
       }
       app_admin_stats: { Args: never; Returns: Json }
+      app_create_custom_emoji: {
+        Args: { p_image_url: string; p_shortcode: string }
+        Returns: Json
+      }
+      app_delete_custom_emoji: { Args: { p_id: string }; Returns: Json }
       app_list_chats: {
         Args: never
         Returns: {
@@ -343,6 +461,7 @@ export type Database = {
           other_username: string
         }[]
       }
+      app_mark_notifications_read: { Args: never; Returns: Json }
       app_open_chat: { Args: { other_username: string }; Returns: Json }
       app_p2p_transfer: {
         Args: { amount: number; memo?: string; recipient_username: string }
@@ -361,10 +480,16 @@ export type Database = {
         Args: { body: string; chat_id: string }
         Returns: Json
       }
+      app_set_app_background: { Args: { p_url: string }; Returns: Json }
+      app_set_chat_background: {
+        Args: { p_chat_id: string; p_url: string }
+        Returns: Json
+      }
       app_subscribe_premium: {
         Args: { currency: string; months: number }
         Returns: Json
       }
+      app_unread_notifications_count: { Args: never; Returns: number }
       app_update_profile_extras: {
         Args: {
           p_audio_url?: string

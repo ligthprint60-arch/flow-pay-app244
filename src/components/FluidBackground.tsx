@@ -139,7 +139,8 @@ export function FluidBackground() {
     window.addEventListener("resize", resize, { passive: true });
 
     function draw() {
-      const w = canvas!.width, h = canvas!.height;
+      if (!canvas) return;
+      const w = canvas.width, h = canvas.height;
       const cellW = w / N, cellH = h / N;
       ctx!.clearRect(0, 0, w, h);
       const accentEco = getComputedStyle(document.documentElement).getPropertyValue("--eco").trim() || "#10B981";

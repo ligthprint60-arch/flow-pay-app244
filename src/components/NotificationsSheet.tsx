@@ -120,7 +120,7 @@ export function useUnreadCount() {
     queryKey: ["notifications-unread"],
     queryFn: async (): Promise<number> => {
       const { data } = await supabase.rpc("app_unread_notifications_count" as never);
-      return (data as number) ?? 0;
+      return (data as number | null) ?? 0;
     },
     refetchInterval: 60_000,
   });

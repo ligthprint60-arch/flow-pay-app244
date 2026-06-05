@@ -37,7 +37,7 @@ export function SettingsSheet({
   const setAudio = useMutation({
     mutationFn: async (url: string) => {
       const { error } = await supabase.rpc("app_update_profile_extras", {
-        p_social_links: null, p_audio_url: url, p_sandbox_html: null, p_bio: null,
+        p_social_links: undefined, p_audio_url: url, p_sandbox_html: undefined, p_bio: undefined,
       });
       if (error) throw new Error(error.message);
     },

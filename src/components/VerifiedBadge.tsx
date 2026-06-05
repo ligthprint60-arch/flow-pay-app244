@@ -1,6 +1,9 @@
 import { BadgeCheck } from "lucide-react";
 
-/** Blue check = officially verified personality. Green check = registered author. */
+/**
+ * Blue check = officially verified personality. ALWAYS blue regardless of theme accent.
+ * Green check = registered author (uses accent eco).
+ */
 export function VerifiedBadge({
   isVerified,
   isAuthor,
@@ -9,8 +12,7 @@ export function VerifiedBadge({
   if (isVerified) {
     return (
       <BadgeCheck
-        className="text-fiat drop-shadow-[0_0_6px_rgba(37,99,235,0.65)]"
-        style={{ width: size, height: size }}
+        style={{ width: size, height: size, color: "#2563EB", filter: "drop-shadow(0 0 6px rgba(37,99,235,0.7))" }}
         strokeWidth={2.4}
       />
     );

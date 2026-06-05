@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { FluidBackground } from "@/components/FluidBackground";
 
 import appCss from "../styles.css?url";
 
@@ -81,6 +82,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <div
+          id="flow-app-bg"
+          aria-hidden
+          style={{
+            position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+            backgroundSize: "cover", backgroundPosition: "center",
+            opacity: 0, transition: "opacity .5s ease",
+          }}
+        />
         {children}
         <Scripts />
       </body>
@@ -93,6 +103,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <FluidBackground />
         <Outlet />
         <Toaster theme="dark" position="top-center" />
       </AuthProvider>

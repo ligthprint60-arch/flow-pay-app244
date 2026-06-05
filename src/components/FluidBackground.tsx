@@ -133,7 +133,7 @@ export function FluidBackground() {
 
     function resize() {
       const w = window.innerWidth, h = window.innerHeight;
-      canvas.width = w; canvas.height = h;
+      canvas!.width = w; canvas!.height = h;
     }
     resize();
     window.addEventListener("resize", resize, { passive: true });

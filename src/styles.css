@@ -180,6 +180,19 @@
     animation: lrf-settle 0.42s var(--ease-flux) both;
     transition: transform 0.2s var(--ease-flux), box-shadow 0.25s var(--ease-flux);
   }
+  /* When .lrf is applied to a Radix Dialog/Popover content, the animation
+     transform conflicts with the -translate-x/y centering. Disable it and
+     give it an opaque-enough surface so it reads over any overlay. */
+  [role="dialog"].lrf,
+  [role="alertdialog"].lrf {
+    animation: none;
+    background:
+      linear-gradient(140deg,
+        rgba(255,255,255,0.10) 0%,
+        rgba(255,255,255,0.03) 60%,
+        rgba(255,255,255,0.06) 100%),
+      rgba(18, 22, 32, 0.92);
+  }
   .lrf::before {
     content: "";
     position: absolute; inset: 0;

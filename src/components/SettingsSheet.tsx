@@ -157,14 +157,14 @@ function Row({ icon: Icon, title, desc, children }: {
 }) {
   return (
     <div className="lrf flex items-center gap-3 !rounded-2xl p-3">
-      <div className="grid size-9 place-items-center rounded-xl bg-white/[0.05]">
+      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/[0.05]">
         <Icon className="size-4 text-foreground" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{title}</p>
         <p className="truncate text-[11px] text-muted-foreground">{desc}</p>
       </div>
-      {children}
+      <div className="shrink-0">{children}</div>
     </div>
   );
 }

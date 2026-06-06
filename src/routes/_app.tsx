@@ -25,6 +25,11 @@ function AppLayout() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
+  const [premiumOpen, setPremiumOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const { data: unread } = useUnreadCount();
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
@@ -41,7 +46,34 @@ function AppLayout() {
   return (
     <div className="relative min-h-svh">
       <ThemeApplier />
-      <main className="relative z-10 mx-auto max-w-md pb-32">
+
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex justify-center pt-[max(env(safe-area-inset-top),10px)]">
+        <div className="pointer-events-auto mx-3 flex w-[min(100%,460px)] items-center justify-end gap-2">
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setNotifOpen(true)}
+            className="lrf relative grid size-10 place-items-center !rounded-full"
+            aria-label="Уведомления"
+          >
+            <Bell className="size-[18px]" />
+            {!!unread && unread > 0 && (
+              <span className="absolute right-1 top-1 grid min-w-[16px] place-items-center rounded-full bg-eco px-1 text-[9px] font-bold text-background emissive-eco">
+                {unread > 99 ? "99+" : unread}
+              </span>
+            )}
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setSettingsOpen(true)}
+            className="lrf grid size-10 place-items-center !rounded-full"
+            aria-label="Настройки"
+          >
+            <Settings2 className="size-[18px]" />
+          </motion.button>
+        </div>
+      </div>
+
+      <main className="relative z-10 mx-auto max-w-md pb-32 pt-16">
         <Outlet />
       </main>
 
@@ -75,6 +107,18 @@ function AppLayout() {
           })}
         </div>
       </nav>
+
+      <SettingsSheet
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        onOpenShop={() => setShopOpen(true)}
+        onOpenNotifications={() => setNotifOpen(true)}
+        onOpenPremium={() => setPremiumOpen(true)}
+      />
+      <ShopDialog open={shopOpen} onOpenChange={setShopOpen} />
+      <PremiumEditor open={premiumOpen} onOpenChange={setPremiumOpen} />
+      <NotificationsSheet open={notifOpen} onOpenChange={setNotifOpen} />
     </div>
   );
 }
+

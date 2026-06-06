@@ -185,6 +185,7 @@
      give it an opaque-enough surface so it reads over any overlay. */
   [role="dialog"].lrf,
   [role="alertdialog"].lrf {
+    position: fixed;
     animation: none;
     overflow: hidden auto;
     background:
@@ -193,10 +194,6 @@
         rgba(255,255,255,0.03) 60%,
         rgba(255,255,255,0.06) 100%),
       rgba(18, 22, 32, 0.92);
-  }
-  [role="dialog"].lrf::before,
-  [role="alertdialog"].lrf::before {
-    position: fixed;
   }
   .lrf::before {
     content: "";

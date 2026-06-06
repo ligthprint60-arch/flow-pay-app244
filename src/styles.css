@@ -185,7 +185,9 @@
      give it an opaque-enough surface so it reads over any overlay. */
   [role="dialog"].lrf,
   [role="alertdialog"].lrf {
+    position: fixed;
     animation: none;
+    overflow: hidden auto;
     background:
       linear-gradient(140deg,
         rgba(255,255,255,0.10) 0%,

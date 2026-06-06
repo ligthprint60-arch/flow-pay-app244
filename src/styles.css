@@ -186,12 +186,17 @@
   [role="dialog"].lrf,
   [role="alertdialog"].lrf {
     animation: none;
+    overflow: hidden auto;
     background:
       linear-gradient(140deg,
         rgba(255,255,255,0.10) 0%,
         rgba(255,255,255,0.03) 60%,
         rgba(255,255,255,0.06) 100%),
       rgba(18, 22, 32, 0.92);
+  }
+  [role="dialog"].lrf::before,
+  [role="alertdialog"].lrf::before {
+    position: fixed;
   }
   .lrf::before {
     content: "";

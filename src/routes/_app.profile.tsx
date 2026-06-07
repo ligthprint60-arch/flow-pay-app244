@@ -8,7 +8,8 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { ShopDialog } from "@/components/Shop";
 import { PremiumEditor } from "@/components/PremiumEditor";
 import { fmt } from "@/lib/format";
-import { LogOut, BadgeCheck, ShoppingBag, Crown, Shield, Ban, Code2, Music2, ExternalLink, Settings2 } from "lucide-react";
+import { AudioPlayer } from "@/components/AudioPlayer";
+import { LogOut, BadgeCheck, ShoppingBag, Crown, Shield, Ban, Code2, ExternalLink, Settings2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -68,9 +69,14 @@ function ProfilePage() {
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="lrf lrf-thick p-5">
         <div className="flex items-center gap-4">
-          <div className="grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-eco/60 to-fiat/40 font-mono text-lg font-bold emissive-eco">
-            {initials}
-          </div>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="avatar"
+                 className="size-16 shrink-0 rounded-2xl object-cover ring-2 ring-eco/40 emissive-eco" />
+          ) : (
+            <div className="grid size-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-eco/60 to-fiat/40 font-mono text-lg font-bold emissive-eco">
+              {initials}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <h2 className="truncate text-lg font-semibold">{profile?.display_name}</h2>
@@ -101,9 +107,8 @@ function ProfilePage() {
         )}
 
         {profile?.audio_url && (
-          <div className="mt-3 flex items-center gap-2 rounded-2xl bg-white/[0.04] p-2">
-            <Music2 className="size-4 text-eco" />
-            <audio src={profile.audio_url} controls className="flex-1" />
+          <div className="mt-3">
+            <AudioPlayer src={profile.audio_url} title={`${profile.display_name} · трек`} />
           </div>
         )}
 

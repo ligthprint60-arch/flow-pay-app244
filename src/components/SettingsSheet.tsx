@@ -8,7 +8,7 @@ import { uploadMedia, pickFile } from "@/lib/upload";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import {
-  Image as ImageIcon, Music2, MapPin, Bell, ShoppingBag, Trash2, Crown, Link2, Loader2,
+  Image as ImageIcon, Music2, MapPin, Bell, ShoppingBag, Trash2, Crown, Link2, Loader2, UserCircle2, Film,
 } from "lucide-react";
 
 export function SettingsSheet({
@@ -45,15 +45,31 @@ export function SettingsSheet({
     onError: (e: Error) => toast.error(e.message === "premium_required" ? "Нужен FLOW Premium" : e.message),
   });
 
-  async function uploadAppBg() {
+  async function uploadAppBg(kind: "image" | "video") {
     if (!user) return;
-    const f = await pickFile("image/*");
+    const f = await pickFile(kind === "video" ? "video/mp4,video/webm,video/*" : "image/*");
     if (!f) return;
-    setBusy("appbg");
+    if (f.size > 25 * 1024 * 1024) { toast.error("Файл больше 25 МБ"); return; }
+    setBusy(kind === "video" ? "appbg-vid" : "appbg");
     try {
       const url = await uploadMedia(user.id, "app-bg", f);
       await setAppBg.mutateAsync(url);
-      toast.success("Фон приложения обновлён");
+      toast.success(kind === "video" ? "Видео-фон установлен" : "Фон обновлён");
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(null); }
+  }
+
+  async function uploadAvatar() {
+    if (!user) return;
+    const f = await pickFile("image/*");
+    if (!f) return;
+    setBusy("avatar");
+    try {
+      const url = await uploadMedia(user.id, "avatar", f);
+      const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Фото профиля обновлено");
     } catch (e) { toast.error((e as Error).message); }
     finally { setBusy(null); }
   }
@@ -93,12 +109,19 @@ export function SettingsSheet({
           <p className="mt-1 text-xs text-muted-foreground">Персонализация и доступы</p>
 
           <div className="sheet-scroll mt-4 space-y-2" style={{ maxHeight: "65vh", overflowY: "auto" }}>
+            <Row icon={UserCircle2} title="Фото профиля" desc="JPG или PNG из устройства">
+              <motion.button whileTap={{ scale: 0.96 }} onClick={uploadAvatar} disabled={busy === "avatar"}
+                className="rounded-full bg-eco/20 px-3 py-1.5 text-[11px] font-semibold text-eco emissive-eco disabled:opacity-40">
+                {busy === "avatar" ? <Loader2 className="size-3 animate-spin" /> : "Загрузить"}
+              </motion.button>
+            </Row>
+
             <Row icon={ImageIcon} title="Фон приложения"
               desc={appBg ? "Установлен пользовательский фон" : "Загрузите изображение из устройства"}>
               <div className="flex gap-2">
-                <motion.button whileTap={{ scale: 0.96 }} onClick={uploadAppBg} disabled={busy === "appbg"}
+                <motion.button whileTap={{ scale: 0.96 }} onClick={() => uploadAppBg("image")} disabled={busy === "appbg"}
                   className="rounded-full bg-eco/20 px-3 py-1.5 text-[11px] font-semibold text-eco emissive-eco disabled:opacity-40">
-                  {busy === "appbg" ? <Loader2 className="size-3 animate-spin" /> : "Загрузить"}
+                  {busy === "appbg" ? <Loader2 className="size-3 animate-spin" /> : "Фото"}
                 </motion.button>
                 {appBg && (
                   <motion.button whileTap={{ scale: 0.96 }} onClick={() => setAppBg.mutate(null)}
@@ -107,6 +130,13 @@ export function SettingsSheet({
                   </motion.button>
                 )}
               </div>
+            </Row>
+
+            <Row icon={Film} title="Видео-фон" desc="MP4 / WebM до 25 МБ">
+              <motion.button whileTap={{ scale: 0.96 }} onClick={() => uploadAppBg("video")} disabled={busy === "appbg-vid"}
+                className="rounded-full bg-fiat/20 px-3 py-1.5 text-[11px] font-semibold text-fiat emissive-blue disabled:opacity-40">
+                {busy === "appbg-vid" ? <Loader2 className="size-3 animate-spin" /> : "Загрузить"}
+              </motion.button>
             </Row>
 
             <Row icon={Music2} title="Аудио в профиле"

@@ -91,6 +91,19 @@ function RootShell({ children }: { children: React.ReactNode }) {
             opacity: 0, transition: "opacity .5s ease",
           }}
         />
+        <video
+          id="flow-app-bg-video"
+          aria-hidden
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+            width: "100%", height: "100%", objectFit: "cover",
+            opacity: 0, transition: "opacity .5s ease",
+          }}
+        />
         {children}
         <Scripts />
       </body>

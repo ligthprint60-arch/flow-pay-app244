@@ -55,17 +55,26 @@ export function ThemeApplier() {
     root.style.setProperty("--success", accent.eco);
   }, [profile?.accent_theme]);
 
-  // App background (user image)
+  // App background (user image OR video)
   useEffect(() => {
     const bg = (profile as { app_background_url?: string | null } | null | undefined)?.app_background_url;
-    const el = document.getElementById("flow-app-bg");
-    if (!el) return;
-    if (bg) {
-      el.style.backgroundImage = `url("${bg}")`;
-      el.style.opacity = "0.55";
+    const img = document.getElementById("flow-app-bg") as HTMLDivElement | null;
+    const vid = document.getElementById("flow-app-bg-video") as HTMLVideoElement | null;
+    if (!img || !vid) return;
+    const isVideo = !!bg && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(bg);
+    if (bg && isVideo) {
+      vid.src = bg;
+      vid.style.opacity = "0.55";
+      vid.play().catch(() => {});
+      img.style.backgroundImage = "";
+      img.style.opacity = "0";
+    } else if (bg) {
+      img.style.backgroundImage = `url("${bg}")`;
+      img.style.opacity = "0.55";
+      vid.removeAttribute("src"); vid.load(); vid.style.opacity = "0";
     } else {
-      el.style.backgroundImage = "";
-      el.style.opacity = "0";
+      img.style.backgroundImage = ""; img.style.opacity = "0";
+      vid.removeAttribute("src"); vid.load(); vid.style.opacity = "0";
     }
   }, [(profile as { app_background_url?: string | null } | null | undefined)?.app_background_url]);
 

@@ -20,6 +20,7 @@ type ChatRow = {
   other_display_name: string;
   other_is_verified: boolean;
   other_is_author: boolean;
+  other_avatar_url?: string | null;
   last_message_at: string;
   last_body: string | null;
 };

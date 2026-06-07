@@ -454,6 +454,7 @@ export type Database = {
           chat_id: string
           last_body: string
           last_message_at: string
+          other_avatar_url: string
           other_display_name: string
           other_id: string
           other_is_author: boolean

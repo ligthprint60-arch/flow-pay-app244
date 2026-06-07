@@ -20,6 +20,7 @@ type ChatRow = {
   other_display_name: string;
   other_is_verified: boolean;
   other_is_author: boolean;
+  other_avatar_url?: string | null;
   last_message_at: string;
   last_body: string | null;
 };
@@ -89,9 +90,13 @@ function ChatsPage() {
                 transition={{ delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Link to="/chats/$chatId" params={{ chatId: c.chat_id }} className="lrf lrf-tap flex items-center gap-3 !rounded-3xl p-3">
-                  <div className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/30 font-mono text-xs font-semibold emissive-eco">
-                    {c.other_display_name.slice(0, 2).toUpperCase()}
-                  </div>
+                  {c.other_avatar_url ? (
+                    <img src={c.other_avatar_url} alt="" className="size-11 shrink-0 rounded-2xl object-cover ring-1 ring-white/10" />
+                  ) : (
+                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/30 font-mono text-xs font-semibold emissive-eco">
+                      {c.other_display_name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <span className="truncate text-sm font-semibold">{c.other_display_name}</span>

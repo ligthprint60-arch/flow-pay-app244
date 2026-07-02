@@ -123,6 +123,89 @@ export type Database = {
           },
         ]
       }
+      mini_app_permissions: {
+        Row: {
+          app_id: string
+          granted_at: string
+          id: string
+          user_id: string
+          wallet_access: boolean
+        }
+        Insert: {
+          app_id: string
+          granted_at?: string
+          id?: string
+          user_id: string
+          wallet_access?: boolean
+        }
+        Update: {
+          app_id?: string
+          granted_at?: string
+          id?: string
+          user_id?: string
+          wallet_access?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mini_app_permissions_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "mini_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mini_apps: {
+        Row: {
+          app_url: string
+          category: string
+          created_at: string
+          description: string | null
+          icon_url: string | null
+          id: string
+          installs: number
+          name: string
+          owner_id: string
+          reject_reason: string | null
+          slug: string
+          status: string
+          tagline: string | null
+          updated_at: string
+        }
+        Insert: {
+          app_url: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          installs?: number
+          name: string
+          owner_id: string
+          reject_reason?: string | null
+          slug: string
+          status?: string
+          tagline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          app_url?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          installs?: number
+          name?: string
+          owner_id?: string
+          reject_reason?: string | null
+          slug?: string
+          status?: string
+          tagline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_reads: {
         Row: {
           notification_id: string
@@ -438,6 +521,10 @@ export type Database = {
         Args: { amount: number; kind?: string; target_username: string }
         Returns: Json
       }
+      app_admin_moderate_mini_app: {
+        Args: { p_action: string; p_id: string; p_reason?: string }
+        Returns: Json
+      }
       app_admin_set_flag: {
         Args: { flag: string; target_username: string; value: boolean }
         Returns: Json
@@ -448,6 +535,13 @@ export type Database = {
         Returns: Json
       }
       app_delete_custom_emoji: { Args: { p_id: string }; Returns: Json }
+      app_ecosystem_charge: {
+        Args: { p_amount: number; p_app_id: string; p_memo?: string }
+        Returns: Json
+      }
+      app_ecosystem_get_context: { Args: { p_app_id: string }; Returns: Json }
+      app_ecosystem_grant: { Args: { p_app_id: string }; Returns: Json }
+      app_ecosystem_revoke: { Args: { p_app_id: string }; Returns: Json }
       app_list_chats: {
         Args: never
         Returns: {
@@ -460,6 +554,23 @@ export type Database = {
           other_is_author: boolean
           other_is_verified: boolean
           other_username: string
+        }[]
+      }
+      app_list_mini_apps: {
+        Args: { p_category?: string; p_only_mine?: boolean; p_search?: string }
+        Returns: {
+          app_url: string
+          category: string
+          description: string
+          icon_url: string
+          id: string
+          installs: number
+          name: string
+          owner_id: string
+          owner_username: string
+          slug: string
+          status: string
+          tagline: string
         }[]
       }
       app_mark_notifications_read: { Args: never; Returns: Json }
@@ -484,6 +595,18 @@ export type Database = {
       app_set_app_background: { Args: { p_url: string }; Returns: Json }
       app_set_chat_background: {
         Args: { p_chat_id: string; p_url: string }
+        Returns: Json
+      }
+      app_submit_mini_app: {
+        Args: {
+          p_app_url: string
+          p_category: string
+          p_description: string
+          p_icon_url: string
+          p_name: string
+          p_slug: string
+          p_tagline: string
+        }
         Returns: Json
       }
       app_subscribe_premium: {

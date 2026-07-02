@@ -40,11 +40,24 @@ function ChatsPage() {
 
   const open = useMutation({
     mutationFn: async (username: string) => {
-      const { data, error } = await supabase.rpc("app_open_chat", { other_username: username });
-      if (error) throw new Error(error.message === "user_not_found" ? "Пользователь не найден" : error.message);
+      const u = username.trim().replace(/^@/, "").toLowerCase();
+      if (u.length < 3) throw new Error("Введите @username (минимум 3 символа)");
+      const { data, error } = await supabase.rpc("app_open_chat", { other_username: u });
+      if (error) {
+        const map: Record<string, string> = {
+          user_not_found: "Пользователь не найден",
+          self_chat_forbidden: "Нельзя написать себе",
+          not_authenticated: "Войдите в аккаунт",
+        };
+        throw new Error(map[error.message] ?? error.message);
+      }
       return data as { chat_id: string };
     },
-    onSuccess: (d) => { refetch(); navigate({ to: "/chats/$chatId", params: { chatId: d.chat_id } }); },
+    onSuccess: (d) => {
+      setSearch("");
+      navigate({ to: "/chats/$chatId", params: { chatId: d.chat_id } });
+      refetch();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { ThemeApplier } from "@/lib/theme";
 import { motion } from "framer-motion";
-import { Wallet, Newspaper, MessageCircle, GraduationCap, User as UserIcon, Settings2, Bell } from "lucide-react";
+import { Wallet, Newspaper, MessageCircle, GraduationCap, User as UserIcon, Settings2, Bell, LayoutGrid } from "lucide-react";
 import { SettingsSheet } from "@/components/SettingsSheet";
 import { ShopDialog } from "@/components/Shop";
 import { PremiumEditor } from "@/components/PremiumEditor";
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_app")({
 const tabs = [
   { to: "/wallet", label: "Кошелёк", icon: Wallet },
   { to: "/feed", label: "Лента", icon: Newspaper },
+  { to: "/ecosystem", label: "Apps", icon: LayoutGrid },
   { to: "/chats", label: "Чаты", icon: MessageCircle },
   { to: "/learn", label: "Учёба", icon: GraduationCap },
   { to: "/profile", label: "Я", icon: UserIcon },

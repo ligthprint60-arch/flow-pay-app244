@@ -221,9 +221,9 @@ function TxRow({ tx }: { tx: Tx }) {
 
 function SheetShell({ children, onClose, title, badge }: { children: React.ReactNode; onClose: () => void; title: string; badge: string }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 backdrop-blur-md animate-in fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/55 backdrop-blur-md animate-in fade-in" onClick={onClose}>
       <div
-        className="lrf lrf-thick w-full max-w-md !rounded-t-[32px] !rounded-b-none p-5 pb-[max(env(safe-area-inset-bottom),20px)] animate-in slide-in-from-bottom"
+        className="lrf lrf-thick w-full max-w-md !rounded-t-[32px] !rounded-b-none p-5 pb-[calc(env(safe-area-inset-bottom)+120px)] animate-in slide-in-from-bottom"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-start justify-between">

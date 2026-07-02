@@ -16,9 +16,11 @@ import { Route as AppWalletRouteImport } from './routes/_app.wallet'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
+import { Route as AppEcosystemRouteImport } from './routes/_app.ecosystem'
 import { Route as AppChatsRouteImport } from './routes/_app.chats'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
+import { Route as AppEcosystemAppIdRouteImport } from './routes/_app.ecosystem.$appId'
 import { Route as AppChatsChatIdRouteImport } from './routes/_app.chats.$chatId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -55,6 +57,11 @@ const AppFeedRoute = AppFeedRouteImport.update({
   path: '/feed',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEcosystemRoute = AppEcosystemRouteImport.update({
+  id: '/ecosystem',
+  path: '/ecosystem',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppChatsRoute = AppChatsRouteImport.update({
   id: '/chats',
   path: '/chats',
@@ -70,6 +77,11 @@ const AppSandboxUsernameRoute = AppSandboxUsernameRouteImport.update({
   path: '/sandbox/$username',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEcosystemAppIdRoute = AppEcosystemAppIdRouteImport.update({
+  id: '/$appId',
+  path: '/$appId',
+  getParentRoute: () => AppEcosystemRoute,
+} as any)
 const AppChatsChatIdRoute = AppChatsChatIdRouteImport.update({
   id: '/$chatId',
   path: '/$chatId',
@@ -81,11 +93,13 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
   '/chats': typeof AppChatsRouteWithChildren
+  '/ecosystem': typeof AppEcosystemRouteWithChildren
   '/feed': typeof AppFeedRoute
   '/learn': typeof AppLearnRoute
   '/profile': typeof AppProfileRoute
   '/wallet': typeof AppWalletRoute
   '/chats/$chatId': typeof AppChatsChatIdRoute
+  '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
 }
 export interface FileRoutesByTo {
@@ -93,11 +107,13 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
   '/chats': typeof AppChatsRouteWithChildren
+  '/ecosystem': typeof AppEcosystemRouteWithChildren
   '/feed': typeof AppFeedRoute
   '/learn': typeof AppLearnRoute
   '/profile': typeof AppProfileRoute
   '/wallet': typeof AppWalletRoute
   '/chats/$chatId': typeof AppChatsChatIdRoute
+  '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
 }
 export interface FileRoutesById {
@@ -107,11 +123,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_app/admin': typeof AppAdminRoute
   '/_app/chats': typeof AppChatsRouteWithChildren
+  '/_app/ecosystem': typeof AppEcosystemRouteWithChildren
   '/_app/feed': typeof AppFeedRoute
   '/_app/learn': typeof AppLearnRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/wallet': typeof AppWalletRoute
   '/_app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/_app/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/_app/sandbox/$username': typeof AppSandboxUsernameRoute
 }
 export interface FileRouteTypes {
@@ -121,11 +139,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/chats'
+    | '/ecosystem'
     | '/feed'
     | '/learn'
     | '/profile'
     | '/wallet'
     | '/chats/$chatId'
+    | '/ecosystem/$appId'
     | '/sandbox/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -133,11 +153,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/chats'
+    | '/ecosystem'
     | '/feed'
     | '/learn'
     | '/profile'
     | '/wallet'
     | '/chats/$chatId'
+    | '/ecosystem/$appId'
     | '/sandbox/$username'
   id:
     | '__root__'
@@ -146,11 +168,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_app/admin'
     | '/_app/chats'
+    | '/_app/ecosystem'
     | '/_app/feed'
     | '/_app/learn'
     | '/_app/profile'
     | '/_app/wallet'
     | '/_app/chats/$chatId'
+    | '/_app/ecosystem/$appId'
     | '/_app/sandbox/$username'
   fileRoutesById: FileRoutesById
 }
@@ -211,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFeedRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/ecosystem': {
+      id: '/_app/ecosystem'
+      path: '/ecosystem'
+      fullPath: '/ecosystem'
+      preLoaderRoute: typeof AppEcosystemRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/chats': {
       id: '/_app/chats'
       path: '/chats'
@@ -231,6 +262,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/sandbox/$username'
       preLoaderRoute: typeof AppSandboxUsernameRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/ecosystem/$appId': {
+      id: '/_app/ecosystem/$appId'
+      path: '/$appId'
+      fullPath: '/ecosystem/$appId'
+      preLoaderRoute: typeof AppEcosystemAppIdRouteImport
+      parentRoute: typeof AppEcosystemRoute
     }
     '/_app/chats/$chatId': {
       id: '/_app/chats/$chatId'
@@ -254,9 +292,22 @@ const AppChatsRouteWithChildren = AppChatsRoute._addFileChildren(
   AppChatsRouteChildren,
 )
 
+interface AppEcosystemRouteChildren {
+  AppEcosystemAppIdRoute: typeof AppEcosystemAppIdRoute
+}
+
+const AppEcosystemRouteChildren: AppEcosystemRouteChildren = {
+  AppEcosystemAppIdRoute: AppEcosystemAppIdRoute,
+}
+
+const AppEcosystemRouteWithChildren = AppEcosystemRoute._addFileChildren(
+  AppEcosystemRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppChatsRoute: typeof AppChatsRouteWithChildren
+  AppEcosystemRoute: typeof AppEcosystemRouteWithChildren
   AppFeedRoute: typeof AppFeedRoute
   AppLearnRoute: typeof AppLearnRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -267,6 +318,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppChatsRoute: AppChatsRouteWithChildren,
+  AppEcosystemRoute: AppEcosystemRouteWithChildren,
   AppFeedRoute: AppFeedRoute,
   AppLearnRoute: AppLearnRoute,
   AppProfileRoute: AppProfileRoute,

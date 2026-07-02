@@ -71,7 +71,7 @@ function EcosystemAppPage() {
       if (msg.type === "flow:charge") {
         if (!msg.amount || msg.amount <= 0) return reply({ ok: false, error: "invalid_amount" });
         const { data, error } = await supabase.rpc("app_ecosystem_charge", {
-          p_app_id: appId, p_amount: msg.amount, p_memo: msg.memo ?? null,
+          p_app_id: appId, p_amount: msg.amount, p_memo: msg.memo ?? undefined,
         });
         if (error) return reply({ ok: false, error: error.message });
         toast.success(`−${msg.amount} fFLOW · ${app?.name ?? "app"}`);

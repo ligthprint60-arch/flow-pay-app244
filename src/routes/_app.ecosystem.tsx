@@ -30,8 +30,8 @@ function EcosystemPage() {
     queryKey: ["mini_apps", tab, cat, q],
     queryFn: async (): Promise<App[]> => {
       const { data, error } = await supabase.rpc("app_list_mini_apps", {
-        p_category: cat === "all" ? null : cat,
-        p_search: q.trim() || null,
+        p_category: cat === "all" ? undefined : cat,
+        p_search: q.trim() || undefined,
         p_only_mine: tab === "mine",
       });
       if (error) throw error;

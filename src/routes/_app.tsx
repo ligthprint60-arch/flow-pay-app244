@@ -31,6 +31,7 @@ function AppLayout() {
   const [premiumOpen, setPremiumOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const { data: unread } = useUnreadCount();
+  const immersiveRoute = pathname.startsWith("/chats/");
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
@@ -48,7 +49,7 @@ function AppLayout() {
     <div className="relative min-h-svh">
       <ThemeApplier />
 
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex justify-center pt-[max(env(safe-area-inset-top),10px)]">
+      {!immersiveRoute && <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex justify-center pt-[max(env(safe-area-inset-top),10px)]">
         <div className="pointer-events-auto mx-3 flex w-[min(100%,460px)] items-center justify-end gap-2">
           <motion.button
             whileTap={{ scale: 0.92 }}
@@ -72,13 +73,13 @@ function AppLayout() {
             <Settings2 className="size-[18px]" />
           </motion.button>
         </div>
-      </div>
+      </div>}
 
-      <main className="relative z-10 mx-auto max-w-md pb-32 pt-16">
+      <main className={`relative z-10 mx-auto max-w-md ${immersiveRoute ? "pb-0 pt-0" : "pb-32 pt-16"}`}>
         <Outlet />
       </main>
 
-      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(env(safe-area-inset-bottom),14px)] pt-2">
+      {!immersiveRoute && <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(env(safe-area-inset-bottom),14px)] pt-2">
         <div className="lrf lrf-thick pointer-events-auto mx-4 flex w-[min(100%,460px)] items-stretch justify-around px-2 py-2">
           {tabs.map((t) => {
             const active = pathname === t.to || pathname.startsWith(t.to + "/");
@@ -107,7 +108,7 @@ function AppLayout() {
             );
           })}
         </div>
-      </nav>
+      </nav>}
 
       <SettingsSheet
         open={settingsOpen}

@@ -7,6 +7,7 @@ import { fmt } from "@/lib/format";
 import { toast } from "sonner";
 import {
   Shield, Search, BadgeCheck, Ban, UserCheck, Sparkles, Flame, Coins, X, ArrowLeft,
+  LayoutGrid, CheckCircle2, RotateCcw,
 } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 
@@ -22,6 +23,21 @@ type AdminUser = {
   rflow_balance: number; fflow_active: number; fflow_pending: number;
 };
 
+type AdminMiniApp = {
+  id: string;
+  owner_id: string;
+  owner_username: string | null;
+  name: string;
+  slug: string;
+  tagline: string | null;
+  description: string | null;
+  icon_url: string | null;
+  app_url: string;
+  category: string;
+  status: string;
+  installs: number;
+};
+
 function AdminPage() {
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
@@ -29,6 +45,7 @@ function AdminPage() {
   const [search, setSearch] = useState("");
   const [onlyPending, setOnlyPending] = useState(false);
   const [mintFor, setMintFor] = useState<AdminUser | null>(null);
+  const [appSearch, setAppSearch] = useState("");
 
   useEffect(() => {
     if (!isAdmin) navigate({ to: "/wallet", replace: true });
@@ -57,9 +74,28 @@ function AdminPage() {
     },
   });
 
+  const { data: apps, isLoading: appsLoading } = useQuery({
+    queryKey: ["admin-mini-apps", appSearch],
+    enabled: isAdmin,
+    queryFn: async (): Promise<AdminMiniApp[]> => {
+      const { data, error } = await supabase.rpc("app_list_mini_apps", {
+        p_category: undefined,
+        p_search: appSearch.trim() || undefined,
+        p_only_mine: false,
+      });
+      if (error) throw error;
+      return (data ?? []) as AdminMiniApp[];
+    },
+  });
+
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin-users"] });
     qc.invalidateQueries({ queryKey: ["admin-stats"] });
+  };
+
+  const refreshApps = () => {
+    qc.invalidateQueries({ queryKey: ["admin-mini-apps"] });
+    qc.invalidateQueries({ queryKey: ["mini_apps"] });
   };
 
   const setFlag = useMutation({
@@ -78,6 +114,20 @@ function AdminPage() {
       return data as { burned_approx: number };
     },
     onSuccess: (r) => { refresh(); toast.success(`Сожжено ≈ ${fmt(r.burned_approx)} fFLOW`); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const moderateApp = useMutation({
+    mutationFn: async ({ id, action }: { id: string; action: "approve" | "reject" | "pending" }) => {
+      const reason = action === "reject" ? "Отклонено модерацией FLOW" : undefined;
+      const { error } = await supabase.rpc("app_admin_moderate_mini_app", {
+        p_id: id,
+        p_action: action,
+        p_reason: reason,
+      });
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => { refreshApps(); toast.success("Заявка приложения обновлена"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -138,6 +188,40 @@ function AdminPage() {
         </button>
       </div>
 
+      {/* Mini-app applications */}
+      <div className="lrf lrf-thick mt-5 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <LayoutGrid className="size-4 text-eco" />
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-eco">FLOW Store · moderation</p>
+            <h2 className="text-lg font-bold tracking-tight">Заявки приложений</h2>
+          </div>
+        </div>
+        <label className="lrf mb-3 flex items-center gap-2 !rounded-2xl px-3 py-2">
+          <Search className="size-4 text-muted-foreground" />
+          <input
+            value={appSearch}
+            onChange={(e) => setAppSearch(e.target.value)}
+            placeholder="Поиск по приложению / разработчику"
+            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+          />
+        </label>
+        <div className="space-y-2">
+          {appsLoading && <div className="acrylic h-20 animate-pulse" />}
+          {apps?.slice(0, 8).map((app) => (
+            <MiniAppRow
+              key={app.id}
+              app={app}
+              pending={moderateApp.isPending}
+              onAction={(action) => moderateApp.mutate({ id: app.id, action })}
+            />
+          ))}
+          {apps && apps.length === 0 && (
+            <div className="acrylic p-5 text-center text-sm text-muted-foreground">Заявок приложений нет</div>
+          )}
+        </div>
+      </div>
+
       {/* List */}
       <div className="mt-3 space-y-2">
         {isLoading && <div className="acrylic h-20 animate-pulse" />}
@@ -168,6 +252,59 @@ function Stat({ label, v, accent, small }: { label: string; v: number; accent?: 
     </div>
   );
 }
+
+function MiniAppRow({
+  app,
+  pending,
+  onAction,
+}: {
+  app: AdminMiniApp;
+  pending: boolean;
+  onAction: (action: "approve" | "reject" | "pending") => void;
+}) {
+  const statusCls = app.status === "approved" ? "text-eco" : app.status === "rejected" ? "text-destructive" : "text-warning";
+  return (
+    <div className="acrylic p-3">
+      <div className="flex items-center gap-3">
+        <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/30 emissive-eco">
+          {app.icon_url ? <img src={app.icon_url} alt="" className="size-full object-cover" /> : <LayoutGrid className="size-5" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-sm font-semibold">{app.name}</p>
+            <span className={`font-mono text-[9px] uppercase ${statusCls}`}>· {app.status}</span>
+          </div>
+          <p className="truncate text-[11px] text-muted-foreground">@{app.owner_username ?? "unknown"} · {app.category} · {app.installs.toLocaleString("ru-RU")} installs</p>
+          <p className="truncate text-[11px] text-muted-foreground">{app.tagline || app.app_url}</p>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <button
+          onClick={() => onAction("approve")}
+          disabled={pending || app.status === "approved"}
+          className="lrf-tap inline-flex items-center gap-1 rounded-full border border-eco/40 bg-eco/10 px-2.5 py-1 text-[11px] font-semibold text-eco disabled:opacity-40"
+        >
+          <CheckCircle2 className="size-3" /> Одобрить
+        </button>
+        <button
+          onClick={() => onAction("reject")}
+          disabled={pending || app.status === "rejected"}
+          className="lrf-tap inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive disabled:opacity-40"
+        >
+          <Ban className="size-3" /> Отклонить
+        </button>
+        <button
+          onClick={() => onAction("pending")}
+          disabled={pending || app.status === "pending"}
+          className="lrf-tap inline-flex items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-2.5 py-1 text-[11px] font-semibold text-warning disabled:opacity-40"
+        >
+          <RotateCcw className="size-3" /> На проверку
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Mini({ label, v }: { label: string; v: number }) {
   return (
     <div className="acrylic px-3 py-2">

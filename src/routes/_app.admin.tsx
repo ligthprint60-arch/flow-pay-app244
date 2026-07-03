@@ -252,6 +252,59 @@ function Stat({ label, v, accent, small }: { label: string; v: number; accent?: 
     </div>
   );
 }
+
+function MiniAppRow({
+  app,
+  pending,
+  onAction,
+}: {
+  app: AdminMiniApp;
+  pending: boolean;
+  onAction: (action: "approve" | "reject" | "pending") => void;
+}) {
+  const statusCls = app.status === "approved" ? "text-eco" : app.status === "rejected" ? "text-destructive" : "text-warning";
+  return (
+    <div className="acrylic p-3">
+      <div className="flex items-center gap-3">
+        <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/30 emissive-eco">
+          {app.icon_url ? <img src={app.icon_url} alt="" className="size-full object-cover" /> : <LayoutGrid className="size-5" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-sm font-semibold">{app.name}</p>
+            <span className={`font-mono text-[9px] uppercase ${statusCls}`}>· {app.status}</span>
+          </div>
+          <p className="truncate text-[11px] text-muted-foreground">@{app.owner_username ?? "unknown"} · {app.category} · {app.installs.toLocaleString("ru-RU")} installs</p>
+          <p className="truncate text-[11px] text-muted-foreground">{app.tagline || app.app_url}</p>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <button
+          onClick={() => onAction("approve")}
+          disabled={pending || app.status === "approved"}
+          className="lrf-tap inline-flex items-center gap-1 rounded-full border border-eco/40 bg-eco/10 px-2.5 py-1 text-[11px] font-semibold text-eco disabled:opacity-40"
+        >
+          <CheckCircle2 className="size-3" /> Одобрить
+        </button>
+        <button
+          onClick={() => onAction("reject")}
+          disabled={pending || app.status === "rejected"}
+          className="lrf-tap inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive disabled:opacity-40"
+        >
+          <Ban className="size-3" /> Отклонить
+        </button>
+        <button
+          onClick={() => onAction("pending")}
+          disabled={pending || app.status === "pending"}
+          className="lrf-tap inline-flex items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-2.5 py-1 text-[11px] font-semibold text-warning disabled:opacity-40"
+        >
+          <RotateCcw className="size-3" /> На проверку
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Mini({ label, v }: { label: string; v: number }) {
   return (
     <div className="acrylic px-3 py-2">

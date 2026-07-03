@@ -7,6 +7,7 @@ import { Loader2, MessageCircle, Search } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { toast } from "sonner";
 import { renderWithEmojis } from "@/lib/emoji";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_app/chats")({
   head: () => ({ meta: [{ title: "Чаты — FLOW" }] }),
@@ -36,6 +37,7 @@ type UserResult = {
 
 function ChatsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
 
   const { data: chats, refetch } = useQuery({
@@ -48,15 +50,17 @@ function ChatsPage() {
   });
 
   const normalizedSearch = search.trim().replace(/^@/, "").toLowerCase();
+  const safeSearch = normalizedSearch.replace(/[%(),]/g, "");
 
   const { data: users, isFetching: searchingUsers } = useQuery({
-    queryKey: ["chat-user-search", normalizedSearch],
-    enabled: normalizedSearch.length >= 2,
+    queryKey: ["chat-user-search", safeSearch, user?.id],
+    enabled: !!user && safeSearch.length >= 2,
     queryFn: async (): Promise<UserResult[]> => {
       const { data, error } = await supabase
         .from("profiles")
         .select("id,username,display_name,is_verified,is_author,avatar_url")
-        .or(`username.ilike.%${normalizedSearch}%,display_name.ilike.%${normalizedSearch}%`)
+        .or(`username.ilike.%${safeSearch}%,display_name.ilike.%${safeSearch}%`)
+        .neq("id", user!.id)
         .eq("is_blocked", false)
         .limit(8);
       if (error) throw error;

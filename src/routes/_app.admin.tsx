@@ -7,6 +7,7 @@ import { fmt } from "@/lib/format";
 import { toast } from "sonner";
 import {
   Shield, Search, BadgeCheck, Ban, UserCheck, Sparkles, Flame, Coins, X, ArrowLeft,
+  LayoutGrid, CheckCircle2, RotateCcw,
 } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 
@@ -22,6 +23,21 @@ type AdminUser = {
   rflow_balance: number; fflow_active: number; fflow_pending: number;
 };
 
+type AdminMiniApp = {
+  id: string;
+  owner_id: string;
+  owner_username: string | null;
+  name: string;
+  slug: string;
+  tagline: string | null;
+  description: string | null;
+  icon_url: string | null;
+  app_url: string;
+  category: string;
+  status: string;
+  installs: number;
+};
+
 function AdminPage() {
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
@@ -29,6 +45,7 @@ function AdminPage() {
   const [search, setSearch] = useState("");
   const [onlyPending, setOnlyPending] = useState(false);
   const [mintFor, setMintFor] = useState<AdminUser | null>(null);
+  const [appSearch, setAppSearch] = useState("");
 
   useEffect(() => {
     if (!isAdmin) navigate({ to: "/wallet", replace: true });
@@ -57,9 +74,28 @@ function AdminPage() {
     },
   });
 
+  const { data: apps, isLoading: appsLoading } = useQuery({
+    queryKey: ["admin-mini-apps", appSearch],
+    enabled: isAdmin,
+    queryFn: async (): Promise<AdminMiniApp[]> => {
+      const { data, error } = await supabase.rpc("app_list_mini_apps", {
+        p_category: undefined,
+        p_search: appSearch.trim() || undefined,
+        p_only_mine: false,
+      });
+      if (error) throw error;
+      return (data ?? []) as AdminMiniApp[];
+    },
+  });
+
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin-users"] });
     qc.invalidateQueries({ queryKey: ["admin-stats"] });
+  };
+
+  const refreshApps = () => {
+    qc.invalidateQueries({ queryKey: ["admin-mini-apps"] });
+    qc.invalidateQueries({ queryKey: ["mini_apps"] });
   };
 
   const setFlag = useMutation({
@@ -78,6 +114,20 @@ function AdminPage() {
       return data as { burned_approx: number };
     },
     onSuccess: (r) => { refresh(); toast.success(`Сожжено ≈ ${fmt(r.burned_approx)} fFLOW`); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const moderateApp = useMutation({
+    mutationFn: async ({ id, action }: { id: string; action: "approve" | "reject" | "pending" }) => {
+      const reason = action === "reject" ? "Отклонено модерацией FLOW" : undefined;
+      const { error } = await supabase.rpc("app_admin_moderate_mini_app", {
+        p_id: id,
+        p_action: action,
+        p_reason: reason,
+      });
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => { refreshApps(); toast.success("Заявка приложения обновлена"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -136,6 +186,40 @@ function AdminPage() {
         >
           Заявки
         </button>
+      </div>
+
+      {/* Mini-app applications */}
+      <div className="lrf lrf-thick mt-5 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <LayoutGrid className="size-4 text-eco" />
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-eco">FLOW Store · moderation</p>
+            <h2 className="text-lg font-bold tracking-tight">Заявки приложений</h2>
+          </div>
+        </div>
+        <label className="lrf mb-3 flex items-center gap-2 !rounded-2xl px-3 py-2">
+          <Search className="size-4 text-muted-foreground" />
+          <input
+            value={appSearch}
+            onChange={(e) => setAppSearch(e.target.value)}
+            placeholder="Поиск по приложению / разработчику"
+            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+          />
+        </label>
+        <div className="space-y-2">
+          {appsLoading && <div className="acrylic h-20 animate-pulse" />}
+          {apps?.slice(0, 8).map((app) => (
+            <MiniAppRow
+              key={app.id}
+              app={app}
+              pending={moderateApp.isPending}
+              onAction={(action) => moderateApp.mutate({ id: app.id, action })}
+            />
+          ))}
+          {apps && apps.length === 0 && (
+            <div className="acrylic p-5 text-center text-sm text-muted-foreground">Заявок приложений нет</div>
+          )}
+        </div>
       </div>
 
       {/* List */}

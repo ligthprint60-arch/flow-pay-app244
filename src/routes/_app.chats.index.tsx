@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { renderWithEmojis } from "@/lib/emoji";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/_app/chats")({
+export const Route = createFileRoute("/_app/chats/")({
   head: () => ({ meta: [{ title: "Чаты — FLOW" }] }),
   component: ChatsPage,
 });

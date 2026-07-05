@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Rocket, X, Package, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_app/ecosystem")({
+export const Route = createFileRoute("/_app/ecosystem/")({
   head: () => ({ meta: [{ title: "Экосистема — FLOW" }] }),
   component: EcosystemPage,
 });

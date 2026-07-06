@@ -346,7 +346,6 @@ function P2PSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onC
 }
 
 function TopupSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onClose: () => void; onDone: () => void }) {
-  const { user } = useAuth();
   const [amount, setAmount] = useState("100000");
   const [card, setCard] = useState("4242 4242 4242 4242");
   const presets = [50000, 100000, 250000, 500000];
@@ -357,19 +356,14 @@ function TopupSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; o
       if (!Number.isFinite(amt) || amt < 1000) throw new Error("Минимум 1 000 UZS");
       const digits = card.replace(/\s/g, "");
       if (digits.length < 12) throw new Error("Некорректный номер карты");
-      // simulated card auth latency
       await new Promise((r) => setTimeout(r, 900));
-      await supabase.from("wallets").update({
-        rflow_balance: (wallet?.rflow_balance ?? 0) + amt,
-        updated_at: new Date().toISOString(),
-      }).eq("user_id", user!.id);
-      await supabase.from("transactions").insert({
-        user_id: user!.id, type: "transfer",
-        rflow_delta: amt, counterparty: `•••• ${digits.slice(-4)}`,
-        note: "Пополнение с карты → rFLOW",
+      const { error } = await supabase.rpc("app_topup_rflow", {
+        p_amount: amt, p_card_last4: digits.slice(-4),
       });
+      if (error) throw new Error(error.message);
       return amt;
     },
+
     onSuccess: (amt) => {
       toast.success(`Зачислено ${fmtUZS(amt)}`, { description: "Карта → rFLOW (1:1)" });
       onDone(); onClose();

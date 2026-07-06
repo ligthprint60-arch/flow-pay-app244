@@ -542,6 +542,10 @@ export type Database = {
       app_ecosystem_get_context: { Args: { p_app_id: string }; Returns: Json }
       app_ecosystem_grant: { Args: { p_app_id: string }; Returns: Json }
       app_ecosystem_revoke: { Args: { p_app_id: string }; Returns: Json }
+      app_fragment: {
+        Args: { p_cost: number; p_label: string; p_pending: number }
+        Returns: Json
+      }
       app_list_chats: {
         Args: never
         Returns: {
@@ -587,6 +591,14 @@ export type Database = {
         Args: { cost: number; currency?: string; emoji_id: string }
         Returns: Json
       }
+      app_qr_pay: {
+        Args: { p_amount: number; p_merchant: string }
+        Returns: Json
+      }
+      app_quiz_answer: {
+        Args: { p_chosen_index: number; p_quiz_id: string }
+        Returns: Json
+      }
       app_request_verification: { Args: { note?: string }; Returns: Json }
       app_send_message: {
         Args: { body: string; chat_id: string }
@@ -611,6 +623,10 @@ export type Database = {
       }
       app_subscribe_premium: {
         Args: { currency: string; months: number }
+        Returns: Json
+      }
+      app_topup_rflow: {
+        Args: { p_amount: number; p_card_last4: string }
         Returns: Json
       }
       app_unread_notifications_count: { Args: never; Returns: number }

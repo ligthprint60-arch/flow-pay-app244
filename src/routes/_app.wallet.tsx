@@ -74,16 +74,9 @@ function WalletPage() {
       const merchants = ["Coffee Lab", "Korzinka", "Yandex Go", "Wolt", "Apple"];
       const merchant = merchants[Math.floor(Math.random() * merchants.length)];
       const amount = [12000, 25000, 38000, 45000][Math.floor(Math.random() * 4)];
-      const reward = Math.floor(amount * 0.02);
-      await supabase.from("wallets").update({
-        rflow_balance: wallet.rflow_balance - amount,
-        fflow_pending: wallet.fflow_pending + reward,
-        updated_at: new Date().toISOString(),
-      }).eq("user_id", user!.id);
-      await supabase.from("transactions").insert([
-        { user_id: user!.id, type: "payment", rflow_delta: -amount, counterparty: merchant, note: "Оплата QR" },
-        { user_id: user!.id, type: "spend_reward", fflow_pending_delta: reward, counterparty: "FLOW", note: `Cashback 2% от ${merchant}` },
-      ]);
+      const { data, error } = await supabase.rpc("app_qr_pay", { p_amount: amount, p_merchant: merchant });
+      if (error) throw new Error(error.message);
+      const reward = (data as { reward?: number } | null)?.reward ?? 0;
       return { merchant, amount, reward };
     },
     onSuccess: (r) => {
@@ -92,6 +85,7 @@ function WalletPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const skinClass = getActiveSkinClass(profile?.card_skin);
 
@@ -245,25 +239,18 @@ function SheetShell({ children, onClose, title, badge }: { children: React.React
 
 
 function FragmentSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onClose: () => void; onDone: () => void }) {
-  const { user } = useAuth();
   const m = useMutation({
     mutationFn: async (tier: Tier) => {
       if (!wallet) throw new Error("Кошелёк не загружен");
       if (wallet.fflow_pending < tier.pending) throw new Error("Недостаточно pending fFLOW");
       if (wallet.rflow_balance < tier.cost) throw new Error("Недостаточно rFLOW для комиссии");
-      await supabase.from("wallets").update({
-        rflow_balance: wallet.rflow_balance - tier.cost,
-        fflow_pending: wallet.fflow_pending - tier.pending,
-        fflow_active: wallet.fflow_active + tier.pending,
-        updated_at: new Date().toISOString(),
-      }).eq("user_id", user!.id);
-      await supabase.from("transactions").insert({
-        user_id: user!.id, type: "fragmentation",
-        rflow_delta: -tier.cost, fflow_pending_delta: -tier.pending, fflow_active_delta: tier.pending,
-        counterparty: "FLOW Engine", note: `Фрагментация ${tier.label}`,
+      const { error } = await supabase.rpc("app_fragment", {
+        p_pending: tier.pending, p_cost: tier.cost, p_label: tier.label,
       });
+      if (error) throw new Error(error.message);
       return tier;
     },
+
     onSuccess: (t) => {
       toast.success(`+${t.pending} fFLOW активировано`, { description: `Комиссия: ${fmtUZS(t.cost)}` });
       onDone(); onClose();
@@ -359,7 +346,6 @@ function P2PSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onC
 }
 
 function TopupSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onClose: () => void; onDone: () => void }) {
-  const { user } = useAuth();
   const [amount, setAmount] = useState("100000");
   const [card, setCard] = useState("4242 4242 4242 4242");
   const presets = [50000, 100000, 250000, 500000];
@@ -370,19 +356,14 @@ function TopupSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; o
       if (!Number.isFinite(amt) || amt < 1000) throw new Error("Минимум 1 000 UZS");
       const digits = card.replace(/\s/g, "");
       if (digits.length < 12) throw new Error("Некорректный номер карты");
-      // simulated card auth latency
       await new Promise((r) => setTimeout(r, 900));
-      await supabase.from("wallets").update({
-        rflow_balance: (wallet?.rflow_balance ?? 0) + amt,
-        updated_at: new Date().toISOString(),
-      }).eq("user_id", user!.id);
-      await supabase.from("transactions").insert({
-        user_id: user!.id, type: "transfer",
-        rflow_delta: amt, counterparty: `•••• ${digits.slice(-4)}`,
-        note: "Пополнение с карты → rFLOW",
+      const { error } = await supabase.rpc("app_topup_rflow", {
+        p_amount: amt, p_card_last4: digits.slice(-4),
       });
+      if (error) throw new Error(error.message);
       return amt;
     },
+
     onSuccess: (amt) => {
       toast.success(`Зачислено ${fmtUZS(amt)}`, { description: "Карта → rFLOW (1:1)" });
       onDone(); onClose();

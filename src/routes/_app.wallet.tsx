@@ -239,25 +239,18 @@ function SheetShell({ children, onClose, title, badge }: { children: React.React
 
 
 function FragmentSheet({ wallet, onClose, onDone }: { wallet: Wallet | undefined; onClose: () => void; onDone: () => void }) {
-  const { user } = useAuth();
   const m = useMutation({
     mutationFn: async (tier: Tier) => {
       if (!wallet) throw new Error("Кошелёк не загружен");
       if (wallet.fflow_pending < tier.pending) throw new Error("Недостаточно pending fFLOW");
       if (wallet.rflow_balance < tier.cost) throw new Error("Недостаточно rFLOW для комиссии");
-      await supabase.from("wallets").update({
-        rflow_balance: wallet.rflow_balance - tier.cost,
-        fflow_pending: wallet.fflow_pending - tier.pending,
-        fflow_active: wallet.fflow_active + tier.pending,
-        updated_at: new Date().toISOString(),
-      }).eq("user_id", user!.id);
-      await supabase.from("transactions").insert({
-        user_id: user!.id, type: "fragmentation",
-        rflow_delta: -tier.cost, fflow_pending_delta: -tier.pending, fflow_active_delta: tier.pending,
-        counterparty: "FLOW Engine", note: `Фрагментация ${tier.label}`,
+      const { error } = await supabase.rpc("app_fragment", {
+        p_pending: tier.pending, p_cost: tier.cost, p_label: tier.label,
       });
+      if (error) throw new Error(error.message);
       return tier;
     },
+
     onSuccess: (t) => {
       toast.success(`+${t.pending} fFLOW активировано`, { description: `Комиссия: ${fmtUZS(t.cost)}` });
       onDone(); onClose();

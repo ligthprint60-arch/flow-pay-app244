@@ -63,32 +63,22 @@ function LearnPage() {
 
   const submit = useMutation({
     mutationFn: async (idx: number) => {
-      if (!quiz || !user) return;
-      const correct = idx === quiz.correct_index;
-      const { error } = await supabase.from("quiz_attempts").insert({
-        user_id: user.id, quiz_id: quiz.id, chosen_index: idx, correct,
+      if (!quiz || !user) return null;
+      const { data, error } = await supabase.rpc("app_quiz_answer", {
+        p_quiz_id: quiz.id, p_chosen_index: idx,
       });
-      if (error) throw error;
-
-      if (correct) {
-        const { data: w } = await supabase.from("wallets").select("fflow_pending").eq("user_id", user.id).single();
-        if (w) {
-          await supabase.from("wallets")
-            .update({ fflow_pending: w.fflow_pending + quiz.reward, updated_at: new Date().toISOString() })
-            .eq("user_id", user.id);
-          await supabase.from("transactions").insert({
-            user_id: user.id,
-            type: "quiz_reward",
-            fflow_pending_delta: quiz.reward,
-            counterparty: "Daily Quiz",
-            note: "Правильный ответ",
-          });
-        }
+      if (error) {
+        const map: Record<string, string> = {
+          already_answered: "Вы уже отвечали сегодня",
+          quiz_not_found: "Викторина не найдена",
+        };
+        throw new Error(map[error.message] ?? error.message);
       }
-      return correct;
+      return data as { correct: boolean; reward: number };
     },
-    onSuccess: (correct) => {
-      if (correct) toast.success(`+${quiz?.reward} pending fFLOW`, { description: "Правильно!" });
+    onSuccess: (res) => {
+      if (!res) return;
+      if (res.correct) toast.success(`+${res.reward} pending fFLOW`, { description: "Правильно!" });
       else toast.error("Неверно", { description: "Попробуйте завтра." });
       qc.invalidateQueries({ queryKey: ["quiz-attempt"] });
       qc.invalidateQueries({ queryKey: ["wallet"] });
@@ -96,6 +86,7 @@ function LearnPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const done = !!attempt;
   const answered = done ? attempt.chosen_index : picked;

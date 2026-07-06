@@ -15,7 +15,6 @@ type Quiz = {
   id: string;
   question: string;
   options: string[];
-  correct_index: number;
   reward: number;
 };
 
@@ -30,14 +29,14 @@ function LearnPage() {
       const today = new Date().toISOString().slice(0, 10);
       const { data, error } = await supabase
         .from("quizzes")
-        .select("id,question,options,correct_index,reward")
+        .select("id,question,options,reward")
         .eq("active_date", today)
         .maybeSingle();
       if (error) throw error;
       if (!data) {
         const { data: any2 } = await supabase
           .from("quizzes")
-          .select("id,question,options,correct_index,reward")
+          .select("id,question,options,reward")
           .order("active_date", { ascending: true })
           .limit(1)
           .maybeSingle();
@@ -46,6 +45,7 @@ function LearnPage() {
       return data as Quiz;
     },
   });
+
 
   const { data: attempt } = useQuery({
     queryKey: ["quiz-attempt", quiz?.id, user?.id],

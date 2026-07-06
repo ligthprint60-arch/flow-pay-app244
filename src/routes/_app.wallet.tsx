@@ -74,16 +74,9 @@ function WalletPage() {
       const merchants = ["Coffee Lab", "Korzinka", "Yandex Go", "Wolt", "Apple"];
       const merchant = merchants[Math.floor(Math.random() * merchants.length)];
       const amount = [12000, 25000, 38000, 45000][Math.floor(Math.random() * 4)];
-      const reward = Math.floor(amount * 0.02);
-      await supabase.from("wallets").update({
-        rflow_balance: wallet.rflow_balance - amount,
-        fflow_pending: wallet.fflow_pending + reward,
-        updated_at: new Date().toISOString(),
-      }).eq("user_id", user!.id);
-      await supabase.from("transactions").insert([
-        { user_id: user!.id, type: "payment", rflow_delta: -amount, counterparty: merchant, note: "Оплата QR" },
-        { user_id: user!.id, type: "spend_reward", fflow_pending_delta: reward, counterparty: "FLOW", note: `Cashback 2% от ${merchant}` },
-      ]);
+      const { data, error } = await supabase.rpc("app_qr_pay", { p_amount: amount, p_merchant: merchant });
+      if (error) throw new Error(error.message);
+      const reward = (data as { reward?: number } | null)?.reward ?? 0;
       return { merchant, amount, reward };
     },
     onSuccess: (r) => {
@@ -92,6 +85,7 @@ function WalletPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const skinClass = getActiveSkinClass(profile?.card_skin);
 

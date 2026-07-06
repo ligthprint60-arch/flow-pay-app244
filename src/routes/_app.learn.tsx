@@ -120,7 +120,7 @@ function LearnPage() {
               <div className="mt-4 space-y-2">
                 {quiz.options.map((opt, i) => {
                   const isPicked = answered === i;
-                  const isCorrect = done && i === quiz.correct_index;
+                  const isCorrect = done && attempt?.correct === true && attempt?.chosen_index === i;
                   const isWrong = done && isPicked && !isCorrect;
                   return (
                     <button

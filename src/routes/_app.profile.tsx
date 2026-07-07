@@ -85,6 +85,10 @@ function ProfilePage() {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <h2 className="truncate text-lg font-semibold">{profile?.display_name}</h2>
+              {featuredImg && (
+                <img src={featuredImg.image_url} alt={featuredImg.shortcode}
+                     className="size-5 rounded-md object-cover ring-1 ring-eco/40" title={`:${featuredImg.shortcode}:`} />
+              )}
               <VerifiedBadge isVerified={profile?.is_verified} isAuthor={profile?.is_author} size={16} />
               {isPremium && <Crown className="size-4 text-eco" />}
             </div>

@@ -9,6 +9,8 @@ import { ShopDialog } from "@/components/Shop";
 import { PremiumEditor } from "@/components/PremiumEditor";
 import { fmt } from "@/lib/format";
 import { AudioPlayer } from "@/components/AudioPlayer";
+import { CustomEmojiCreator } from "@/components/CustomEmojiCreator";
+import { useImageEmojis, buildImageEmojiMap } from "@/lib/emoji";
 import { LogOut, BadgeCheck, ShoppingBag, Crown, Shield, Ban, Code2, ExternalLink, Settings2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";

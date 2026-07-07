@@ -73,6 +73,7 @@ export type Database = {
           id: string
           image_url: string
           owner_id: string
+          pack_id: string | null
           shortcode: string
         }
         Insert: {
@@ -80,6 +81,7 @@ export type Database = {
           id?: string
           image_url: string
           owner_id: string
+          pack_id?: string | null
           shortcode: string
         }
         Update: {
@@ -87,7 +89,40 @@ export type Database = {
           id?: string
           image_url?: string
           owner_id?: string
+          pack_id?: string | null
           shortcode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_emojis_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "emoji_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emoji_packs: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
         }
         Relationships: []
       }
@@ -304,6 +339,7 @@ export type Database = {
           card_skin: string
           created_at: string
           display_name: string
+          featured_emoji: string | null
           id: string
           is_author: boolean
           is_blocked: boolean
@@ -327,6 +363,7 @@ export type Database = {
           card_skin?: string
           created_at?: string
           display_name: string
+          featured_emoji?: string | null
           id: string
           is_author?: boolean
           is_blocked?: boolean
@@ -350,6 +387,7 @@ export type Database = {
           card_skin?: string
           created_at?: string
           display_name?: string
+          featured_emoji?: string | null
           id?: string
           is_author?: boolean
           is_blocked?: boolean
@@ -496,6 +534,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      app_add_emoji_to_pack: {
+        Args: { p_image_url: string; p_pack_id: string; p_shortcode: string }
+        Returns: Json
+      }
       app_admin_broadcast: {
         Args: { p_body: string; p_kind?: string; p_title: string }
         Returns: Json
@@ -534,7 +576,12 @@ export type Database = {
         Args: { p_image_url: string; p_shortcode: string }
         Returns: Json
       }
+      app_create_emoji_pack: {
+        Args: { p_cover_url?: string; p_name: string }
+        Returns: Json
+      }
       app_delete_custom_emoji: { Args: { p_id: string }; Returns: Json }
+      app_delete_emoji_pack: { Args: { p_id: string }; Returns: Json }
       app_ecosystem_charge: {
         Args: { p_amount: number; p_app_id: string; p_memo?: string }
         Returns: Json
@@ -609,6 +656,7 @@ export type Database = {
         Args: { p_chat_id: string; p_url: string }
         Returns: Json
       }
+      app_set_featured_emoji: { Args: { p_value: string }; Returns: Json }
       app_submit_mini_app: {
         Args: {
           p_app_url: string

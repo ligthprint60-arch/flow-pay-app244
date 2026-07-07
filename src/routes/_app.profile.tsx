@@ -9,6 +9,8 @@ import { ShopDialog } from "@/components/Shop";
 import { PremiumEditor } from "@/components/PremiumEditor";
 import { fmt } from "@/lib/format";
 import { AudioPlayer } from "@/components/AudioPlayer";
+import { CustomEmojiCreator } from "@/components/CustomEmojiCreator";
+import { useImageEmojis, buildImageEmojiMap } from "@/lib/emoji";
 import { LogOut, BadgeCheck, ShoppingBag, Crown, Shield, Ban, Code2, ExternalLink, Settings2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -59,6 +61,9 @@ function ProfilePage() {
 
   const initials = (profile?.display_name ?? "??").slice(0, 2).toUpperCase();
   const social = (profile?.social_links ?? {}) as Record<string, string>;
+  const featuredCode = (profile as { featured_emoji?: string | null } | undefined)?.featured_emoji ?? null;
+  const { data: imgEmojis } = useImageEmojis();
+  const featuredImg = featuredCode ? buildImageEmojiMap(imgEmojis).get(featuredCode) : undefined;
 
   return (
     <div className="px-5 pb-6 pt-12">
@@ -80,6 +85,10 @@ function ProfilePage() {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <h2 className="truncate text-lg font-semibold">{profile?.display_name}</h2>
+              {featuredImg && (
+                <img src={featuredImg.image_url} alt={featuredImg.shortcode}
+                     className="size-5 rounded-md object-cover ring-1 ring-eco/40" title={`:${featuredImg.shortcode}:`} />
+              )}
               <VerifiedBadge isVerified={profile?.is_verified} isAuthor={profile?.is_author} size={16} />
               {isPremium && <Crown className="size-4 text-eco" />}
             </div>
@@ -211,6 +220,13 @@ function ProfilePage() {
           <span className="font-mono text-[10px] uppercase tracking-widest text-eco">demo</span>
         </button>
       )}
+
+      <div className="mt-6">
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Мои эмодзи</p>
+        <CustomEmojiCreator isPremium={isPremium} />
+      </div>
+
+
 
       <button
         onClick={async () => { await signOut(); navigate({ to: "/auth", replace: true }); }}

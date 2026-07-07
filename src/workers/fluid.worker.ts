@@ -1,0 +1,177 @@
+/// <reference lib="webworker" />
+// Fluid simulation worker. Owns an OffscreenCanvas transferred from the
+// main thread and runs the Navier–Stokes approximation + rendering here,
+// so the UI thread stays free during pointer input and route transitions.
+
+type InitMsg = {
+  type: "init";
+  canvas: OffscreenCanvas;
+  width: number;
+  height: number;
+  eco: string;
+  fiat: string;
+};
+type ResizeMsg = { type: "resize"; width: number; height: number };
+type PointerMsg = { type: "pointer"; x: number; y: number; active: boolean };
+type ThemeMsg = { type: "theme"; eco: string; fiat: string };
+type StopMsg = { type: "stop" };
+type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg;
+
+const N = 64;
+const SIZE = (N + 2) * (N + 2);
+const IX = (i: number, j: number) => i + (N + 2) * j;
+
+const u = new Float32Array(SIZE);
+const v = new Float32Array(SIZE);
+const u0 = new Float32Array(SIZE);
+const v0 = new Float32Array(SIZE);
+const dens = new Float32Array(SIZE);
+const dens0 = new Float32Array(SIZE);
+
+const dt = 0.12;
+const visc = 0.00008;
+const diff = 0.00005;
+
+let canvas: OffscreenCanvas | null = null;
+let ctx: OffscreenCanvasRenderingContext2D | null = null;
+let width = 0;
+let height = 0;
+let eco = "#10B981";
+let fiat = "#2563EB";
+const ptr = { x: 0.5, y: 0.5, px: 0.5, py: 0.5, active: false };
+let raf = 0;
+let running = false;
+
+function set_bnd(b: number, x: Float32Array) {
+  for (let i = 1; i <= N; i++) {
+    x[IX(0, i)] = b === 1 ? -x[IX(1, i)] : x[IX(1, i)];
+    x[IX(N + 1, i)] = b === 1 ? -x[IX(N, i)] : x[IX(N, i)];
+    x[IX(i, 0)] = b === 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
+    x[IX(i, N + 1)] = b === 2 ? -x[IX(i, N)] : x[IX(i, N)];
+  }
+}
+function lin_solve(b: number, x: Float32Array, x0: Float32Array, a: number, c: number) {
+  for (let k = 0; k < 8; k++) {
+    for (let i = 1; i <= N; i++) for (let j = 1; j <= N; j++) {
+      x[IX(i, j)] = (x0[IX(i, j)] + a * (x[IX(i - 1, j)] + x[IX(i + 1, j)] + x[IX(i, j - 1)] + x[IX(i, j + 1)])) / c;
+    }
+    set_bnd(b, x);
+  }
+}
+function diffuse(b: number, x: Float32Array, x0: Float32Array, dCoef: number) {
+  const a = dt * dCoef * N * N;
+  lin_solve(b, x, x0, a, 1 + 4 * a);
+}
+function advect(b: number, d: Float32Array, d0: Float32Array, uF: Float32Array, vF: Float32Array) {
+  const dt0 = dt * N;
+  for (let i = 1; i <= N; i++) for (let j = 1; j <= N; j++) {
+    let x = i - dt0 * uF[IX(i, j)];
+    let y = j - dt0 * vF[IX(i, j)];
+    if (x < 0.5) x = 0.5; if (x > N + 0.5) x = N + 0.5;
+    const i0 = Math.floor(x), i1 = i0 + 1;
+    if (y < 0.5) y = 0.5; if (y > N + 0.5) y = N + 0.5;
+    const j0 = Math.floor(y), j1 = j0 + 1;
+    const s1 = x - i0, s0 = 1 - s1, t1 = y - j0, t0 = 1 - t1;
+    d[IX(i, j)] = s0 * (t0 * d0[IX(i0, j0)] + t1 * d0[IX(i0, j1)]) + s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
+  }
+  set_bnd(b, d);
+}
+function project(uF: Float32Array, vF: Float32Array, p: Float32Array, div: Float32Array) {
+  const h = 1.0 / N;
+  for (let i = 1; i <= N; i++) for (let j = 1; j <= N; j++) {
+    div[IX(i, j)] = -0.5 * h * (uF[IX(i + 1, j)] - uF[IX(i - 1, j)] + vF[IX(i, j + 1)] - vF[IX(i, j - 1)]);
+    p[IX(i, j)] = 0;
+  }
+  set_bnd(0, div); set_bnd(0, p);
+  lin_solve(0, p, div, 1, 4);
+  for (let i = 1; i <= N; i++) for (let j = 1; j <= N; j++) {
+    uF[IX(i, j)] -= 0.5 * (p[IX(i + 1, j)] - p[IX(i - 1, j)]) / h;
+    vF[IX(i, j)] -= 0.5 * (p[IX(i, j + 1)] - p[IX(i, j - 1)]) / h;
+  }
+  set_bnd(1, uF); set_bnd(2, vF);
+}
+function step() {
+  const tmpU = u0, tmpV = v0;
+  diffuse(1, tmpU, u, visc); diffuse(2, tmpV, v, visc);
+  project(tmpU, tmpV, u, v);
+  advect(1, u, tmpU, tmpU, tmpV); advect(2, v, tmpV, tmpU, tmpV);
+  project(u, v, tmpU, tmpV);
+  diffuse(0, dens0, dens, diff);
+  advect(0, dens, dens0, u, v);
+  for (let k = 0; k < SIZE; k++) { dens[k] *= 0.992; u[k] *= 0.995; v[k] *= 0.995; }
+}
+function inject() {
+  const t = (typeof performance !== "undefined" ? performance.now() : Date.now()) * 0.0008;
+  const ax = (Math.sin(t) * 0.5 + 0.5);
+  const ay = (Math.cos(t * 0.7) * 0.5 + 0.5);
+  const ix = Math.max(1, Math.min(N, Math.floor(ax * N)));
+  const iy = Math.max(1, Math.min(N, Math.floor(ay * N)));
+  dens[IX(ix, iy)] += 30;
+  u[IX(ix, iy)] += Math.cos(t * 1.3) * 12;
+  v[IX(ix, iy)] += Math.sin(t * 1.1) * 12;
+  if (ptr.active) {
+    const i = Math.max(1, Math.min(N, Math.floor(ptr.x * N)));
+    const j = Math.max(1, Math.min(N, Math.floor(ptr.y * N)));
+    dens[IX(i, j)] += 120;
+    u[IX(i, j)] += (ptr.x - ptr.px) * 800;
+    v[IX(i, j)] += (ptr.y - ptr.py) * 800;
+    ptr.px = ptr.x; ptr.py = ptr.y;
+  }
+}
+function alphaHex(a: number) {
+  const val = Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, "0");
+  return val;
+}
+function draw() {
+  if (!ctx || !canvas) return;
+  const w = width, h = height;
+  const cellW = w / N, cellH = h / N;
+  ctx.clearRect(0, 0, w, h);
+  for (let i = 1; i <= N; i++) for (let j = 1; j <= N; j++) {
+    const d = dens[IX(i, j)];
+    if (d < 0.4) continue;
+    const a = Math.min(0.4, d / 220);
+    const vel = Math.min(1, Math.hypot(u[IX(i, j)], v[IX(i, j)]) * 0.15);
+    ctx.fillStyle = vel > 0.5 ? `${fiat}${alphaHex(a)}` : `${eco}${alphaHex(a)}`;
+    ctx.fillRect((i - 1) * cellW, (j - 1) * cellH, cellW + 1, cellH + 1);
+  }
+}
+function loop() {
+  if (!running) return;
+  inject(); step(); draw();
+  raf = (self as unknown as { requestAnimationFrame: (cb: () => void) => number }).requestAnimationFrame(loop);
+}
+
+self.onmessage = (e: MessageEvent<InMsg>) => {
+  const msg = e.data;
+  switch (msg.type) {
+    case "init": {
+      canvas = msg.canvas;
+      width = msg.width; height = msg.height;
+      canvas.width = width; canvas.height = height;
+      ctx = canvas.getContext("2d", { alpha: true });
+      eco = msg.eco || eco; fiat = msg.fiat || fiat;
+      if (!running) { running = true; loop(); }
+      break;
+    }
+    case "resize": {
+      width = msg.width; height = msg.height;
+      if (canvas) { canvas.width = width; canvas.height = height; }
+      break;
+    }
+    case "pointer": {
+      ptr.active = msg.active;
+      ptr.x = msg.x; ptr.y = msg.y;
+      break;
+    }
+    case "theme": {
+      eco = msg.eco || eco; fiat = msg.fiat || fiat;
+      break;
+    }
+    case "stop": {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+      break;
+    }
+  }
+};

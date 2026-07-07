@@ -61,6 +61,9 @@ function ProfilePage() {
 
   const initials = (profile?.display_name ?? "??").slice(0, 2).toUpperCase();
   const social = (profile?.social_links ?? {}) as Record<string, string>;
+  const featuredCode = (profile as { featured_emoji?: string | null } | undefined)?.featured_emoji ?? null;
+  const { data: imgEmojis } = useImageEmojis();
+  const featuredImg = featuredCode ? buildImageEmojiMap(imgEmojis).get(featuredCode) : undefined;
 
   return (
     <div className="px-5 pb-6 pt-12">

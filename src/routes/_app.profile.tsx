@@ -221,6 +221,13 @@ function ProfilePage() {
         </button>
       )}
 
+      <div className="mt-6">
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Мои эмодзи</p>
+        <CustomEmojiCreator isPremium={isPremium} />
+      </div>
+
+
+
       <button
         onClick={async () => { await signOut(); navigate({ to: "/auth", replace: true }); }}
         className="mt-6 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm text-destructive hover:bg-destructive/10"

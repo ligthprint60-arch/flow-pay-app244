@@ -270,10 +270,12 @@
     padding: 1px;
     background: linear-gradient(140deg,
       rgba(255,255,255,0.55) 0%,
-      color-mix(in oklab, var(--fiat) 45%, transparent) 25%,
-      rgba(255,255,255,0.08) 50%,
-      color-mix(in oklab, var(--eco) 40%, transparent) 78%,
-      rgba(255,255,255,0.35) 100%);
+      color-mix(in oklab, var(--fiat) 45%, transparent) 20%,
+      rgba(255,255,255,0.08) 40%,
+      color-mix(in oklab, var(--eco) 40%, transparent) 60%,
+      rgba(255,255,255,0.35) 80%,
+      color-mix(in oklab, var(--fiat) 45%, transparent) 100%);
+    background-size: 200% 100%;
     -webkit-mask:
       linear-gradient(#000 0 0) content-box,
       linear-gradient(#000 0 0);
@@ -285,6 +287,7 @@
     pointer-events: none;
     opacity: 0.9;
     z-index: 0;
+    animation: lrf-edge 7s linear infinite;
   }
   .lrf > * { position: relative; z-index: 1; }
 

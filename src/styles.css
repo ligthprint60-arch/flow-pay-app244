@@ -150,6 +150,15 @@
   0%   { background-position: -160% 0; }
   100% { background-position: 260% 0; }
 }
+@keyframes lrf-rays {
+  0%   { transform: translate3d(-25%, -18%, 0) rotate(0deg); opacity: 0.8; }
+  50%  { transform: translate3d(22%, 14%, 0) rotate(6deg);   opacity: 1; }
+  100% { transform: translate3d(-25%, -18%, 0) rotate(0deg); opacity: 0.8; }
+}
+@keyframes lrf-edge {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
 @keyframes pulse-ring {
   0%   { box-shadow: 0 0 0 0 var(--eco-glow); }
   100% { box-shadow: 0 0 0 14px transparent; }

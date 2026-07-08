@@ -82,10 +82,12 @@
   --success: #10B981;
   --warning: #F59E0B;
 
-  --glass-blur: 26px;
-  --glass-sat: 180%;
+  --glass-blur: 30px;
+  --glass-sat: 190%;
   --glass-tint: rgba(255, 255, 255, 0.05);
-  --glass-edge: rgba(255, 255, 255, 0.18);
+  --glass-edge: rgba(255, 255, 255, 0.22);
+  --glass-ior: 1.45; /* conceptual index of refraction, drives highlight intensity */
+
 
   /* FLUX-inspired motion curves */
   --ease-flux: cubic-bezier(0.22, 1, 0.36, 1);

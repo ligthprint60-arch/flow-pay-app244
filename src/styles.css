@@ -236,7 +236,18 @@
         transparent 0%,
         rgba(255,255,255,0.00) 32%,
         rgba(255,255,255,0.14) 44%,
-        rgba(255,255,255,0.28) 48%,
+  .lrf::before {
+    content: "";
+    position: absolute;
+    /* oversize so the moving streak stays covering the surface */
+    inset: -40%;
+    background:
+      /* long specular streak */
+      linear-gradient(115deg,
+        transparent 0%,
+        rgba(255,255,255,0.00) 32%,
+        rgba(255,255,255,0.14) 44%,
+        rgba(255,255,255,0.30) 48%,
         rgba(255,255,255,0.10) 54%,
         transparent 66%),
       /* top-left hot spot */
@@ -247,6 +258,8 @@
     mix-blend-mode: screen;
     filter: blur(0.4px);
     z-index: 0;
+    will-change: transform, opacity;
+    animation: lrf-rays 9s var(--ease-flux) infinite;
   }
   /* Bottom-edge fresnel + chromatic dispersion — glass edges pick up a
      faint rainbow tint as light bends through them. */

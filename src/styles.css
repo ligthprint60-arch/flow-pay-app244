@@ -227,6 +227,7 @@
   }
   /* Specular arc — bright light entering the top-left corner and refracting
      across the surface. A soft blurred streak reads as a real highlight. */
+  .lrf::before {
     content: "";
     position: absolute;
     /* oversize so the moving streak stays covering the surface */

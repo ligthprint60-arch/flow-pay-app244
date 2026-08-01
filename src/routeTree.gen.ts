@@ -17,9 +17,11 @@ import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
 import { Route as AppEcosystemIndexRouteImport } from './routes/_app.ecosystem.index'
 import { Route as AppChatsIndexRouteImport } from './routes/_app.chats.index'
 import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
+import { Route as AppPartnersSlugRouteImport } from './routes/_app.partners.$slug'
 import { Route as AppEcosystemAppIdRouteImport } from './routes/_app.ecosystem.$appId'
 import { Route as AppChatsChatIdRouteImport } from './routes/_app.chats.$chatId'
 
@@ -62,6 +64,11 @@ const AppAdminRoute = AppAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPartnersIndexRoute = AppPartnersIndexRouteImport.update({
+  id: '/partners/',
+  path: '/partners/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEcosystemIndexRoute = AppEcosystemIndexRouteImport.update({
   id: '/ecosystem/',
   path: '/ecosystem/',
@@ -75,6 +82,11 @@ const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
 const AppSandboxUsernameRoute = AppSandboxUsernameRouteImport.update({
   id: '/sandbox/$username',
   path: '/sandbox/$username',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPartnersSlugRoute = AppPartnersSlugRouteImport.update({
+  id: '/partners/$slug',
+  path: '/partners/$slug',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEcosystemAppIdRoute = AppEcosystemAppIdRouteImport.update({
@@ -98,9 +110,11 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof AppWalletRoute
   '/chats/$chatId': typeof AppChatsChatIdRoute
   '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
+  '/partners/$slug': typeof AppPartnersSlugRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
   '/chats/': typeof AppChatsIndexRoute
   '/ecosystem/': typeof AppEcosystemIndexRoute
+  '/partners/': typeof AppPartnersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -112,9 +126,11 @@ export interface FileRoutesByTo {
   '/wallet': typeof AppWalletRoute
   '/chats/$chatId': typeof AppChatsChatIdRoute
   '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
+  '/partners/$slug': typeof AppPartnersSlugRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
   '/chats': typeof AppChatsIndexRoute
   '/ecosystem': typeof AppEcosystemIndexRoute
+  '/partners': typeof AppPartnersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -128,9 +144,11 @@ export interface FileRoutesById {
   '/_app/wallet': typeof AppWalletRoute
   '/_app/chats/$chatId': typeof AppChatsChatIdRoute
   '/_app/ecosystem/$appId': typeof AppEcosystemAppIdRoute
+  '/_app/partners/$slug': typeof AppPartnersSlugRoute
   '/_app/sandbox/$username': typeof AppSandboxUsernameRoute
   '/_app/chats/': typeof AppChatsIndexRoute
   '/_app/ecosystem/': typeof AppEcosystemIndexRoute
+  '/_app/partners/': typeof AppPartnersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -144,9 +162,11 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/chats/$chatId'
     | '/ecosystem/$appId'
+    | '/partners/$slug'
     | '/sandbox/$username'
     | '/chats/'
     | '/ecosystem/'
+    | '/partners/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -158,9 +178,11 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/chats/$chatId'
     | '/ecosystem/$appId'
+    | '/partners/$slug'
     | '/sandbox/$username'
     | '/chats'
     | '/ecosystem'
+    | '/partners'
   id:
     | '__root__'
     | '/'
@@ -173,9 +195,11 @@ export interface FileRouteTypes {
     | '/_app/wallet'
     | '/_app/chats/$chatId'
     | '/_app/ecosystem/$appId'
+    | '/_app/partners/$slug'
     | '/_app/sandbox/$username'
     | '/_app/chats/'
     | '/_app/ecosystem/'
+    | '/_app/partners/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -242,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/partners/': {
+      id: '/_app/partners/'
+      path: '/partners'
+      fullPath: '/partners/'
+      preLoaderRoute: typeof AppPartnersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/ecosystem/': {
       id: '/_app/ecosystem/'
       path: '/ecosystem'
@@ -261,6 +292,13 @@ declare module '@tanstack/react-router' {
       path: '/sandbox/$username'
       fullPath: '/sandbox/$username'
       preLoaderRoute: typeof AppSandboxUsernameRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/partners/$slug': {
+      id: '/_app/partners/$slug'
+      path: '/partners/$slug'
+      fullPath: '/partners/$slug'
+      preLoaderRoute: typeof AppPartnersSlugRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/ecosystem/$appId': {
@@ -288,9 +326,11 @@ interface AppRouteChildren {
   AppWalletRoute: typeof AppWalletRoute
   AppChatsChatIdRoute: typeof AppChatsChatIdRoute
   AppEcosystemAppIdRoute: typeof AppEcosystemAppIdRoute
+  AppPartnersSlugRoute: typeof AppPartnersSlugRoute
   AppSandboxUsernameRoute: typeof AppSandboxUsernameRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
   AppEcosystemIndexRoute: typeof AppEcosystemIndexRoute
+  AppPartnersIndexRoute: typeof AppPartnersIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -301,9 +341,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppWalletRoute: AppWalletRoute,
   AppChatsChatIdRoute: AppChatsChatIdRoute,
   AppEcosystemAppIdRoute: AppEcosystemAppIdRoute,
+  AppPartnersSlugRoute: AppPartnersSlugRoute,
   AppSandboxUsernameRoute: AppSandboxUsernameRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,
   AppEcosystemIndexRoute: AppEcosystemIndexRoute,
+  AppPartnersIndexRoute: AppPartnersIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

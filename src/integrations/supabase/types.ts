@@ -294,6 +294,503 @@ export type Database = {
         }
         Relationships: []
       }
+      partnership_agreements: {
+        Row: {
+          body: string
+          content_hash: string
+          created_at: string
+          created_by: string
+          doc_number: string
+          id: string
+          partnership_id: string
+          version: number
+        }
+        Insert: {
+          body: string
+          content_hash: string
+          created_at?: string
+          created_by: string
+          doc_number: string
+          id?: string
+          partnership_id: string
+          version?: number
+        }
+        Update: {
+          body?: string
+          content_hash?: string
+          created_at?: string
+          created_by?: string
+          doc_number?: string
+          id?: string
+          partnership_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_agreements_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_documents: {
+        Row: {
+          body: string | null
+          created_at: string
+          created_by: string
+          file_url: string | null
+          id: string
+          kind: string
+          partnership_id: string
+          title: string
+          version: number
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          created_by: string
+          file_url?: string | null
+          id?: string
+          kind?: string
+          partnership_id: string
+          title: string
+          version?: number
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          created_by?: string
+          file_url?: string | null
+          id?: string
+          kind?: string
+          partnership_id?: string
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_documents_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_finance: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string
+          direction: string
+          id: string
+          note: string | null
+          occurred_on: string
+          partnership_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string
+          created_at?: string
+          created_by: string
+          direction?: string
+          id?: string
+          note?: string | null
+          occurred_on?: string
+          partnership_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string
+          direction?: string
+          id?: string
+          note?: string | null
+          occurred_on?: string
+          partnership_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_finance_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_followers: {
+        Row: {
+          created_at: string
+          partnership_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          partnership_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          partnership_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_followers_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_join_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          partnership_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          partnership_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          partnership_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_join_requests_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: string | null
+          id: string
+          partnership_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          partnership_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          partnership_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_log_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_members: {
+        Row: {
+          id: string
+          joined_at: string
+          partnership_id: string
+          role: string
+          share: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          partnership_id: string
+          role?: string
+          share?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          partnership_id?: string
+          role?: string
+          share?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_members_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_posts: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          likes: number
+          media_url: string | null
+          partnership_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          likes?: number
+          media_url?: string | null
+          partnership_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          media_url?: string | null
+          partnership_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_posts_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_projects: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_public: boolean
+          partnership_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          partnership_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          partnership_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_projects_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_signatures: {
+        Row: {
+          agreement_id: string
+          email: string
+          full_name: string
+          id: string
+          signature_data: string | null
+          signed_at: string
+          user_id: string
+        }
+        Insert: {
+          agreement_id: string
+          email: string
+          full_name: string
+          id?: string
+          signature_data?: string | null
+          signed_at?: string
+          user_id: string
+        }
+        Update: {
+          agreement_id?: string
+          email?: string
+          full_name?: string
+          id?: string
+          signature_data?: string | null
+          signed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_signatures_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "partnership_agreements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_tasks: {
+        Row: {
+          assignee_id: string | null
+          created_at: string
+          created_by: string
+          done: boolean
+          due_date: string | null
+          id: string
+          partnership_id: string
+          project_id: string | null
+          title: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          created_at?: string
+          created_by: string
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          partnership_id: string
+          project_id?: string | null
+          title: string
+        }
+        Update: {
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          partnership_id?: string
+          project_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_tasks_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partnership_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "partnership_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnerships: {
+        Row: {
+          contacts: Json
+          created_at: string
+          created_by: string
+          decision_rule: string
+          description: string | null
+          field: string
+          followers_count: number
+          founded_at: string
+          goals: string | null
+          id: string
+          is_open: boolean
+          language: string
+          links: Json
+          logo_url: string | null
+          name: string
+          reputation: number
+          revenue_model: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          contacts?: Json
+          created_at?: string
+          created_by: string
+          decision_rule?: string
+          description?: string | null
+          field?: string
+          followers_count?: number
+          founded_at?: string
+          goals?: string | null
+          id?: string
+          is_open?: boolean
+          language?: string
+          links?: Json
+          logo_url?: string | null
+          name: string
+          reputation?: number
+          revenue_model?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          contacts?: Json
+          created_at?: string
+          created_by?: string
+          decision_rule?: string
+          description?: string | null
+          field?: string
+          followers_count?: number
+          founded_at?: string
+          goals?: string | null
+          id?: string
+          is_open?: boolean
+          language?: string
+          links?: Json
+          logo_url?: string | null
+          name?: string
+          reputation?: number
+          revenue_model?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           author_id: string
@@ -580,6 +1077,22 @@ export type Database = {
         Args: { p_cover_url?: string; p_name: string }
         Returns: Json
       }
+      app_create_partnership: {
+        Args: {
+          p_decision_rule: string
+          p_description: string
+          p_field: string
+          p_full_name: string
+          p_goals: string
+          p_is_open: boolean
+          p_language: string
+          p_logo_url: string
+          p_name: string
+          p_revenue_model: string
+          p_signature: string
+        }
+        Returns: Json
+      }
       app_delete_custom_emoji: { Args: { p_id: string }; Returns: Json }
       app_delete_emoji_pack: { Args: { p_id: string }; Returns: Json }
       app_ecosystem_charge: {
@@ -591,6 +1104,10 @@ export type Database = {
       app_ecosystem_revoke: { Args: { p_app_id: string }; Returns: Json }
       app_fragment: {
         Args: { p_cost: number; p_label: string; p_pending: number }
+        Returns: Json
+      }
+      app_join_partnership: {
+        Args: { p_id: string; p_message?: string }
         Returns: Json
       }
       app_list_chats: {
@@ -624,6 +1141,23 @@ export type Database = {
           tagline: string
         }[]
       }
+      app_list_partnerships: {
+        Args: { p_only_mine?: boolean; p_search?: string }
+        Returns: {
+          description: string
+          field: string
+          followers_count: number
+          founded_at: string
+          id: string
+          is_open: boolean
+          logo_url: string
+          members_count: number
+          my_role: string
+          name: string
+          reputation: number
+          slug: string
+        }[]
+      }
       app_mark_notifications_read: { Args: never; Returns: Json }
       app_open_chat: { Args: { other_username: string }; Returns: Json }
       app_p2p_transfer: {
@@ -647,6 +1181,10 @@ export type Database = {
         Returns: Json
       }
       app_request_verification: { Args: { note?: string }; Returns: Json }
+      app_review_join_request: {
+        Args: { p_approve: boolean; p_request_id: string }
+        Returns: Json
+      }
       app_send_message: {
         Args: { body: string; chat_id: string }
         Returns: Json
@@ -673,6 +1211,7 @@ export type Database = {
         Args: { currency: string; months: number }
         Returns: Json
       }
+      app_toggle_follow_partnership: { Args: { p_id: string }; Returns: Json }
       app_topup_rflow: {
         Args: { p_amount: number; p_card_last4: string }
         Returns: Json
@@ -688,6 +1227,14 @@ export type Database = {
         Returns: Json
       }
       is_admin: { Args: { _uid: string }; Returns: boolean }
+      is_partner_admin: {
+        Args: { _pid: string; _uid: string }
+        Returns: boolean
+      }
+      is_partner_member: {
+        Args: { _pid: string; _uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       tx_type:

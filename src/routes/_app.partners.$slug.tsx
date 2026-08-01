@@ -87,7 +87,7 @@ function PartnerPage() {
 
   const join = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.rpc("app_join_partnership", { p_id: pid!, p_message: null });
+      const { data, error } = await supabase.rpc("app_join_partnership", { p_id: pid!, p_message: undefined });
       if (error) throw error;
       return data as { joined?: boolean; requested?: boolean };
     },

@@ -150,7 +150,7 @@ function CreateDialog({ onClose }: { onClose: () => void }) {
 
   const create = useMutation({
     mutationFn: async () => {
-      const sig = hasSig ? sigRef.current?.toDataURL("image/png") : null;
+      const sig = (hasSig ? sigRef.current?.toDataURL("image/png") : "") ?? "";
       const { data, error } = await supabase.rpc("app_create_partnership", {
         p_name: form.name, p_description: form.description, p_goals: form.goals,
         p_field: form.field, p_language: form.language, p_is_open: form.is_open,

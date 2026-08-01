@@ -17,6 +17,7 @@ import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
 import { Route as AppEcosystemIndexRouteImport } from './routes/_app.ecosystem.index'
 import { Route as AppChatsIndexRouteImport } from './routes/_app.chats.index'
 import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
@@ -62,6 +63,11 @@ const AppAdminRoute = AppAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPartnersIndexRoute = AppPartnersIndexRouteImport.update({
+  id: '/partners/',
+  path: '/partners/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEcosystemIndexRoute = AppEcosystemIndexRouteImport.update({
   id: '/ecosystem/',
   path: '/ecosystem/',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/sandbox/$username': typeof AppSandboxUsernameRoute
   '/chats/': typeof AppChatsIndexRoute
   '/ecosystem/': typeof AppEcosystemIndexRoute
+  '/partners/': typeof AppPartnersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/sandbox/$username': typeof AppSandboxUsernameRoute
   '/chats': typeof AppChatsIndexRoute
   '/ecosystem': typeof AppEcosystemIndexRoute
+  '/partners': typeof AppPartnersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/_app/sandbox/$username': typeof AppSandboxUsernameRoute
   '/_app/chats/': typeof AppChatsIndexRoute
   '/_app/ecosystem/': typeof AppEcosystemIndexRoute
+  '/_app/partners/': typeof AppPartnersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/sandbox/$username'
     | '/chats/'
     | '/ecosystem/'
+    | '/partners/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/sandbox/$username'
     | '/chats'
     | '/ecosystem'
+    | '/partners'
   id:
     | '__root__'
     | '/'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/_app/sandbox/$username'
     | '/_app/chats/'
     | '/_app/ecosystem/'
+    | '/_app/partners/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -242,6 +254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/partners/': {
+      id: '/_app/partners/'
+      path: '/partners'
+      fullPath: '/partners/'
+      preLoaderRoute: typeof AppPartnersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/ecosystem/': {
       id: '/_app/ecosystem/'
       path: '/ecosystem'
@@ -291,6 +310,7 @@ interface AppRouteChildren {
   AppSandboxUsernameRoute: typeof AppSandboxUsernameRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
   AppEcosystemIndexRoute: typeof AppEcosystemIndexRoute
+  AppPartnersIndexRoute: typeof AppPartnersIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -304,6 +324,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSandboxUsernameRoute: AppSandboxUsernameRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,
   AppEcosystemIndexRoute: AppEcosystemIndexRoute,
+  AppPartnersIndexRoute: AppPartnersIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -316,13 +337,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -1106,6 +1106,10 @@ export type Database = {
         Args: { p_cost: number; p_label: string; p_pending: number }
         Returns: Json
       }
+      app_invite_partner: {
+        Args: { p_id: string; p_role?: string; p_username: string }
+        Returns: Json
+      }
       app_join_partnership: {
         Args: { p_id: string; p_message?: string }
         Returns: Json

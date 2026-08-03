@@ -15,7 +15,8 @@ type ResizeMsg = { type: "resize"; width: number; height: number };
 type PointerMsg = { type: "pointer"; x: number; y: number; active: boolean };
 type ThemeMsg = { type: "theme"; eco: string; fiat: string };
 type StopMsg = { type: "stop" };
-type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg;
+type RunMsg = { type: "pause" } | { type: "resume" };
+type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg | RunMsg;
 
 const N = 64;
 const SIZE = (N + 2) * (N + 2);

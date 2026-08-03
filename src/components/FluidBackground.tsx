@@ -107,6 +107,8 @@ function mountWorker(canvas: HTMLCanvasElement) {
     window.removeEventListener("pointerdown", onMove);
     window.removeEventListener("pointerup", onUp);
     window.removeEventListener("focus", onFocus);
+    document.removeEventListener("visibilitychange", onVisibility);
+    clearTimeout(resizeTimer);
   };
 }
 

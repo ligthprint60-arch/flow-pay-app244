@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, Users, Heart, Plus, Wallet, FileText, ListTodo, ScrollText,
-  ShieldCheck, Check, XCircle, Trash2, Handshake,
+  ShieldCheck, Check, XCircle, Trash2, Handshake, UserPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";

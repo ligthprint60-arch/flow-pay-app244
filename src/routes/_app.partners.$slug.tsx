@@ -280,6 +280,9 @@ function MembersTab({ pid, isAdmin, members }: {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [inviteName, setInviteName] = useState("");
+  const [inviteRole, setInviteRole] = useState("member");
+
   const invite = useMutation({
     mutationFn: async (username: string) => {
       const { error } = await supabase.rpc("app_invite_partner", {

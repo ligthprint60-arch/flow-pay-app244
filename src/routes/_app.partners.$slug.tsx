@@ -280,8 +280,56 @@ function MembersTab({ pid, isAdmin, members }: {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const invite = useMutation({
+    mutationFn: async (username: string) => {
+      const { error } = await supabase.rpc("app_invite_partner", {
+        p_id: pid, p_username: username.trim(), p_role: inviteRole,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setInviteName("");
+      toast.success("Участник приглашён");
+      qc.invalidateQueries({ queryKey: ["p-members", pid] });
+    },
+    onError: (e: Error) => toast.error(
+      e.message === "user_not_found" ? "Пользователь не найден"
+        : e.message === "already_member" ? "Уже в партнёрстве" : e.message,
+    ),
+  });
+
   return (
     <div className="space-y-2">
+      {isAdmin && (
+        <div className="lrf p-3">
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+            <UserPlus className="size-3" /> Пригласить участника
+          </p>
+          <div className="flex items-center gap-2">
+            <input
+              value={inviteName}
+              onChange={(e) => setInviteName(e.target.value)}
+              placeholder="@username"
+              className="lrf h-10 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground/60"
+            />
+            <select
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value)}
+              className="lrf h-10 bg-transparent px-2 text-xs outline-none [&>option]:bg-background"
+            >
+              <option value="member">Участник</option>
+              <option value="admin">Админ</option>
+            </select>
+            <button
+              disabled={inviteName.trim().length < 2 || invite.isPending}
+              onClick={() => invite.mutate(inviteName)}
+              className="mercury h-10 shrink-0 rounded-2xl px-3 text-xs font-semibold disabled:opacity-40"
+            >
+              {invite.isPending ? "…" : "Пригласить"}
+            </button>
+          </div>
+        </div>
+      )}
       {isAdmin && requests && requests.length > 0 && (
         <div className="lrf p-3">
           <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">Заявки на вступление</p>

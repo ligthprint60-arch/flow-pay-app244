@@ -207,6 +207,10 @@
       0 32px 60px -30px rgba(0,0,0,0.55);
     border-radius: 24px;
     overflow: hidden;
+    /* Paint containment keeps each glass panel's blur + animated pseudo
+       layers in their own raster scope, so one card animating never
+       invalidates the rest of the page. */
+    contain: paint style;
     animation: lrf-settle 0.42s var(--ease-flux) both;
     transition: transform 0.2s var(--ease-flux), box-shadow 0.25s var(--ease-flux);
   }

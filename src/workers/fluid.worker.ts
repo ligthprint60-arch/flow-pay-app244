@@ -15,7 +15,8 @@ type ResizeMsg = { type: "resize"; width: number; height: number };
 type PointerMsg = { type: "pointer"; x: number; y: number; active: boolean };
 type ThemeMsg = { type: "theme"; eco: string; fiat: string };
 type StopMsg = { type: "stop" };
-type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg;
+type RunMsg = { type: "pause" } | { type: "resume" };
+type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg | RunMsg;
 
 const N = 64;
 const SIZE = (N + 2) * (N + 2);
@@ -122,9 +123,18 @@ function alphaHex(a: number) {
   const val = Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, "0");
   return val;
 }
+/* The canvas is heavily blurred and upscaled by CSS, so it is rasterised at a
+   low internal resolution — identical look, a fraction of the fill cost. */
+const BACKING_W = 320;
+function sizeBacking() {
+  if (!canvas) return;
+  const ratio = height > 0 && width > 0 ? height / width : 1.8;
+  canvas.width = BACKING_W;
+  canvas.height = Math.max(1, Math.round(BACKING_W * ratio));
+}
 function draw() {
   if (!ctx || !canvas) return;
-  const w = width, h = height;
+  const w = canvas.width, h = canvas.height;
   const cellW = w / N, cellH = h / N;
   ctx.clearRect(0, 0, w, h);
   for (let i = 1; i <= N; i++) for (let j = 1; j <= N; j++) {
@@ -136,9 +146,17 @@ function draw() {
     ctx.fillRect((i - 1) * cellW, (j - 1) * cellH, cellW + 1, cellH + 1);
   }
 }
+/* Frame budget: the fluid is a slow ambient effect, 30fps is visually
+   identical here and halves the work stolen from scrolling/compositing. */
+const FRAME_MS = 33;
+let lastFrame = 0;
 function loop() {
   if (!running) return;
-  inject(); step(); draw();
+  const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+  if (now - lastFrame >= FRAME_MS) {
+    lastFrame = now;
+    inject(); step(); draw();
+  }
   raf = (self as unknown as { requestAnimationFrame: (cb: () => void) => number }).requestAnimationFrame(loop);
 }
 
@@ -148,15 +166,24 @@ self.onmessage = (e: MessageEvent<InMsg>) => {
     case "init": {
       canvas = msg.canvas;
       width = msg.width; height = msg.height;
-      canvas.width = width; canvas.height = height;
       ctx = canvas.getContext("2d", { alpha: true });
+      sizeBacking();
       eco = msg.eco || eco; fiat = msg.fiat || fiat;
       if (!running) { running = true; loop(); }
       break;
     }
     case "resize": {
       width = msg.width; height = msg.height;
-      if (canvas) { canvas.width = width; canvas.height = height; }
+      sizeBacking();
+      break;
+    }
+    case "pause": {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+      break;
+    }
+    case "resume": {
+      if (!running) { running = true; loop(); }
       break;
     }
     case "pointer": {

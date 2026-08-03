@@ -34,7 +34,10 @@ export function FluidBackground() {
         pointerEvents: "none",
         mixBlendMode: "screen",
         opacity: 0.55,
-        filter: "blur(28px) saturate(150%)",
+        // Backing store is rasterised at low resolution in the worker, so the
+        // upscale already softens the field — a lighter blur reads the same.
+        filter: "blur(18px) saturate(150%)",
+        contain: "strict",
       }}
     />
   );
@@ -58,26 +61,38 @@ function mountWorker(canvas: HTMLCanvasElement) {
     [off as unknown as Transferable],
   );
 
+  let resizeTimer: ReturnType<typeof setTimeout> | undefined;
   const onResize = () => {
-    worker.postMessage({ type: "resize", width: window.innerWidth, height: window.innerHeight });
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      worker.postMessage({ type: "resize", width: window.innerWidth, height: window.innerHeight });
+    }, 150);
   };
-  const onMove = (e: PointerEvent) => {
-    worker.postMessage({
-      type: "pointer", active: true,
-      x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight,
-    });
+  // Pointer events fire far faster than the 30fps sim needs; coalesce them
+  // to one message per animation frame so the UI thread isn't spammed.
+  let queued: { x: number; y: number; active: boolean } | null = null;
+  let flushing = false;
+  const flush = () => {
+    flushing = false;
+    if (queued) { worker.postMessage({ type: "pointer", ...queued }); queued = null; }
   };
-  const onUp = (e: PointerEvent) => {
-    worker.postMessage({
-      type: "pointer", active: false,
-      x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight,
-    });
+  const send = (e: PointerEvent, active: boolean) => {
+    queued = { active, x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight };
+    if (!flushing) { flushing = true; requestAnimationFrame(flush); }
   };
+  const onMove = (e: PointerEvent) => send(e, true);
+  const onUp = (e: PointerEvent) => send(e, false);
 
   window.addEventListener("resize", onResize, { passive: true });
   window.addEventListener("pointermove", onMove, { passive: true });
   window.addEventListener("pointerdown", onMove, { passive: true });
   window.addEventListener("pointerup", onUp, { passive: true });
+
+  // Stop burning CPU/GPU while the tab or app is in the background.
+  const onVisibility = () => {
+    worker.postMessage({ type: document.hidden ? "pause" : "resume" });
+  };
+  document.addEventListener("visibilitychange", onVisibility);
 
   // Re-sync colors when theme variables change (tab focus is a cheap proxy).
   const onFocus = () => {
@@ -85,6 +100,7 @@ function mountWorker(canvas: HTMLCanvasElement) {
     worker.postMessage({ type: "theme", eco: t.eco, fiat: t.fiat });
   };
   window.addEventListener("focus", onFocus);
+
 
   return () => {
     worker.postMessage({ type: "stop" });
@@ -94,6 +110,8 @@ function mountWorker(canvas: HTMLCanvasElement) {
     window.removeEventListener("pointerdown", onMove);
     window.removeEventListener("pointerup", onUp);
     window.removeEventListener("focus", onFocus);
+    document.removeEventListener("visibilitychange", onVisibility);
+    clearTimeout(resizeTimer);
   };
 }
 

@@ -6,9 +6,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { FluidBackground } from "@/components/FluidBackground";
+import { startGlassObserver } from "@/lib/glass-observer";
+
 
 import appCss from "../styles.css?url";
 

@@ -111,14 +111,31 @@ function FeedPage() {
         <span className="font-mono text-[10px] uppercase tracking-widest text-eco">Verified only</span>
       </div>
 
-      {profile?.is_author ? (
+      {canPost ? (
         <div className="lrf mb-6 p-4">
           <div className="relative z-10">
+            {(myPartnerships?.length ?? 0) > 0 && (
+              <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {profile?.is_author && (
+                  <button type="button" onClick={() => setAsPartner("")}
+                    className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium ${asPartner === "" ? "bg-eco/30 emissive-eco" : "bg-white/[0.05] text-muted-foreground"}`}>
+                    От себя
+                  </button>
+                )}
+                {myPartnerships!.map((mp) => (
+                  <button key={mp.id} type="button" onClick={() => setAsPartner(mp.id)}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium ${asPartner === mp.id ? "bg-eco/30 emissive-eco" : "bg-white/[0.05] text-muted-foreground"}`}>
+                    {mp.logo_url && <img src={mp.logo_url} alt="" className="size-4 rounded-full object-cover" />}
+                    {mp.name}
+                  </button>
+                ))}
+              </div>
+            )}
             <textarea
               value={composer}
               onChange={(e) => setComposer(e.target.value)}
               rows={3}
-              placeholder="Поделитесь мыслью… используйте :flow: :rocket:"
+              placeholder={asPartner ? "Новость от имени партнёрства…" : "Поделитесь мыслью… используйте :flow: :rocket:"}
               className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
             />
             <AnimatePresence>
@@ -144,7 +161,7 @@ function FeedPage() {
               </div>
               <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => createPost.mutate()}
-                disabled={!composer.trim() || createPost.isPending}
+                disabled={!composer.trim() || createPost.isPending || (!profile?.is_author && !asPartner)}
                 className="mercury h-9 rounded-full px-4 text-sm font-semibold disabled:opacity-40">
                 Опубликовать
               </motion.button>
@@ -155,11 +172,12 @@ function FeedPage() {
         <div className="acrylic mb-6 flex items-start gap-3 p-4">
           <Sparkles className="mt-0.5 size-4 shrink-0 text-eco" />
           <div className="text-xs text-muted-foreground">
-            Только верифицированные авторы могут публиковать.{" "}
+            Публиковать могут верифицированные авторы и участники партнёрств.{" "}
             <span className="text-foreground">Подайте заявку в профиле</span>.
           </div>
         </div>
       )}
+
 
       {isLoading ? (
         <SkeletonFeed />

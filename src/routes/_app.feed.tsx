@@ -58,6 +58,15 @@ function FeedPage() {
 
   const canPost = !!profile?.is_author || (myPartnerships?.length ?? 0) > 0;
 
+  // Members who aren't verified authors can only publish as an organisation,
+  // so preselect their first partnership.
+  useEffect(() => {
+    if (!profile?.is_author && !asPartner && myPartnerships?.length) {
+      setAsPartner(myPartnerships[0].id);
+    }
+  }, [profile?.is_author, myPartnerships, asPartner]);
+
+
   const openChat = useMutation({
     mutationFn: async (username: string) => {
       const { data, error } = await supabase.rpc("app_open_chat", { other_username: username });

@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { renderWithEmojis, CUSTOM_EMOJIS } from "@/lib/emoji";
 import { useProfile } from "@/lib/theme";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/feed")({

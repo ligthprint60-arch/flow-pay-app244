@@ -123,16 +123,130 @@ function alphaHex(a: number) {
   const val = Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, "0");
   return val;
 }
-/* The canvas is heavily blurred and upscaled by CSS, so it is rasterised at a
-   low internal resolution — identical look, a fraction of the fill cost. */
-const BACKING_W = 320;
-function sizeBacking() {
-  if (!canvas) return;
-  const ratio = height > 0 && width > 0 ? height / width : 1.8;
-  canvas.width = BACKING_W;
-  canvas.height = Math.max(1, Math.round(BACKING_W * ratio));
+
+/* ---------------- Rendering ----------------
+   Preferred path: WebGL. The 64×64 field is uploaded once per frame as a
+   tiny texture and expanded by the GPU with linear filtering + a 9-tap
+   gaussian in the fragment shader. That replaces ~4000 canvas fillRect
+   calls AND the expensive full-screen CSS blur with a single quad draw,
+   which is where most of the per-frame cost used to go. The 2D canvas
+   path below stays as a fallback and looks the same. */
+const FIELD = N + 2;
+let gl: WebGLRenderingContext | WebGL2RenderingContext | null = null;
+let tex: WebGLTexture | null = null;
+let uColorEco: WebGLUniformLocation | null = null;
+let uColorFiat: WebGLUniformLocation | null = null;
+let uTexel: WebGLUniformLocation | null = null;
+const field = new Uint8Array(FIELD * FIELD * 4);
+
+const VERT = `attribute vec2 p; varying vec2 uv;
+void main(){ uv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }`;
+const FRAG = `precision mediump float;
+varying vec2 uv;
+uniform sampler2D field;
+uniform vec3 cEco;
+uniform vec3 cFiat;
+uniform vec2 texel;
+vec2 sample2(vec2 c){ vec4 t = texture2D(field, c); return vec2(t.r, t.g); }
+void main(){
+  // 9-tap gaussian: reproduces the soft blurred plume look on the GPU.
+  vec2 acc = vec2(0.0);
+  acc += sample2(uv) * 0.25;
+  acc += sample2(uv + vec2( texel.x, 0.0)) * 0.125;
+  acc += sample2(uv + vec2(-texel.x, 0.0)) * 0.125;
+  acc += sample2(uv + vec2(0.0,  texel.y)) * 0.125;
+  acc += sample2(uv + vec2(0.0, -texel.y)) * 0.125;
+  acc += sample2(uv + texel) * 0.0625;
+  acc += sample2(uv - texel) * 0.0625;
+  acc += sample2(uv + vec2( texel.x, -texel.y)) * 0.0625;
+  acc += sample2(uv + vec2(-texel.x,  texel.y)) * 0.0625;
+  float d = acc.x;
+  float vel = acc.y;
+  vec3 col = mix(cEco, cFiat, smoothstep(0.35, 0.75, vel));
+  float a = min(0.4, d * 1.15);
+  gl_FragColor = vec4(col * a, a);
+}`;
+
+function hex3(h: string): [number, number, number] {
+  const s = h.replace("#", "");
+  const n = s.length === 3
+    ? parseInt(s.split("").map((c) => c + c).join(""), 16)
+    : parseInt(s.slice(0, 6), 16);
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
 }
+
+function initGL(): boolean {
+  if (!canvas) return false;
+  const ctx3d = (canvas.getContext("webgl2", { alpha: true, antialias: false, premultipliedAlpha: true })
+    || canvas.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: true })) as
+    WebGLRenderingContext | WebGL2RenderingContext | null;
+  if (!ctx3d) return false;
+  gl = ctx3d;
+
+  const compile = (type: number, src: string) => {
+    const sh = gl!.createShader(type)!;
+    gl!.shaderSource(sh, src);
+    gl!.compileShader(sh);
+    if (!gl!.getShaderParameter(sh, gl!.COMPILE_STATUS)) return null;
+    return sh;
+  };
+  const vs = compile(gl.VERTEX_SHADER, VERT);
+  const fs = compile(gl.FRAGMENT_SHADER, FRAG);
+  if (!vs || !fs) { gl = null; return false; }
+  const prog = gl.createProgram()!;
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { gl = null; return false; }
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "p");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  uColorEco = gl.getUniformLocation(prog, "cEco");
+  uColorFiat = gl.getUniformLocation(prog, "cFiat");
+  uTexel = gl.getUniformLocation(prog, "texel");
+  gl.uniform2f(uTexel, 1 / FIELD, 1 / FIELD);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  return true;
+}
+
+function drawGL() {
+  if (!gl || !canvas) return;
+  for (let j = 0; j < FIELD; j++) {
+    for (let i = 0; i < FIELD; i++) {
+      const k = IX(i, j);
+      const o = (j * FIELD + i) * 4;
+      const d = dens[k] / 220;
+      const vel = Math.hypot(u[k], v[k]) * 0.15;
+      field[o] = Math.min(255, d * 255);
+      field[o + 1] = Math.min(255, vel * 255);
+      field[o + 2] = 0;
+      field[o + 3] = 255;
+    }
+  }
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, FIELD, FIELD, 0, gl.RGBA, gl.UNSIGNED_BYTE, field);
+  gl.uniform3fv(uColorEco, hex3(eco));
+  gl.uniform3fv(uColorFiat, hex3(fiat));
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
 function draw() {
+  if (gl) { drawGL(); return; }
   if (!ctx || !canvas) return;
   const w = canvas.width, h = canvas.height;
   const cellW = w / N, cellH = h / N;
@@ -146,6 +260,7 @@ function draw() {
     ctx.fillRect((i - 1) * cellW, (j - 1) * cellH, cellW + 1, cellH + 1);
   }
 }
+
 /* Frame budget: the fluid is a slow ambient effect, 30fps is visually
    identical here and halves the work stolen from scrolling/compositing. */
 const FRAME_MS = 33;

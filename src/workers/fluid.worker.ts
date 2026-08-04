@@ -291,12 +291,14 @@ self.onmessage = (e: MessageEvent<InMsg>) => {
     case "init": {
       canvas = msg.canvas;
       width = msg.width; height = msg.height;
-      ctx = canvas.getContext("2d", { alpha: true });
       sizeBacking();
+      // GPU path first; only fall back to 2D when WebGL is unavailable.
+      if (!initGL()) ctx = canvas.getContext("2d", { alpha: true });
       eco = msg.eco || eco; fiat = msg.fiat || fiat;
       if (!running) { running = true; loop(); }
       break;
     }
+
     case "resize": {
       width = msg.width; height = msg.height;
       sizeBacking();

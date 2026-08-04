@@ -199,21 +199,34 @@ function FeedPage() {
 
 function PostCard({ post, onMessage }: { post: Post; onMessage: (u: string) => void }) {
   const ago = timeAgo(post.created_at);
-  const initials = (post.author?.display_name ?? "??").slice(0, 2).toUpperCase();
+  const asOrg = !!post.partnership_id && !!post.partnership;
+  const title = asOrg ? post.partnership!.name : (post.author?.display_name ?? "Аноним");
+  const initials = title.slice(0, 2).toUpperCase();
   return (
     <li className="lrf p-4">
       <div className="relative z-10 flex items-start gap-3">
-        <div className="grid size-10 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/40 font-mono text-[11px] font-semibold emissive-eco">
-          {initials}
-        </div>
+        {asOrg && post.partnership!.logo_url ? (
+          <img src={post.partnership!.logo_url} alt={title} className="size-10 rounded-2xl object-cover" />
+        ) : (
+          <div className="grid size-10 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/40 font-mono text-[11px] font-semibold emissive-eco">
+            {initials}
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="truncate text-sm font-semibold">{post.author?.display_name ?? "Аноним"}</span>
-            {post.author && <VerifiedBadge isVerified={post.author.is_verified} isAuthor={post.author.is_author} />}
-            <span className="truncate text-xs text-muted-foreground">@{post.author?.username}</span>
+            <span className="truncate text-sm font-semibold">{title}</span>
+            {asOrg ? (
+              <span className="shrink-0 rounded-full bg-eco/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-eco">PAS</span>
+            ) : (
+              post.author && <VerifiedBadge isVerified={post.author.is_verified} isAuthor={post.author.is_author} />
+            )}
+            <span className="truncate text-xs text-muted-foreground">
+              {asOrg ? `@${post.author?.username}` : `@${post.author?.username}`}
+            </span>
             <span className="text-muted-foreground">·</span>
             <span className="shrink-0 text-xs text-muted-foreground">{ago}</span>
           </div>
+
           <p className="mt-2 whitespace-pre-wrap text-[14px] leading-relaxed">{renderWithEmojis(post.body)}</p>
           <div className="mt-3 flex items-center gap-4 text-muted-foreground">
             <button className="flex items-center gap-1.5 text-xs hover:text-eco">

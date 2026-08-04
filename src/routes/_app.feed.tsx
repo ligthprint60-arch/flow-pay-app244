@@ -23,6 +23,8 @@ type Post = {
   topic: string | null;
   likes: number;
   created_at: string;
+  partnership_id: string | null;
+  partnership: { name: string; slug: string; logo_url: string | null } | null;
   author: { username: string; display_name: string; is_author: boolean; is_verified: boolean } | null;
 };
 
@@ -32,9 +34,29 @@ function FeedPage() {
   const navigate = useNavigate();
   const [composer, setComposer] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [asPartner, setAsPartner] = useState<string>("");
   const { data: profile } = useProfile();
   const ownedEmojis = profile?.owned_emojis ?? [];
   const availableEmojis = CUSTOM_EMOJIS.filter((e) => ownedEmojis.includes(e.id));
+
+  // Partnerships the user may publish on behalf of.
+  const { data: myPartnerships } = useQuery({
+    queryKey: ["my-partnerships", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("partnership_members")
+        .select("partnership_id, status, partnerships:partnership_id(id, name, logo_url)")
+        .eq("user_id", user!.id)
+        .eq("status", "active");
+      if (error) throw error;
+      return (data ?? [])
+        .map((r) => (r as unknown as { partnerships: { id: string; name: string; logo_url: string | null } | null }).partnerships)
+        .filter(Boolean) as Array<{ id: string; name: string; logo_url: string | null }>;
+    },
+  });
+
+  const canPost = !!profile?.is_author || (myPartnerships?.length ?? 0) > 0;
 
   const openChat = useMutation({
     mutationFn: async (username: string) => {
@@ -51,7 +73,7 @@ function FeedPage() {
     queryFn: async (): Promise<Post[]> => {
       const { data, error } = await supabase
         .from("posts")
-        .select("id,author_id,body,topic,likes,created_at,author:profiles!posts_author_id_fkey(username,display_name,is_author,is_verified)")
+        .select("id,author_id,body,topic,likes,created_at,partnership_id,partnership:partnerships(name,slug,logo_url),author:profiles!posts_author_id_fkey(username,display_name,is_author,is_verified)")
         .order("created_at", { ascending: false })
         .limit(30);
       if (error) throw error;
@@ -62,7 +84,12 @@ function FeedPage() {
   const createPost = useMutation({
     mutationFn: async () => {
       if (!user || !composer.trim()) return;
-      const { error } = await supabase.from("posts").insert({ author_id: user.id, body: composer.trim(), topic: "thoughts" });
+      const { error } = await supabase.from("posts").insert({
+        author_id: user.id,
+        body: composer.trim(),
+        topic: "thoughts",
+        partnership_id: asPartner || null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -72,6 +99,7 @@ function FeedPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   return (
     <div className="px-5 pb-6 pt-12">

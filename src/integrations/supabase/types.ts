@@ -371,6 +371,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "partnership_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "partnership_documents_partnership_id_fkey"
             columns: ["partnership_id"]
             isOneToOne: false
@@ -414,6 +421,13 @@ export type Database = {
           partnership_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "partnership_finance_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "partnership_finance_partnership_id_fkey"
             columns: ["partnership_id"]
@@ -482,6 +496,13 @@ export type Database = {
             referencedRelation: "partnerships"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "partnership_join_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       partnership_log: {
@@ -510,6 +531,13 @@ export type Database = {
           partnership_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "partnership_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "partnership_log_partnership_id_fkey"
             columns: ["partnership_id"]
@@ -555,6 +583,13 @@ export type Database = {
             referencedRelation: "partnerships"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "partnership_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       partnership_posts: {
@@ -586,6 +621,13 @@ export type Database = {
           partnership_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "partnership_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "partnership_posts_partnership_id_fkey"
             columns: ["partnership_id"]
@@ -710,6 +752,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "partnership_tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "partnership_tasks_partnership_id_fkey"
             columns: ["partnership_id"]
             isOneToOne: false
@@ -798,6 +847,7 @@ export type Database = {
           created_at: string
           id: string
           likes: number
+          partnership_id: string | null
           topic: string | null
         }
         Insert: {
@@ -806,6 +856,7 @@ export type Database = {
           created_at?: string
           id?: string
           likes?: number
+          partnership_id?: string | null
           topic?: string | null
         }
         Update: {
@@ -814,6 +865,7 @@ export type Database = {
           created_at?: string
           id?: string
           likes?: number
+          partnership_id?: string | null
           topic?: string | null
         }
         Relationships: [
@@ -822,6 +874,13 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
             referencedColumns: ["id"]
           },
         ]

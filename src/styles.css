@@ -251,7 +251,6 @@
       radial-gradient(70% 45% at 105% 108%, color-mix(in oklab, var(--fiat) 22%, transparent), transparent 60%);
     pointer-events: none;
     mix-blend-mode: screen;
-    filter: blur(0.4px);
     z-index: 0;
     will-change: transform, opacity;
     animation: lrf-rays 9s var(--ease-flux) infinite;
@@ -284,7 +283,16 @@
     z-index: 0;
     animation: lrf-edge 7s linear infinite;
   }
+  /* Light animation runs only for panels the user can actually see
+     (see src/lib/glass-observer.ts) and freezes with the tab. Identical
+     appearance, a fraction of the continuous compositing cost. */
+  .lrf::before, .lrf::after { animation-play-state: paused; }
+  .lrf.lrf-live::before, .lrf.lrf-live::after { animation-play-state: running; }
+  .glass-frozen .lrf::before,
+  .glass-frozen .lrf::after,
+  .glass-frozen body::before { animation-play-state: paused !important; }
   .lrf > * { position: relative; z-index: 1; }
+
 
   .lrf-thick {
     backdrop-filter: blur(36px) saturate(200%) brightness(1.05);

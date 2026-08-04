@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { renderWithEmojis, CUSTOM_EMOJIS } from "@/lib/emoji";
 import { useProfile } from "@/lib/theme";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/feed")({
@@ -23,6 +23,8 @@ type Post = {
   topic: string | null;
   likes: number;
   created_at: string;
+  partnership_id: string | null;
+  partnership: { name: string; slug: string; logo_url: string | null } | null;
   author: { username: string; display_name: string; is_author: boolean; is_verified: boolean } | null;
 };
 
@@ -32,9 +34,38 @@ function FeedPage() {
   const navigate = useNavigate();
   const [composer, setComposer] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [asPartner, setAsPartner] = useState<string>("");
   const { data: profile } = useProfile();
   const ownedEmojis = profile?.owned_emojis ?? [];
   const availableEmojis = CUSTOM_EMOJIS.filter((e) => ownedEmojis.includes(e.id));
+
+  // Partnerships the user may publish on behalf of.
+  const { data: myPartnerships } = useQuery({
+    queryKey: ["my-partnerships", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("partnership_members")
+        .select("partnership_id, status, partnerships:partnership_id(id, name, logo_url)")
+        .eq("user_id", user!.id)
+        .eq("status", "active");
+      if (error) throw error;
+      return (data ?? [])
+        .map((r) => (r as unknown as { partnerships: { id: string; name: string; logo_url: string | null } | null }).partnerships)
+        .filter(Boolean) as Array<{ id: string; name: string; logo_url: string | null }>;
+    },
+  });
+
+  const canPost = !!profile?.is_author || (myPartnerships?.length ?? 0) > 0;
+
+  // Members who aren't verified authors can only publish as an organisation,
+  // so preselect their first partnership.
+  useEffect(() => {
+    if (!profile?.is_author && !asPartner && myPartnerships?.length) {
+      setAsPartner(myPartnerships[0].id);
+    }
+  }, [profile?.is_author, myPartnerships, asPartner]);
+
 
   const openChat = useMutation({
     mutationFn: async (username: string) => {
@@ -51,7 +82,7 @@ function FeedPage() {
     queryFn: async (): Promise<Post[]> => {
       const { data, error } = await supabase
         .from("posts")
-        .select("id,author_id,body,topic,likes,created_at,author:profiles!posts_author_id_fkey(username,display_name,is_author,is_verified)")
+        .select("id,author_id,body,topic,likes,created_at,partnership_id,partnership:partnerships(name,slug,logo_url),author:profiles!posts_author_id_fkey(username,display_name,is_author,is_verified)")
         .order("created_at", { ascending: false })
         .limit(30);
       if (error) throw error;
@@ -62,7 +93,12 @@ function FeedPage() {
   const createPost = useMutation({
     mutationFn: async () => {
       if (!user || !composer.trim()) return;
-      const { error } = await supabase.from("posts").insert({ author_id: user.id, body: composer.trim(), topic: "thoughts" });
+      const { error } = await supabase.from("posts").insert({
+        author_id: user.id,
+        body: composer.trim(),
+        topic: "thoughts",
+        partnership_id: asPartner || null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -72,6 +108,7 @@ function FeedPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   return (
     <div className="px-5 pb-6 pt-12">
@@ -83,14 +120,31 @@ function FeedPage() {
         <span className="font-mono text-[10px] uppercase tracking-widest text-eco">Verified only</span>
       </div>
 
-      {profile?.is_author ? (
+      {canPost ? (
         <div className="lrf mb-6 p-4">
           <div className="relative z-10">
+            {(myPartnerships?.length ?? 0) > 0 && (
+              <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {profile?.is_author && (
+                  <button type="button" onClick={() => setAsPartner("")}
+                    className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium ${asPartner === "" ? "bg-eco/30 emissive-eco" : "bg-white/[0.05] text-muted-foreground"}`}>
+                    От себя
+                  </button>
+                )}
+                {myPartnerships!.map((mp) => (
+                  <button key={mp.id} type="button" onClick={() => setAsPartner(mp.id)}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium ${asPartner === mp.id ? "bg-eco/30 emissive-eco" : "bg-white/[0.05] text-muted-foreground"}`}>
+                    {mp.logo_url && <img src={mp.logo_url} alt="" className="size-4 rounded-full object-cover" />}
+                    {mp.name}
+                  </button>
+                ))}
+              </div>
+            )}
             <textarea
               value={composer}
               onChange={(e) => setComposer(e.target.value)}
               rows={3}
-              placeholder="Поделитесь мыслью… используйте :flow: :rocket:"
+              placeholder={asPartner ? "Новость от имени партнёрства…" : "Поделитесь мыслью… используйте :flow: :rocket:"}
               className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
             />
             <AnimatePresence>
@@ -116,7 +170,7 @@ function FeedPage() {
               </div>
               <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => createPost.mutate()}
-                disabled={!composer.trim() || createPost.isPending}
+                disabled={!composer.trim() || createPost.isPending || (!profile?.is_author && !asPartner)}
                 className="mercury h-9 rounded-full px-4 text-sm font-semibold disabled:opacity-40">
                 Опубликовать
               </motion.button>
@@ -127,11 +181,12 @@ function FeedPage() {
         <div className="acrylic mb-6 flex items-start gap-3 p-4">
           <Sparkles className="mt-0.5 size-4 shrink-0 text-eco" />
           <div className="text-xs text-muted-foreground">
-            Только верифицированные авторы могут публиковать.{" "}
+            Публиковать могут верифицированные авторы и участники партнёрств.{" "}
             <span className="text-foreground">Подайте заявку в профиле</span>.
           </div>
         </div>
       )}
+
 
       {isLoading ? (
         <SkeletonFeed />
@@ -153,21 +208,34 @@ function FeedPage() {
 
 function PostCard({ post, onMessage }: { post: Post; onMessage: (u: string) => void }) {
   const ago = timeAgo(post.created_at);
-  const initials = (post.author?.display_name ?? "??").slice(0, 2).toUpperCase();
+  const asOrg = !!post.partnership_id && !!post.partnership;
+  const title = asOrg ? post.partnership!.name : (post.author?.display_name ?? "Аноним");
+  const initials = title.slice(0, 2).toUpperCase();
   return (
     <li className="lrf p-4">
       <div className="relative z-10 flex items-start gap-3">
-        <div className="grid size-10 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/40 font-mono text-[11px] font-semibold emissive-eco">
-          {initials}
-        </div>
+        {asOrg && post.partnership!.logo_url ? (
+          <img src={post.partnership!.logo_url} alt={title} className="size-10 rounded-2xl object-cover" />
+        ) : (
+          <div className="grid size-10 place-items-center rounded-2xl bg-gradient-to-br from-eco/40 to-fiat/40 font-mono text-[11px] font-semibold emissive-eco">
+            {initials}
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="truncate text-sm font-semibold">{post.author?.display_name ?? "Аноним"}</span>
-            {post.author && <VerifiedBadge isVerified={post.author.is_verified} isAuthor={post.author.is_author} />}
-            <span className="truncate text-xs text-muted-foreground">@{post.author?.username}</span>
+            <span className="truncate text-sm font-semibold">{title}</span>
+            {asOrg ? (
+              <span className="shrink-0 rounded-full bg-eco/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-eco">PAS</span>
+            ) : (
+              post.author && <VerifiedBadge isVerified={post.author.is_verified} isAuthor={post.author.is_author} />
+            )}
+            <span className="truncate text-xs text-muted-foreground">
+              {asOrg ? `@${post.author?.username}` : `@${post.author?.username}`}
+            </span>
             <span className="text-muted-foreground">·</span>
             <span className="shrink-0 text-xs text-muted-foreground">{ago}</span>
           </div>
+
           <p className="mt-2 whitespace-pre-wrap text-[14px] leading-relaxed">{renderWithEmojis(post.body)}</p>
           <div className="mt-3 flex items-center gap-4 text-muted-foreground">
             <button className="flex items-center gap-1.5 text-xs hover:text-eco">

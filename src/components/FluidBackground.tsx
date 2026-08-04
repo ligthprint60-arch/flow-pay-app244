@@ -34,9 +34,10 @@ export function FluidBackground() {
         pointerEvents: "none",
         mixBlendMode: "screen",
         opacity: 0.55,
-        // Backing store is rasterised at low resolution in the worker, so the
-        // upscale already softens the field — a lighter blur reads the same.
-        filter: "blur(18px) saturate(150%)",
+        // The worker renders the field through a WebGL gaussian, so the CSS
+        // blur — a full-screen compositor pass every frame — can be light.
+        filter: "blur(8px) saturate(150%)",
+
         contain: "strict",
       }}
     />

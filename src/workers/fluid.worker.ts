@@ -124,6 +124,16 @@ function alphaHex(a: number) {
   return val;
 }
 
+/* The canvas is upscaled and softened, so it is rasterised at a low internal
+   resolution — identical look, a fraction of the fill cost. */
+const BACKING_W = 320;
+function sizeBacking() {
+  if (!canvas) return;
+  const ratio = height > 0 && width > 0 ? height / width : 1.8;
+  canvas.width = BACKING_W;
+  canvas.height = Math.max(1, Math.round(BACKING_W * ratio));
+}
+
 /* ---------------- Rendering ----------------
    Preferred path: WebGL. The 64×64 field is uploaded once per frame as a
    tiny texture and expanded by the GPU with linear filtering + a 9-tap

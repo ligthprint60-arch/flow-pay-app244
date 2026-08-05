@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      channel_subscriptions: {
+        Row: {
+          channel_id: string
+          created_at: string
+          subscriber_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          subscriber_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_subscriptions_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_subscriptions_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_settings: {
         Row: {
           background_url: string | null
@@ -1061,6 +1094,134 @@ export type Database = {
         }
         Relationships: []
       }
+      video_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          video_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          video_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_likes: {
+        Row: {
+          created_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_likes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          author_id: string
+          category: string
+          created_at: string
+          description: string | null
+          duration: number
+          id: string
+          is_published: boolean
+          likes: number
+          thumb_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+          views: number
+        }
+        Insert: {
+          author_id: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration?: number
+          id?: string
+          is_published?: boolean
+          likes?: number
+          thumb_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+          views?: number
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration?: number
+          id?: string
+          is_published?: boolean
+          likes?: number
+          thumb_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wallets: {
         Row: {
           fflow_active: number
@@ -1275,6 +1436,7 @@ export type Database = {
         Returns: Json
       }
       app_toggle_follow_partnership: { Args: { p_id: string }; Returns: Json }
+      app_toggle_subscription: { Args: { p_channel_id: string }; Returns: Json }
       app_topup_rflow: {
         Args: { p_amount: number; p_card_last4: string }
         Returns: Json
@@ -1289,6 +1451,8 @@ export type Database = {
         }
         Returns: Json
       }
+      app_video_toggle_like: { Args: { p_video_id: string }; Returns: Json }
+      app_video_view: { Args: { p_video_id: string }; Returns: Json }
       is_admin: { Args: { _uid: string }; Returns: boolean }
       is_partner_admin: {
         Args: { _pid: string; _uid: string }

@@ -103,9 +103,19 @@ function AppLayout() {
               </Link>
             );
           })}
+
+          <button
+            onClick={() => setSectionsOpen(true)}
+            aria-label="Все разделы"
+            className="lrf-tap relative z-10 flex flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-2"
+          >
+            <LayoutGrid className="relative size-[20px] text-muted-foreground" strokeWidth={1.8} />
+            <span className="relative text-[9.5px] font-medium tracking-wide text-muted-foreground">Ещё</span>
+          </button>
         </div>
       </nav>}
 
+      <SectionsWindow open={sectionsOpen} onOpenChange={setSectionsOpen} />
       <SettingsSheet
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
@@ -116,6 +126,7 @@ function AppLayout() {
       <ShopDialog open={shopOpen} onOpenChange={setShopOpen} />
       <PremiumEditor open={premiumOpen} onOpenChange={setPremiumOpen} />
       <NotificationsSheet open={notifOpen} onOpenChange={setNotifOpen} />
+
     </div>
   );
 }

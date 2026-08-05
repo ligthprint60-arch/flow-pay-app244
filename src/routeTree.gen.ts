@@ -21,6 +21,7 @@ import { Route as AppVideoIndexRouteImport } from './routes/_app.video.index'
 import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
 import { Route as AppEcosystemIndexRouteImport } from './routes/_app.ecosystem.index'
 import { Route as AppChatsIndexRouteImport } from './routes/_app.chats.index'
+import { Route as AppVideoVideoIdRouteImport } from './routes/_app.video.$videoId'
 import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
 import { Route as AppPartnersSlugRouteImport } from './routes/_app.partners.$slug'
 import { Route as AppEcosystemAppIdRouteImport } from './routes/_app.ecosystem.$appId'
@@ -85,6 +86,11 @@ const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppVideoVideoIdRoute = AppVideoVideoIdRouteImport.update({
+  id: '/video/$videoId',
+  path: '/video/$videoId',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSandboxUsernameRoute = AppSandboxUsernameRouteImport.update({
   id: '/sandbox/$username',
   path: '/sandbox/$username',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/partners/$slug': typeof AppPartnersSlugRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
+  '/video/$videoId': typeof AppVideoVideoIdRoute
   '/chats/': typeof AppChatsIndexRoute
   '/ecosystem/': typeof AppEcosystemIndexRoute
   '/partners/': typeof AppPartnersIndexRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/partners/$slug': typeof AppPartnersSlugRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
+  '/video/$videoId': typeof AppVideoVideoIdRoute
   '/chats': typeof AppChatsIndexRoute
   '/ecosystem': typeof AppEcosystemIndexRoute
   '/partners': typeof AppPartnersIndexRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/_app/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/_app/partners/$slug': typeof AppPartnersSlugRoute
   '/_app/sandbox/$username': typeof AppSandboxUsernameRoute
+  '/_app/video/$videoId': typeof AppVideoVideoIdRoute
   '/_app/chats/': typeof AppChatsIndexRoute
   '/_app/ecosystem/': typeof AppEcosystemIndexRoute
   '/_app/partners/': typeof AppPartnersIndexRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/ecosystem/$appId'
     | '/partners/$slug'
     | '/sandbox/$username'
+    | '/video/$videoId'
     | '/chats/'
     | '/ecosystem/'
     | '/partners/'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/ecosystem/$appId'
     | '/partners/$slug'
     | '/sandbox/$username'
+    | '/video/$videoId'
     | '/chats'
     | '/ecosystem'
     | '/partners'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/_app/ecosystem/$appId'
     | '/_app/partners/$slug'
     | '/_app/sandbox/$username'
+    | '/_app/video/$videoId'
     | '/_app/chats/'
     | '/_app/ecosystem/'
     | '/_app/partners/'
@@ -306,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatsIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/video/$videoId': {
+      id: '/_app/video/$videoId'
+      path: '/video/$videoId'
+      fullPath: '/video/$videoId'
+      preLoaderRoute: typeof AppVideoVideoIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/sandbox/$username': {
       id: '/_app/sandbox/$username'
       path: '/sandbox/$username'
@@ -347,6 +366,7 @@ interface AppRouteChildren {
   AppEcosystemAppIdRoute: typeof AppEcosystemAppIdRoute
   AppPartnersSlugRoute: typeof AppPartnersSlugRoute
   AppSandboxUsernameRoute: typeof AppSandboxUsernameRoute
+  AppVideoVideoIdRoute: typeof AppVideoVideoIdRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
   AppEcosystemIndexRoute: typeof AppEcosystemIndexRoute
   AppPartnersIndexRoute: typeof AppPartnersIndexRoute
@@ -363,6 +383,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEcosystemAppIdRoute: AppEcosystemAppIdRoute,
   AppPartnersSlugRoute: AppPartnersSlugRoute,
   AppSandboxUsernameRoute: AppSandboxUsernameRoute,
+  AppVideoVideoIdRoute: AppVideoVideoIdRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,
   AppEcosystemIndexRoute: AppEcosystemIndexRoute,
   AppPartnersIndexRoute: AppPartnersIndexRoute,

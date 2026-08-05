@@ -17,6 +17,7 @@ import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppVideoIndexRouteImport } from './routes/_app.video.index'
 import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
 import { Route as AppEcosystemIndexRouteImport } from './routes/_app.ecosystem.index'
 import { Route as AppChatsIndexRouteImport } from './routes/_app.chats.index'
@@ -62,6 +63,11 @@ const AppFeedRoute = AppFeedRouteImport.update({
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVideoIndexRoute = AppVideoIndexRouteImport.update({
+  id: '/video/',
+  path: '/video/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPartnersIndexRoute = AppPartnersIndexRouteImport.update({
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/chats/': typeof AppChatsIndexRoute
   '/ecosystem/': typeof AppEcosystemIndexRoute
   '/partners/': typeof AppPartnersIndexRoute
+  '/video/': typeof AppVideoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/chats': typeof AppChatsIndexRoute
   '/ecosystem': typeof AppEcosystemIndexRoute
   '/partners': typeof AppPartnersIndexRoute
+  '/video': typeof AppVideoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/_app/chats/': typeof AppChatsIndexRoute
   '/_app/ecosystem/': typeof AppEcosystemIndexRoute
   '/_app/partners/': typeof AppPartnersIndexRoute
+  '/_app/video/': typeof AppVideoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/chats/'
     | '/ecosystem/'
     | '/partners/'
+    | '/video/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/ecosystem'
     | '/partners'
+    | '/video'
   id:
     | '__root__'
     | '/'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/_app/chats/'
     | '/_app/ecosystem/'
     | '/_app/partners/'
+    | '/_app/video/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -264,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/video/': {
+      id: '/_app/video/'
+      path: '/video'
+      fullPath: '/video/'
+      preLoaderRoute: typeof AppVideoIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/partners/': {
@@ -331,6 +350,7 @@ interface AppRouteChildren {
   AppChatsIndexRoute: typeof AppChatsIndexRoute
   AppEcosystemIndexRoute: typeof AppEcosystemIndexRoute
   AppPartnersIndexRoute: typeof AppPartnersIndexRoute
+  AppVideoIndexRoute: typeof AppVideoIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -346,6 +366,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppChatsIndexRoute: AppChatsIndexRoute,
   AppEcosystemIndexRoute: AppEcosystemIndexRoute,
   AppPartnersIndexRoute: AppPartnersIndexRoute,
+  AppVideoIndexRoute: AppVideoIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -358,13 +379,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

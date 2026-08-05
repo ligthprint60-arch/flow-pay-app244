@@ -166,7 +166,7 @@ function UploadDialog({
 }: { open: boolean; onOpenChange: (v: boolean) => void; userId: string | null; onDone: () => void }) {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [cat, setCat] = useState(VIDEO_CATEGORIES[0]!.id);
+  const [cat, setCat] = useState<string>(VIDEO_CATEGORIES[0]!.id);
   const [file, setFile] = useState<File | null>(null);
   const [thumb, setThumb] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);

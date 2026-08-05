@@ -17,9 +17,11 @@ import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppVideoIndexRouteImport } from './routes/_app.video.index'
 import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
 import { Route as AppEcosystemIndexRouteImport } from './routes/_app.ecosystem.index'
 import { Route as AppChatsIndexRouteImport } from './routes/_app.chats.index'
+import { Route as AppVideoVideoIdRouteImport } from './routes/_app.video.$videoId'
 import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
 import { Route as AppPartnersSlugRouteImport } from './routes/_app.partners.$slug'
 import { Route as AppEcosystemAppIdRouteImport } from './routes/_app.ecosystem.$appId'
@@ -64,6 +66,11 @@ const AppAdminRoute = AppAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
+const AppVideoIndexRoute = AppVideoIndexRouteImport.update({
+  id: '/video/',
+  path: '/video/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPartnersIndexRoute = AppPartnersIndexRouteImport.update({
   id: '/partners/',
   path: '/partners/',
@@ -77,6 +84,11 @@ const AppEcosystemIndexRoute = AppEcosystemIndexRouteImport.update({
 const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
   id: '/chats/',
   path: '/chats/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVideoVideoIdRoute = AppVideoVideoIdRouteImport.update({
+  id: '/video/$videoId',
+  path: '/video/$videoId',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSandboxUsernameRoute = AppSandboxUsernameRouteImport.update({
@@ -112,9 +124,11 @@ export interface FileRoutesByFullPath {
   '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/partners/$slug': typeof AppPartnersSlugRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
+  '/video/$videoId': typeof AppVideoVideoIdRoute
   '/chats/': typeof AppChatsIndexRoute
   '/ecosystem/': typeof AppEcosystemIndexRoute
   '/partners/': typeof AppPartnersIndexRoute
+  '/video/': typeof AppVideoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -128,9 +142,11 @@ export interface FileRoutesByTo {
   '/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/partners/$slug': typeof AppPartnersSlugRoute
   '/sandbox/$username': typeof AppSandboxUsernameRoute
+  '/video/$videoId': typeof AppVideoVideoIdRoute
   '/chats': typeof AppChatsIndexRoute
   '/ecosystem': typeof AppEcosystemIndexRoute
   '/partners': typeof AppPartnersIndexRoute
+  '/video': typeof AppVideoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -146,9 +162,11 @@ export interface FileRoutesById {
   '/_app/ecosystem/$appId': typeof AppEcosystemAppIdRoute
   '/_app/partners/$slug': typeof AppPartnersSlugRoute
   '/_app/sandbox/$username': typeof AppSandboxUsernameRoute
+  '/_app/video/$videoId': typeof AppVideoVideoIdRoute
   '/_app/chats/': typeof AppChatsIndexRoute
   '/_app/ecosystem/': typeof AppEcosystemIndexRoute
   '/_app/partners/': typeof AppPartnersIndexRoute
+  '/_app/video/': typeof AppVideoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -164,9 +182,11 @@ export interface FileRouteTypes {
     | '/ecosystem/$appId'
     | '/partners/$slug'
     | '/sandbox/$username'
+    | '/video/$videoId'
     | '/chats/'
     | '/ecosystem/'
     | '/partners/'
+    | '/video/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -180,9 +200,11 @@ export interface FileRouteTypes {
     | '/ecosystem/$appId'
     | '/partners/$slug'
     | '/sandbox/$username'
+    | '/video/$videoId'
     | '/chats'
     | '/ecosystem'
     | '/partners'
+    | '/video'
   id:
     | '__root__'
     | '/'
@@ -197,9 +219,11 @@ export interface FileRouteTypes {
     | '/_app/ecosystem/$appId'
     | '/_app/partners/$slug'
     | '/_app/sandbox/$username'
+    | '/_app/video/$videoId'
     | '/_app/chats/'
     | '/_app/ecosystem/'
     | '/_app/partners/'
+    | '/_app/video/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -266,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/video/': {
+      id: '/_app/video/'
+      path: '/video'
+      fullPath: '/video/'
+      preLoaderRoute: typeof AppVideoIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/partners/': {
       id: '/_app/partners/'
       path: '/partners'
@@ -285,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/chats'
       fullPath: '/chats/'
       preLoaderRoute: typeof AppChatsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/video/$videoId': {
+      id: '/_app/video/$videoId'
+      path: '/video/$videoId'
+      fullPath: '/video/$videoId'
+      preLoaderRoute: typeof AppVideoVideoIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/sandbox/$username': {
@@ -328,9 +366,11 @@ interface AppRouteChildren {
   AppEcosystemAppIdRoute: typeof AppEcosystemAppIdRoute
   AppPartnersSlugRoute: typeof AppPartnersSlugRoute
   AppSandboxUsernameRoute: typeof AppSandboxUsernameRoute
+  AppVideoVideoIdRoute: typeof AppVideoVideoIdRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
   AppEcosystemIndexRoute: typeof AppEcosystemIndexRoute
   AppPartnersIndexRoute: typeof AppPartnersIndexRoute
+  AppVideoIndexRoute: typeof AppVideoIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -343,9 +383,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppEcosystemAppIdRoute: AppEcosystemAppIdRoute,
   AppPartnersSlugRoute: AppPartnersSlugRoute,
   AppSandboxUsernameRoute: AppSandboxUsernameRoute,
+  AppVideoVideoIdRoute: AppVideoVideoIdRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,
   AppEcosystemIndexRoute: AppEcosystemIndexRoute,
   AppPartnersIndexRoute: AppPartnersIndexRoute,
+  AppVideoIndexRoute: AppVideoIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

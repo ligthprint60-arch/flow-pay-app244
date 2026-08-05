@@ -3,25 +3,17 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { ThemeApplier } from "@/lib/theme";
 import { motion } from "framer-motion";
-import { Wallet, Newspaper, MessageCircle, GraduationCap, User as UserIcon, Settings2, Bell, LayoutGrid, Handshake } from "lucide-react";
+import { Settings2, Bell, LayoutGrid } from "lucide-react";
 import { SettingsSheet } from "@/components/SettingsSheet";
 import { ShopDialog } from "@/components/Shop";
 import { PremiumEditor } from "@/components/PremiumEditor";
 import { NotificationsSheet, useUnreadCount } from "@/components/NotificationsSheet";
+import { SectionsWindow } from "@/components/SectionsWindow";
+import { usePinnedSections } from "@/lib/sections";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
 });
-
-const tabs = [
-  { to: "/wallet", label: "Кошелёк", icon: Wallet },
-  { to: "/feed", label: "Лента", icon: Newspaper },
-  { to: "/ecosystem", label: "Apps", icon: LayoutGrid },
-  { to: "/partners", label: "PAS", icon: Handshake },
-  { to: "/chats", label: "Чаты", icon: MessageCircle },
-  { to: "/learn", label: "Учёба", icon: GraduationCap },
-  { to: "/profile", label: "Я", icon: UserIcon },
-] as const;
 
 function AppLayout() {
   const { user, loading } = useAuth();
@@ -31,8 +23,11 @@ function AppLayout() {
   const [shopOpen, setShopOpen] = useState(false);
   const [premiumOpen, setPremiumOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [sectionsOpen, setSectionsOpen] = useState(false);
+  const { items: tabs } = usePinnedSections();
   const { data: unread } = useUnreadCount();
   const immersiveRoute = pathname.startsWith("/chats/");
+
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
@@ -108,9 +103,19 @@ function AppLayout() {
               </Link>
             );
           })}
+
+          <button
+            onClick={() => setSectionsOpen(true)}
+            aria-label="Все разделы"
+            className="lrf-tap relative z-10 flex flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-2"
+          >
+            <LayoutGrid className="relative size-[20px] text-muted-foreground" strokeWidth={1.8} />
+            <span className="relative text-[9.5px] font-medium tracking-wide text-muted-foreground">Ещё</span>
+          </button>
         </div>
       </nav>}
 
+      <SectionsWindow open={sectionsOpen} onOpenChange={setSectionsOpen} />
       <SettingsSheet
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
@@ -121,6 +126,7 @@ function AppLayout() {
       <ShopDialog open={shopOpen} onOpenChange={setShopOpen} />
       <PremiumEditor open={premiumOpen} onOpenChange={setPremiumOpen} />
       <NotificationsSheet open={notifOpen} onOpenChange={setNotifOpen} />
+
     </div>
   );
 }

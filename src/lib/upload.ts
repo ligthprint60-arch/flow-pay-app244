@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 /** Uploads a file to the private `media` bucket under {userId}/{kind}/{name} and returns a signed URL (1 year). */
 export async function uploadMedia(
   userId: string,
-  kind: "emoji" | "audio" | "chat-bg" | "app-bg" | "avatar",
+  kind: "emoji" | "audio" | "chat-bg" | "app-bg" | "avatar" | "video" | "thumb",
   file: File,
 ): Promise<string> {
   const ext = file.name.split(".").pop()?.toLowerCase() || "bin";

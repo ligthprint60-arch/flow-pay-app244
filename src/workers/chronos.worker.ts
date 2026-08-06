@@ -10,7 +10,8 @@ import { ChronosWriter } from "@/lib/chronos/writer";
  * (analytics/ads): they post messages here and can never touch the DOM.
  */
 
-type Binding = { id: number; kind: "text" | "class" | "var"; value: string };
+type Kind = "text" | "class" | "var" | "toggle";
+type Binding = { id: number; kind: Kind; value: string };
 
 let writer: ChronosWriter | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -26,6 +27,7 @@ function flush() {
     if (!b) continue;
     if (b.kind === "text") writer.text(id, b.value);
     else if (b.kind === "class") writer.className(id, b.value);
+    else if (b.kind === "toggle") writer.toggle(id, b.value.slice(1), b.value.charCodeAt(0) === 49);
     else writer.cssVar(id, b.value);
   }
   dirty.clear();

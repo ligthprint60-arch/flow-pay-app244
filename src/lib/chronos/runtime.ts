@@ -71,7 +71,9 @@ export function unbind(id: number) {
   worker?.postMessage({ type: "drop", id });
 }
 
-function push(id: number, kind: "text" | "class" | "var", value: string) {
+type Kind = "text" | "class" | "var" | "toggle";
+
+function push(id: number, kind: Kind, value: string) {
   ensure();
   if (worker) {
     worker.postMessage({ type: "set", id, kind, value });
@@ -80,13 +82,18 @@ function push(id: number, kind: "text" | "class" | "var", value: string) {
   if (!local) return;
   if (kind === "text") local.text(id, value);
   else if (kind === "class") local.className(id, value);
-  else local.cssVar(id, value);
+  else if (kind === "toggle") {
+    const on = value.charCodeAt(0) === 49; // "1" prefix
+    local.toggle(id, value.slice(1), on);
+  } else local.cssVar(id, value);
   local.commit();
 }
 
 export const setText = (id: number, value: string) => push(id, "text", value);
 export const setClass = (id: number, value: string) => push(id, "class", value);
 export const setVar = (id: number, name: string, value: string) => push(id, "var", `${name}=${value}`);
+/** Add/remove a single class token through the binary batch. */
+export const setToggle = (id: number, token: string, on: boolean) => push(id, "toggle", `${on ? 1 : 0}${token}`);
 
 /** Run untrusted/legacy widget code inside the worker sandbox. */
 export function runSandboxed(code: string, payload?: unknown): Promise<unknown> {

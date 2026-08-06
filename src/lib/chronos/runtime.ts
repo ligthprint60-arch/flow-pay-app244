@@ -91,16 +91,17 @@ export const setVar = (id: number, name: string, value: string) => push(id, "var
 /** Run untrusted/legacy widget code inside the worker sandbox. */
 export function runSandboxed(code: string, payload?: unknown): Promise<unknown> {
   ensure();
-  if (!worker) return Promise.reject(new Error("chronos: sandbox requires cross-origin isolation"));
+  const w = worker;
+  if (!w) return Promise.reject(new Error("chronos: sandbox requires cross-origin isolation"));
   const id = allocNodeId();
   return new Promise((resolve, reject) => {
     const onMsg = (e: MessageEvent) => {
       if (e.data?.id !== id) return;
-      worker?.removeEventListener("message", onMsg);
+      w.removeEventListener("message", onMsg);
       if (e.data.type === "widget:result") resolve(e.data.out);
       else reject(new Error(e.data.error));
     };
-    worker.addEventListener("message", onMsg);
-    worker.postMessage({ type: "widget", id, code, payload });
+    w.addEventListener("message", onMsg);
+    w.postMessage({ type: "widget", id, code, payload });
   });
 }

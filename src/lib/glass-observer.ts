@@ -11,16 +11,32 @@
  * while the tab is hidden. Off-screen glass looks the same the moment it
  * scrolls back in.
  */
+import { allocNodeId, bind, setToggle, unbind } from "@/lib/chronos/runtime";
+
 let io: IntersectionObserver | null = null;
 let mo: MutationObserver | null = null;
+const ids = new WeakMap<Element, number>();
+
+/** Every panel gets a Chronos node id so the class flip rides the rAF batch. */
+function nodeIdFor(el: Element) {
+  let id = ids.get(el);
+  if (id === undefined) {
+    id = allocNodeId();
+    ids.set(el, id);
+    bind(id, el as HTMLElement);
+  }
+  return id;
+}
 
 export function startGlassObserver() {
   if (typeof window === "undefined" || io) return () => {};
 
   io = new IntersectionObserver(
     (entries) => {
+      // No direct DOM writes here: mutations are queued into the shared
+      // buffer and applied in one batched frame by the Chronos consumer.
       for (const e of entries) {
-        (e.target as HTMLElement).classList.toggle("lrf-live", e.isIntersecting);
+        setToggle(nodeIdFor(e.target), "lrf-live", e.isIntersecting);
       }
     },
     // Warm panels slightly before they enter, so nothing "starts" visibly.
@@ -28,7 +44,10 @@ export function startGlassObserver() {
   );
 
   const observeAll = (root: ParentNode) => {
-    root.querySelectorAll?.(".lrf").forEach((el) => io!.observe(el));
+    root.querySelectorAll?.(".lrf").forEach((el) => {
+      nodeIdFor(el);
+      io!.observe(el);
+    });
   };
   observeAll(document);
 
@@ -36,8 +55,16 @@ export function startGlassObserver() {
     for (const r of records) {
       r.addedNodes.forEach((n) => {
         if (!(n instanceof HTMLElement)) return;
-        if (n.classList.contains("lrf")) io!.observe(n);
+        if (n.classList.contains("lrf")) {
+          nodeIdFor(n);
+          io!.observe(n);
+        }
         observeAll(n);
+      });
+      r.removedNodes.forEach((n) => {
+        if (!(n instanceof HTMLElement)) return;
+        const id = ids.get(n);
+        if (id !== undefined) unbind(id);
       });
     }
   });

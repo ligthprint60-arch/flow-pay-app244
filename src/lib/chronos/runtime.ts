@@ -1,6 +1,8 @@
 import { ChronosApplier } from "./applier";
 import { ChronosWriter } from "./writer";
 import { createChronosBuffer } from "./protocol";
+import { startChronosGPU, stopChronosGPU } from "./gpu";
+
 
 /**
  * Client runtime: wires the producer (worker when the page is cross-origin
@@ -37,12 +39,16 @@ function ensure() {
     // producer just lives on this thread. Apply path stays allocation-free.
     local = new ChronosWriter(buffer);
   }
+
+  // GPU delivery layer: input ring + SoA scene + OffscreenCanvas render thread.
+  startChronosGPU(buffer);
 }
 
 export function startChronos() {
   ensure();
   return () => {
     applier?.stop();
+    stopChronosGPU();
     worker?.postMessage({ type: "stop" });
     worker?.terminate();
     worker = null;

@@ -1,6 +1,8 @@
 import { ChronosApplier } from "./applier";
 import { ChronosWriter } from "./writer";
 import { createChronosBuffer } from "./protocol";
+import { startChronosGPU, stopChronosGPU } from "./gpu";
+
 
 /**
  * Client runtime: wires the producer (worker when the page is cross-origin

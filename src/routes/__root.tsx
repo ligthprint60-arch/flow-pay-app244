@@ -95,6 +95,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
             opacity: 0, transition: "opacity .5s ease",
           }}
         />
+        <canvas
+          id="chronos-canvas"
+          aria-hidden
+          style={{
+            position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none",
+            width: "100%", height: "100%",
+            opacity: 0, transition: "opacity .4s ease",
+          }}
+        />
         <video
           id="flow-app-bg-video"
           aria-hidden
@@ -108,6 +117,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
             opacity: 0, transition: "opacity .5s ease",
           }}
         />
+
         {children}
         <Scripts />
       </body>

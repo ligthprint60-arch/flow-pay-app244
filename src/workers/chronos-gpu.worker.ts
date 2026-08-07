@@ -285,6 +285,12 @@ fn fs(i: VOut) -> @location(0) vec4<f32> {
   return vec4(col * a, a);
 }`;
 
+// GPUBufferUsage is a runtime global; declare the flags we use so the worker
+// typechecks in environments without @webgpu/types.
+const BUF_UNIFORM = 0x0040;
+const BUF_STORAGE = 0x0080;
+const BUF_COPY_DST = 0x0008;
+
 async function createWebGPU(cv: OffscreenCanvas): Promise<Ctx | null> {
   const gpu = (navigator as unknown as { gpu?: GPU }).gpu;
   if (!gpu) return null;
@@ -317,7 +323,7 @@ async function createWebGPU(cv: OffscreenCanvas): Promise<Ctx | null> {
     primitive: { topology: "triangle-strip" },
   });
 
-  const params = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  const params = device.createBuffer({ size: 32, usage: BUF_UNIFORM | BUF_COPY_DST });
   let storage: GPUBuffer | null = null;
   let bind: GPUBindGroup | null = null;
   let cap = 0;
@@ -334,7 +340,7 @@ async function createWebGPU(cv: OffscreenCanvas): Promise<Ctx | null> {
         cap = Math.max(count * 2, 256);
         storage = device.createBuffer({
           size: cap * STRIDE * 4,
-          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+          usage: BUF_STORAGE | BUF_COPY_DST,
         });
         bind = device.createBindGroup({
           layout: pipeline.getBindGroupLayout(0),

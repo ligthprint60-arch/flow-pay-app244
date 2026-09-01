@@ -395,8 +395,44 @@
   .sheet-scroll::-webkit-scrollbar { width: 6px; }
   .sheet-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 6px; }
 
+  /* === User-controlled graphics flags (see src/lib/graphics.ts) === */
+  .gfx-no-glass-anim .lrf::before,
+  .gfx-no-glass-anim .lrf::after { animation: none !important; }
+  .gfx-no-caustics body::before { display: none !important; }
+  .gfx-no-motion *,
+  .gfx-no-motion *::before,
+  .gfx-no-motion *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .gfx-no-shadows .lrf { box-shadow: inset 0 1px 0 rgba(255,255,255,0.22) !important; }
+  .gfx-no-shadows .emissive-eco,
+  .gfx-no-shadows .emissive-blue,
+  .gfx-no-shadows .glow-eco { filter: none !important; }
+
+  .gfx-range {
+    appearance: none;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--eco), var(--fiat));
+    outline: none;
+  }
+  .gfx-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--eco) 35%, transparent);
+    cursor: pointer;
+  }
+  .gfx-range::-moz-range-thumb {
+    width: 16px; height: 16px; border: 0;
+    border-radius: 999px; background: #fff; cursor: pointer;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lrf, body::before { animation: none !important; }
     html { scroll-behavior: auto; }
   }
 }
+

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AuthProvider } from "@/lib/auth";
+import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { FluidBackground } from "@/components/FluidBackground";
 import { startGlassObserver } from "@/lib/glass-observer";

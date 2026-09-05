@@ -9,14 +9,18 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import {
   Image as ImageIcon, Music2, MapPin, Bell, ShoppingBag, Trash2, Crown, Link2, Loader2, UserCircle2, Film,
+  SlidersHorizontal, Languages,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export function SettingsSheet({
-  open, onOpenChange, onOpenShop, onOpenNotifications, onOpenPremium,
+  open, onOpenChange, onOpenShop, onOpenNotifications, onOpenPremium, onOpenGraphics,
 }: {
   open: boolean; onOpenChange: (v: boolean) => void;
   onOpenShop: () => void; onOpenNotifications: () => void; onOpenPremium: () => void;
+  onOpenGraphics: () => void;
 }) {
+  const { t, lang, setLang } = useI18n();
   const { user } = useAuth();
   const { data: profile } = useProfile();
   const qc = useQueryClient();
@@ -105,23 +109,23 @@ export function SettingsSheet({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="lrf lrf-thick !rounded-[28px] border-0 bg-transparent p-0 sm:max-w-md">
         <div className="relative z-10 p-5">
-          <DialogTitle className="text-base font-semibold">Настройки</DialogTitle>
-          <p className="mt-1 text-xs text-muted-foreground">Персонализация и доступы</p>
+          <DialogTitle className="text-base font-semibold">{t("settings.title")}</DialogTitle>
+          <p className="mt-1 text-xs text-muted-foreground">{t("settings.subtitle")}</p>
 
           <div className="sheet-scroll mt-4 space-y-2" style={{ maxHeight: "65vh", overflowY: "auto" }}>
-            <Row icon={UserCircle2} title="Фото профиля" desc="JPG или PNG из устройства">
+            <Row icon={UserCircle2} title={t("settings.avatar")} desc={t("settings.avatar.desc")}>
               <motion.button whileTap={{ scale: 0.96 }} onClick={uploadAvatar} disabled={busy === "avatar"}
                 className="rounded-full bg-eco/20 px-3 py-1.5 text-[11px] font-semibold text-eco emissive-eco disabled:opacity-40">
-                {busy === "avatar" ? <Loader2 className="size-3 animate-spin" /> : "Загрузить"}
+                {busy === "avatar" ? <Loader2 className="size-3 animate-spin" /> : t("common.upload")}
               </motion.button>
             </Row>
 
-            <Row icon={ImageIcon} title="Фон приложения"
-              desc={appBg ? "Установлен пользовательский фон" : "Загрузите изображение из устройства"}>
+            <Row icon={ImageIcon} title={t("settings.bg")}
+              desc={appBg ? t("settings.bg.set") : t("settings.bg.desc")}>
               <div className="flex gap-2">
                 <motion.button whileTap={{ scale: 0.96 }} onClick={() => uploadAppBg("image")} disabled={busy === "appbg"}
                   className="rounded-full bg-eco/20 px-3 py-1.5 text-[11px] font-semibold text-eco emissive-eco disabled:opacity-40">
-                  {busy === "appbg" ? <Loader2 className="size-3 animate-spin" /> : "Фото"}
+                  {busy === "appbg" ? <Loader2 className="size-3 animate-spin" /> : t("common.photo")}
                 </motion.button>
                 {appBg && (
                   <motion.button whileTap={{ scale: 0.96 }} onClick={() => setAppBg.mutate(null)}
@@ -132,46 +136,62 @@ export function SettingsSheet({
               </div>
             </Row>
 
-            <Row icon={Film} title="Видео-фон" desc="MP4 / WebM до 25 МБ">
+            <Row icon={Film} title={t("settings.video")} desc={t("settings.video.desc")}>
               <motion.button whileTap={{ scale: 0.96 }} onClick={() => uploadAppBg("video")} disabled={busy === "appbg-vid"}
                 className="rounded-full bg-fiat/20 px-3 py-1.5 text-[11px] font-semibold text-fiat emissive-blue disabled:opacity-40">
-                {busy === "appbg-vid" ? <Loader2 className="size-3 animate-spin" /> : "Загрузить"}
+                {busy === "appbg-vid" ? <Loader2 className="size-3 animate-spin" /> : t("common.upload")}
               </motion.button>
             </Row>
 
-            <Row icon={Music2} title="Аудио в профиле"
-              desc={isPremium ? "MP3 для фона профиля" : "Только Premium"}>
+            <Row icon={Music2} title={t("settings.audio")}
+              desc={isPremium ? t("settings.audio.desc") : t("settings.audio.locked")}>
               <motion.button whileTap={{ scale: 0.96 }} onClick={uploadAudioFile}
                 disabled={busy === "audio" || !isPremium}
                 className="rounded-full bg-fiat/20 px-3 py-1.5 text-[11px] font-semibold text-fiat emissive-blue disabled:opacity-40">
-                {busy === "audio" ? <Loader2 className="size-3 animate-spin" /> : isPremium ? "Загрузить" : "Premium"}
+                {busy === "audio" ? <Loader2 className="size-3 animate-spin" /> : isPremium ? t("common.upload") : t("common.premium")}
               </motion.button>
             </Row>
 
-            <Row icon={MapPin} title="Местоположение"
-              desc={geo ?? "Разрешите доступ для геофункций"}>
+            <Row icon={MapPin} title={t("settings.geo")}
+              desc={geo ?? t("settings.geo.desc")}>
               <motion.button whileTap={{ scale: 0.96 }} onClick={requestGeo} disabled={busy === "geo"}
                 className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold">
-                {busy === "geo" ? <Loader2 className="size-3 animate-spin" /> : "Разрешить"}
+                {busy === "geo" ? <Loader2 className="size-3 animate-spin" /> : t("common.allow")}
               </motion.button>
             </Row>
 
-            <Row icon={Bell} title="Уведомления" desc="Объявления команды FLOW">
+            <Row icon={Bell} title={t("settings.notifications")} desc={t("settings.notifications.desc")}>
               <button onClick={() => { onOpenChange(false); onOpenNotifications(); }}
-                className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold">Открыть</button>
+                className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold">{t("common.open")}</button>
             </Row>
 
-            <Row icon={ShoppingBag} title="FLOW Shop" desc="Скины · эмодзи · Premium">
+            <Row icon={ShoppingBag} title={t("settings.shop")} desc={t("settings.shop.desc")}>
               <button onClick={() => { onOpenChange(false); onOpenShop(); }}
-                className="rounded-full bg-eco/20 px-3 py-1.5 text-[11px] font-semibold text-eco">Открыть</button>
+                className="rounded-full bg-eco/20 px-3 py-1.5 text-[11px] font-semibold text-eco">{t("common.open")}</button>
+            </Row>
+
+            <Row icon={SlidersHorizontal} title={t("settings.graphics")} desc={t("settings.graphics.desc")}>
+              <button onClick={() => { onOpenChange(false); onOpenGraphics(); }}
+                className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold">{t("common.open")}</button>
+            </Row>
+
+            <Row icon={Languages} title={t("settings.lang")} desc={t("settings.lang.desc")}>
+              <div className="flex items-center gap-1 rounded-full bg-white/[0.06] p-0.5">
+                {(["ru", "en"] as const).map((l) => (
+                  <button key={l} onClick={() => setLang(l)}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${lang === l ? "bg-eco/25 text-eco emissive-eco" : "text-muted-foreground"}`}>
+                    {l.toUpperCase()}
+                  </button>
+                ))}
+              </div>
             </Row>
 
             <Row icon={isPremium ? Link2 : Crown}
-              title={isPremium ? "Premium · соцсети / песочница" : "Получить Premium"}
-              desc={isPremium ? "Настройки premium-возможностей" : "Кастомные эмодзи, аудио, песочница"}>
+              title={isPremium ? t("settings.premium.on") : t("settings.premium.off")}
+              desc={isPremium ? t("settings.premium.on.desc") : t("settings.premium.off.desc")}>
               <button onClick={() => { onOpenChange(false); isPremium ? onOpenPremium() : onOpenShop(); }}
                 className="rounded-full bg-fiat/20 px-3 py-1.5 text-[11px] font-semibold text-fiat">
-                {isPremium ? "Открыть" : "Premium"}
+                {isPremium ? t("common.open") : t("common.premium")}
               </button>
             </Row>
           </div>

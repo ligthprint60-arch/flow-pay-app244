@@ -273,7 +273,7 @@ function draw() {
 
 /* Frame budget: the fluid is a slow ambient effect, 30fps is visually
    identical here and halves the work stolen from scrolling/compositing. */
-const FRAME_MS = 33;
+let FRAME_MS = 33;
 let lastFrame = 0;
 function loop() {
   if (!running) return;
@@ -316,6 +316,10 @@ self.onmessage = (e: MessageEvent<InMsg>) => {
     case "pointer": {
       ptr.active = msg.active;
       ptr.x = msg.x; ptr.y = msg.y;
+      break;
+    }
+    case "fps": {
+      FRAME_MS = Math.max(8, Math.round(1000 / Math.max(1, msg.fps)));
       break;
     }
     case "theme": {

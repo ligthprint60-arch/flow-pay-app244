@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { readGraphics, GFX_EVENT, DEFAULT_GFX, type GraphicsSettings } from "@/lib/graphics";
 
 /**
  * Fluid-motion background. Heavy Navier–Stokes math + canvas rendering run
@@ -8,20 +9,30 @@ import { useEffect, useRef } from "react";
  */
 export function FluidBackground() {
   const ref = useRef<HTMLCanvasElement>(null);
+  const [gfx, setGfx] = useState<GraphicsSettings>(DEFAULT_GFX);
+
+  useEffect(() => {
+    setGfx(readGraphics());
+    const onChange = (e: Event) => setGfx((e as CustomEvent<GraphicsSettings>).detail);
+    window.addEventListener(GFX_EVENT, onChange);
+    return () => window.removeEventListener(GFX_EVENT, onChange);
+  }, []);
 
   useEffect(() => {
     const canvas = ref.current;
-    if (!canvas) return;
+    if (!canvas || !gfx.fluid) return;
 
     const supportsOffscreen =
       typeof (canvas as HTMLCanvasElement & { transferControlToOffscreen?: unknown }).transferControlToOffscreen === "function" &&
       typeof Worker !== "undefined";
 
     if (supportsOffscreen) {
-      return mountWorker(canvas);
+      return mountWorker(canvas, gfx.fps);
     }
     return mountFallback(canvas);
-  }, []);
+  }, [gfx.fluid, gfx.fps]);
+
+  if (!gfx.fluid) return null;
 
   return (
     <canvas
@@ -33,10 +44,10 @@ export function FluidBackground() {
         zIndex: 0,
         pointerEvents: "none",
         mixBlendMode: "screen",
-        opacity: 0.55,
+        opacity: gfx.fluidOpacity / 100,
         // The worker renders the field through a WebGL gaussian, so the CSS
         // blur — a full-screen compositor pass every frame — can be light.
-        filter: "blur(8px) saturate(150%)",
+        filter: `blur(8px) saturate(${gfx.saturation}%)`,
 
         contain: "strict",
       }}

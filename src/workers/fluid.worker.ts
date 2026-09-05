@@ -16,7 +16,8 @@ type PointerMsg = { type: "pointer"; x: number; y: number; active: boolean };
 type ThemeMsg = { type: "theme"; eco: string; fiat: string };
 type StopMsg = { type: "stop" };
 type RunMsg = { type: "pause" } | { type: "resume" };
-type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg | RunMsg;
+type FpsMsg = { type: "fps"; fps: number };
+type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg | RunMsg | FpsMsg;
 
 const N = 64;
 const SIZE = (N + 2) * (N + 2);
@@ -273,7 +274,7 @@ function draw() {
 
 /* Frame budget: the fluid is a slow ambient effect, 30fps is visually
    identical here and halves the work stolen from scrolling/compositing. */
-const FRAME_MS = 33;
+let FRAME_MS = 33;
 let lastFrame = 0;
 function loop() {
   if (!running) return;
@@ -316,6 +317,10 @@ self.onmessage = (e: MessageEvent<InMsg>) => {
     case "pointer": {
       ptr.active = msg.active;
       ptr.x = msg.x; ptr.y = msg.y;
+      break;
+    }
+    case "fps": {
+      FRAME_MS = Math.max(8, Math.round(1000 / Math.max(1, msg.fps)));
       break;
     }
     case "theme": {

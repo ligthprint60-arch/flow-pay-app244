@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Pin, PinOff } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SECTIONS, MAX_PINNED, usePinnedSections } from "@/lib/sections";
+import { useI18n } from "@/lib/i18n";
 
 export function SectionsWindow({
   open,
@@ -12,15 +13,16 @@ export function SectionsWindow({
   onOpenChange: (v: boolean) => void;
 }) {
   const { pinned, toggle } = usePinnedSections();
+  const { t } = useI18n();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="lrf lrf-thick max-w-[420px] border-0 p-0">
         <div className="sheet-scroll max-h-[70svh] overflow-y-auto p-5">
           <DialogHeader className="mb-4 text-left">
-            <DialogTitle className="text-base">Разделы</DialogTitle>
+            <DialogTitle className="text-base">{t("sections.title")}</DialogTitle>
             <p className="text-xs text-muted-foreground">
-              Закрепите до {MAX_PINNED} разделов в нижней панели
+              {t("sections.subtitle")} ({MAX_PINNED})
             </p>
           </DialogHeader>
 
@@ -44,8 +46,8 @@ export function SectionsWindow({
                     <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-eco/30 to-fiat/20">
                       <Icon className="size-[18px]" />
                     </span>
-                    <span className="text-sm font-semibold leading-none">{s.label}</span>
-                    <span className="text-[11px] leading-tight text-muted-foreground">{s.desc}</span>
+                    <span className="text-sm font-semibold leading-none">{t(`sec.${s.id}`)}</span>
+                    <span className="text-[11px] leading-tight text-muted-foreground">{t(`sec.${s.id}.d`)}</span>
                   </Link>
                   <button
                     onClick={() => toggle(s.id)}

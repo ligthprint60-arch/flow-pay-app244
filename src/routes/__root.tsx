@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AuthProvider } from "@/lib/auth";
+import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { FluidBackground } from "@/components/FluidBackground";
 import { startGlassObserver } from "@/lib/glass-observer";
@@ -133,11 +134,13 @@ function RootComponent() {
   useEffect(() => startGlassObserver(), []);
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <FluidBackground />
-        <Outlet />
-        <Toaster theme="dark" position="top-center" />
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <FluidBackground />
+          <Outlet />
+          <Toaster theme="dark" position="top-center" />
+        </AuthProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

@@ -133,11 +133,13 @@ function RootComponent() {
   useEffect(() => startGlassObserver(), []);
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <FluidBackground />
-        <Outlet />
-        <Toaster theme="dark" position="top-center" />
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <FluidBackground />
+          <Outlet />
+          <Toaster theme="dark" position="top-center" />
+        </AuthProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

@@ -63,7 +63,7 @@ function readTheme() {
   };
 }
 
-function mountWorker(canvas: HTMLCanvasElement) {
+function mountWorker(canvas: HTMLCanvasElement, fps = 30) {
   const worker = new Worker(new URL("../workers/fluid.worker.ts", import.meta.url), { type: "module" });
   const off = (canvas as HTMLCanvasElement & { transferControlToOffscreen: () => OffscreenCanvas }).transferControlToOffscreen();
   const { eco, fiat } = readTheme();
@@ -72,6 +72,7 @@ function mountWorker(canvas: HTMLCanvasElement) {
     { type: "init", canvas: off, width: w, height: h, eco, fiat },
     [off as unknown as Transferable],
   );
+  worker.postMessage({ type: "fps", fps });
 
   let resizeTimer: ReturnType<typeof setTimeout> | undefined;
   const onResize = () => {

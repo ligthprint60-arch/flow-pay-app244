@@ -16,7 +16,8 @@ type PointerMsg = { type: "pointer"; x: number; y: number; active: boolean };
 type ThemeMsg = { type: "theme"; eco: string; fiat: string };
 type StopMsg = { type: "stop" };
 type RunMsg = { type: "pause" } | { type: "resume" };
-type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg | RunMsg;
+type FpsMsg = { type: "fps"; fps: number };
+type InMsg = InitMsg | ResizeMsg | PointerMsg | ThemeMsg | StopMsg | RunMsg | FpsMsg;
 
 const N = 64;
 const SIZE = (N + 2) * (N + 2);

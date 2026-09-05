@@ -3,13 +3,18 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { ThemeApplier } from "@/lib/theme";
 import { motion } from "framer-motion";
-import { Settings2, Bell, LayoutGrid } from "lucide-react";
+import { Settings2, Bell, LayoutGrid, Sparkles } from "lucide-react";
 import { SettingsSheet } from "@/components/SettingsSheet";
 import { ShopDialog } from "@/components/Shop";
 import { PremiumEditor } from "@/components/PremiumEditor";
 import { NotificationsSheet, useUnreadCount } from "@/components/NotificationsSheet";
 import { SectionsWindow } from "@/components/SectionsWindow";
 import { usePinnedSections } from "@/lib/sections";
+import { AiAssistant } from "@/components/AiAssistant";
+import { GraphicsSettingsDialog } from "@/components/GraphicsSettings";
+import { useI18n } from "@/lib/i18n";
+import { logActivity } from "@/lib/activity";
+import { readGraphics, applyGraphics } from "@/lib/graphics";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -24,10 +29,16 @@ function AppLayout() {
   const [premiumOpen, setPremiumOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [gfxOpen, setGfxOpen] = useState(false);
+  const { t } = useI18n();
   const { items: tabs } = usePinnedSections();
   const { data: unread } = useUnreadCount();
   const immersiveRoute = pathname.startsWith("/chats/");
 
+
+  useEffect(() => { applyGraphics(readGraphics()); }, []);
+  useEffect(() => { logActivity("route", pathname); }, [pathname]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
@@ -47,6 +58,14 @@ function AppLayout() {
 
       {!immersiveRoute && <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex justify-center pt-[max(env(safe-area-inset-top),10px)]">
         <div className="pointer-events-auto mx-3 flex w-[min(100%,460px)] items-center justify-end gap-2">
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setAiOpen(true)}
+            className="lrf grid size-10 place-items-center !rounded-full"
+            aria-label={t("ai.button")}
+          >
+            <Sparkles className="size-[18px] text-eco" />
+          </motion.button>
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={() => setNotifOpen(true)}
@@ -77,13 +96,13 @@ function AppLayout() {
 
       {!immersiveRoute && <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(env(safe-area-inset-bottom),14px)] pt-2">
         <div className="lrf lrf-thick pointer-events-auto mx-4 flex w-[min(100%,460px)] items-stretch justify-around px-2 py-2">
-          {tabs.map((t) => {
-            const active = pathname === t.to || pathname.startsWith(t.to + "/");
-            const Icon = t.icon;
+          {tabs.map((tab) => {
+            const active = pathname === tab.to || pathname.startsWith(tab.to + "/");
+            const Icon = tab.icon;
             return (
               <Link
-                key={t.to}
-                to={t.to}
+                key={tab.to}
+                to={tab.to}
                 className="lrf-tap group relative z-10 flex flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-2"
               >
                 {active && (
@@ -98,7 +117,7 @@ function AppLayout() {
                   strokeWidth={active ? 2.4 : 1.8}
                 />
                 <span className={`relative text-[9.5px] font-medium tracking-wide transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}>
-                  {t.label}
+                  {t(`sec.${tab.id}`)}
                 </span>
               </Link>
             );
@@ -110,7 +129,7 @@ function AppLayout() {
             className="lrf-tap relative z-10 flex flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-2"
           >
             <LayoutGrid className="relative size-[20px] text-muted-foreground" strokeWidth={1.8} />
-            <span className="relative text-[9.5px] font-medium tracking-wide text-muted-foreground">Ещё</span>
+            <span className="relative text-[9.5px] font-medium tracking-wide text-muted-foreground">{t("nav.more")}</span>
           </button>
         </div>
       </nav>}
@@ -122,10 +141,13 @@ function AppLayout() {
         onOpenShop={() => setShopOpen(true)}
         onOpenNotifications={() => setNotifOpen(true)}
         onOpenPremium={() => setPremiumOpen(true)}
+        onOpenGraphics={() => setGfxOpen(true)}
       />
       <ShopDialog open={shopOpen} onOpenChange={setShopOpen} />
       <PremiumEditor open={premiumOpen} onOpenChange={setPremiumOpen} />
       <NotificationsSheet open={notifOpen} onOpenChange={setNotifOpen} />
+      <AiAssistant open={aiOpen} onOpenChange={setAiOpen} />
+      <GraphicsSettingsDialog open={gfxOpen} onOpenChange={setGfxOpen} />
 
     </div>
   );

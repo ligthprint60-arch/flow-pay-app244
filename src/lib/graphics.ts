@@ -11,15 +11,17 @@ export type GraphicsSettings = {
   motion: boolean;       // framer-motion / css transitions
   shadows: boolean;      // deep inner shadows and glows
   fps: number;           // background fps cap
+  lightLevel: 0 | 1 | 2; // static, dynamic, photonic
+  reducedLight: boolean; // suppress pulses, trails and intense bloom
 };
 
 const KEY = "flow.gfx.v1";
 const EVT = "flow-gfx-change";
 
 export const PRESETS: Record<"low" | "balanced" | "ultra", Omit<GraphicsSettings, "preset">> = {
-  low:      { blur: 8,  saturation: 120, fluid: false, fluidOpacity: 25, glassAnim: false, caustics: false, motion: false, shadows: false, fps: 24 },
-  balanced: { blur: 22, saturation: 170, fluid: true,  fluidOpacity: 55, glassAnim: true,  caustics: true,  motion: true,  shadows: true,  fps: 30 },
-  ultra:    { blur: 38, saturation: 210, fluid: true,  fluidOpacity: 80, glassAnim: true,  caustics: true,  motion: true,  shadows: true,  fps: 60 },
+  low:      { blur: 8,  saturation: 115, fluid: false, fluidOpacity: 16, glassAnim: false, caustics: false, motion: false, shadows: false, fps: 24, lightLevel: 0, reducedLight: true },
+  balanced: { blur: 20, saturation: 145, fluid: true,  fluidOpacity: 30, glassAnim: true,  caustics: false, motion: true,  shadows: true,  fps: 30, lightLevel: 1, reducedLight: false },
+  ultra:    { blur: 30, saturation: 165, fluid: true,  fluidOpacity: 48, glassAnim: true,  caustics: true,  motion: true,  shadows: true,  fps: 60, lightLevel: 2, reducedLight: false },
 };
 
 export const DEFAULT_GFX: GraphicsSettings = { preset: "balanced", ...PRESETS.balanced };
@@ -47,6 +49,10 @@ export function applyGraphics(g: GraphicsSettings) {
   root.classList.toggle("gfx-no-caustics", !g.caustics);
   root.classList.toggle("gfx-no-motion", !g.motion);
   root.classList.toggle("gfx-no-shadows", !g.shadows);
+  root.classList.toggle("light-static", g.lightLevel === 0);
+  root.classList.toggle("light-dynamic", g.lightLevel === 1);
+  root.classList.toggle("light-photonic", g.lightLevel === 2);
+  root.classList.toggle("reduced-light", g.reducedLight);
   window.dispatchEvent(new CustomEvent(EVT, { detail: g }));
 }
 

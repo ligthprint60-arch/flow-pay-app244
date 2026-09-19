@@ -55,6 +55,11 @@ const DICT: Record<string, { ru: string; en: string }> = {
   "gfx.motion": { ru: "Плавные переходы", en: "Motion transitions" },
   "gfx.shadows": { ru: "Глубокие тени", en: "Deep shadows" },
   "gfx.fps": { ru: "Лимит FPS фона", en: "Background FPS cap" },
+  "gfx.lightLevel": { ru: "Уровень света", en: "Light level" },
+  "gfx.light.static": { ru: "Static", en: "Static" },
+  "gfx.light.dynamic": { ru: "Dynamic", en: "Dynamic" },
+  "gfx.light.photonic": { ru: "Photonic", en: "Photonic" },
+  "gfx.reducedLight": { ru: "Reduced Light", en: "Reduced Light" },
   "gfx.hint": { ru: "Изменения применяются мгновенно и сохраняются на устройстве.", en: "Changes apply instantly and are stored on this device." },
 
   "ai.title": { ru: "FLOW AI", en: "FLOW AI" },

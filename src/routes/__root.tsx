@@ -11,6 +11,7 @@ import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { FluidBackground } from "@/components/FluidBackground";
+import { LightField } from "@/components/LightField";
 import { startGlassObserver } from "@/lib/glass-observer";
 import { startChronos } from "@/lib/chronos/runtime";
 
@@ -137,6 +138,7 @@ function RootComponent() {
       <I18nProvider>
         <AuthProvider>
           <FluidBackground />
+          <LightField />
           <Outlet />
           <Toaster theme="dark" position="top-center" />
         </AuthProvider>

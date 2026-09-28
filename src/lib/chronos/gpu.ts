@@ -17,8 +17,16 @@ let stopInput: (() => void) | null = null;
 
 export function startChronosGPU(buffer: ArrayBufferLike) {
   if (typeof window === "undefined" || gpuWorker) return;
-  const canvas = document.getElementById("chronos-canvas") as HTMLCanvasElement | null;
+  let canvas = document.getElementById("chronos-canvas") as HTMLCanvasElement | null;
   if (!canvas || !canvas.transferControlToOffscreen) return;
+  // A canvas can be transferred only once; replace it with a fresh clone on restart.
+  if (canvas.dataset.transferred) {
+    const fresh = canvas.cloneNode(false) as HTMLCanvasElement;
+    delete fresh.dataset.transferred;
+    canvas.replaceWith(fresh);
+    canvas = fresh;
+  }
+  canvas.dataset.transferred = "1";
 
   const v = views(buffer);
   v.i32[HDR.VIEW_W] = window.innerWidth;

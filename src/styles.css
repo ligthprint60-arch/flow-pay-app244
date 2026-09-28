@@ -436,3 +436,38 @@
   }
 }
 
+
+/* ===== Light UI 1.0 ===== */
+:root {
+  --light-x: 50vw; --light-y: 50vh;
+  --light-radius: 280px; --light-intensity: 0.1;
+  --light-dur: 700ms; --light-neutral: 255 255 255;
+  --light-success: 74 222 128; --light-warning: 251 191 36; --light-error: 248 113 113;
+}
+.light-field { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.light-field-ambient { position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 0%, rgb(255 255 255 / 0.025), transparent 60%); }
+.light-field-point, .light-field-beam { position: absolute; inset: 0; opacity: 0; transition: opacity 400ms ease; }
+.light-field-point { background: radial-gradient(var(--light-radius) circle at var(--light-x) var(--light-y), rgb(var(--light-neutral) / var(--light-intensity)), transparent 70%); }
+.light-dynamic .light-field-point, .light-photonic .light-field-point { opacity: 1; }
+.light-photonic { --light-intensity: 0.14; --light-radius: 360px; }
+.light-photonic .light-field-beam { opacity: 1; background: radial-gradient(900px circle at var(--light-x) var(--light-y), rgb(var(--light-neutral) / 0.035), transparent 65%); }
+.light-pulse { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 9999px;
+  background: radial-gradient(circle, rgb(var(--tone, var(--light-neutral)) / 0.45), transparent 70%);
+  animation: light-pulse var(--light-dur) cubic-bezier(.2,.7,.2,1) forwards; }
+.light-pulse-small { animation-duration: 420ms; --pulse-scale: 3; }
+.light-pulse-success { --tone: var(--light-success); }
+.light-pulse-warning { --tone: var(--light-warning); }
+.light-pulse-error { --tone: var(--light-error); }
+@keyframes light-pulse { from { transform: scale(1); opacity: 1; } to { transform: scale(var(--pulse-scale, 9)); opacity: 0; } }
+.light-static .light-pulse, .reduced-light .light-pulse,
+.reduced-light .light-field-beam { display: none; }
+.reduced-light .light-field-point { opacity: 0.5 !important; }
+.light-focus-within { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22), 0 8px 24px -12px rgb(0 0 0 / 0.6); }
+.light-nav-source { background: radial-gradient(90% 120% at 50% 0%, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.04) 70%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25); }
+.light-notification { animation: light-arrive 600ms ease-out; }
+@keyframes light-arrive { from { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35), 0 0 32px rgb(255 255 255 / 0.12); } to { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06); } }
+@media (prefers-reduced-motion: reduce) {
+  .light-pulse, .light-field-beam { display: none; }
+  .light-notification { animation: none; }
+}

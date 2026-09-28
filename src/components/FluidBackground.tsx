@@ -19,23 +19,35 @@ export function FluidBackground() {
   }, []);
 
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas || !gfx.fluid) return;
+    const host = ref.current;
+    if (!host || !gfx.fluid) return;
+
+    // A canvas can hand its drawing to a worker only once, so every (re)mount
+    // gets a brand-new canvas element.
+    const canvas = document.createElement("canvas");
+    canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%";
+    host.appendChild(canvas);
 
     const supportsOffscreen =
       typeof (canvas as HTMLCanvasElement & { transferControlToOffscreen?: unknown }).transferControlToOffscreen === "function" &&
       typeof Worker !== "undefined";
 
-    if (supportsOffscreen) {
-      return mountWorker(canvas, gfx.fps);
+    let cleanup: (() => void) | undefined;
+    try {
+      cleanup = supportsOffscreen ? mountWorker(canvas, gfx.fps) : mountFallback(canvas);
+    } catch {
+      cleanup = undefined;
     }
-    return mountFallback(canvas);
+    return () => {
+      cleanup?.();
+      canvas.remove();
+    };
   }, [gfx.fluid, gfx.fps]);
 
   if (!gfx.fluid) return null;
 
   return (
-    <canvas
+    <div
       ref={ref}
       aria-hidden
       style={{
@@ -45,10 +57,7 @@ export function FluidBackground() {
         pointerEvents: "none",
         mixBlendMode: "screen",
         opacity: gfx.fluidOpacity / 100,
-        // The worker renders the field through a WebGL gaussian, so the CSS
-        // blur — a full-screen compositor pass every frame — can be light.
         filter: `blur(8px) saturate(${gfx.saturation}%)`,
-
         contain: "strict",
       }}
     />

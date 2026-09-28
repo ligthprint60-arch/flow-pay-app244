@@ -45,6 +45,19 @@ export function GraphicsSettingsDialog({ open, onOpenChange }: { open: boolean; 
             <SliderRow label={t("gfx.fps")} value={gfx.fps} min={15} max={60} step={5} suffix="fps"
               onChange={(v) => update({ fps: v })} />
 
+            <div className="lrf !rounded-2xl p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t("gfx.lightLevel")}</p>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                {(["static", "dynamic", "photonic"] as const).map((name, i) => (
+                  <button key={name} onClick={() => update({ lightLevel: i as 0 | 1 | 2 })}
+                    aria-pressed={gfx.lightLevel === i}
+                    className={`rounded-xl px-2 py-2 text-[10.5px] font-semibold ${gfx.lightLevel === i ? "bg-eco/25 text-eco" : "bg-white/[0.05] text-muted-foreground"}`}>
+                    {t(`gfx.light.${name}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <ToggleRow label={t("gfx.reducedLight")} value={gfx.reducedLight} onChange={(v) => update({ reducedLight: v })} />
             <ToggleRow label={t("gfx.fluid")} value={gfx.fluid} onChange={(v) => update({ fluid: v })} />
             <ToggleRow label={t("gfx.glassAnim")} value={gfx.glassAnim} onChange={(v) => update({ glassAnim: v })} />
             <ToggleRow label={t("gfx.caustics")} value={gfx.caustics} onChange={(v) => update({ caustics: v })} />

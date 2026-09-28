@@ -108,7 +108,7 @@ function AppLayout() {
                 {active && (
                   <motion.span
                     layoutId="active-tab"
-                    className="absolute inset-1 rounded-2xl bg-gradient-to-br from-eco/35 to-fiat/20 emissive-eco"
+                    className="light-nav-source absolute inset-1 rounded-2xl"
                     transition={{ type: "spring", stiffness: 420, damping: 32 }}
                   />
                 )}

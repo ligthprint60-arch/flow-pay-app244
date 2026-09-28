@@ -8,7 +8,7 @@ import { readGraphics, GFX_EVENT, DEFAULT_GFX, type GraphicsSettings } from "@/l
  * OffscreenCanvas transfer support.
  */
 export function FluidBackground() {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [gfx, setGfx] = useState<GraphicsSettings>(DEFAULT_GFX);
 
   useEffect(() => {

@@ -104,8 +104,6 @@ function WalletPage() {
 
       {/* Main balance lens — compact */}
       <div className={`lrf lrf-thick relative p-5 ${skinClass}`}>
-        <div className="pointer-events-none absolute -right-8 -top-8 size-32 rounded-full bg-fiat/25 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-8 -left-8 size-28 rounded-full bg-eco/20 blur-3xl" />
         <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Available · rFLOW</p>
         <div className="mt-1.5 flex items-baseline gap-2">
           <span className="text-[36px] font-bold leading-none tabular tracking-tight">{fmt(wallet?.rflow_balance ?? 0)}</span>
@@ -113,7 +111,7 @@ function WalletPage() {
         </div>
         <p className="mt-1 text-[11px] text-muted-foreground">≈ ${((wallet?.rflow_balance ?? 0) / 12500).toFixed(2)}</p>
         <div className="mt-2 h-px overflow-hidden rounded-full">
-          <div className="h-full w-full shimmer-line" />
+          <div className="h-full w-full bg-gradient-to-r from-transparent via-eco/40 to-transparent" />
         </div>
 
         <div className="mt-4 grid grid-cols-4 gap-2">
@@ -165,7 +163,7 @@ function ActionBtn({
     <button
       onClick={onClick}
       disabled={loading}
-      className={`lrf lrf-tap flex flex-col items-center gap-1 !rounded-2xl py-3 text-[11px] font-semibold disabled:opacity-50 ${accent ? "emissive-eco" : ""}`}
+      className={`lrf lrf-tap flex flex-col items-center gap-1 !rounded-2xl py-3 text-[11px] font-semibold disabled:opacity-50 ${accent ? "border-eco/40" : ""}`}
     >
       <Icon className={`size-4 ${accent ? "text-eco" : ""}`} />
       <span>{label}</span>

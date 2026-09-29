@@ -6,7 +6,14 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
-    meta: [{ title: "Вход — FLOW" }],
+    meta: [
+      { title: "Вход — FLOW" },
+      { name: "description", content: "Войдите в FLOW, чтобы управлять кошельком и платежами." },
+      { property: "og:title", content: "Вход — FLOW" },
+      { property: "og:description", content: "Вход в цифровой кошелёк FLOW." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
   }),
   component: AuthPage,
 });

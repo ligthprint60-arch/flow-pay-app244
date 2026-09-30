@@ -1,6 +1,7 @@
 import { HDR, views } from "./protocol";
 import { ChronosScene } from "./scene";
 import { startChronosInput } from "./input";
+import { GFX_EVENT, readGraphics, type GraphicsSettings } from "@/lib/graphics";
 
 /**
  * GPU layer bootstrap (main thread side).
@@ -40,6 +41,10 @@ export function startChronosGPU(buffer: ArrayBufferLike) {
   const offscreen = canvas.transferControlToOffscreen();
   gpuWorker = new Worker(new URL("../../workers/chronos-gpu.worker.ts", import.meta.url), { type: "module" });
   gpuWorker.postMessage({ type: "init", buffer, canvas: offscreen }, [offscreen]);
+  const updateOptics = (g: GraphicsSettings) => gpuWorker?.postMessage({ type: "optics", dispersion: g.chromaticAberration / 100, refraction: g.liquidRefraction / 100, lighting: g.realisticLighting / 100, reduced: g.reducedLight });
+  updateOptics(readGraphics());
+  const onGraphics = (event: Event) => updateOptics((event as CustomEvent<GraphicsSettings>).detail);
+  window.addEventListener(GFX_EVENT, onGraphics);
   gpuWorker.addEventListener("message", (e: MessageEvent) => {
     if (e.data?.type === "gpu:ready") canvas.style.opacity = "1";
     if (e.data?.type === "gpu:unavailable") canvas.style.display = "none";
@@ -50,6 +55,7 @@ export function startChronosGPU(buffer: ArrayBufferLike) {
 
   return () => {
     document.removeEventListener("visibilitychange", onVisibility);
+    window.removeEventListener(GFX_EVENT, onGraphics);
     stopChronosGPU();
   };
 }

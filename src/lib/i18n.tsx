@@ -60,6 +60,9 @@ const DICT: Record<string, { ru: string; en: string }> = {
   "gfx.light.dynamic": { ru: "Dynamic", en: "Dynamic" },
   "gfx.light.photonic": { ru: "Photonic", en: "Photonic" },
   "gfx.reducedLight": { ru: "Reduced Light", en: "Reduced Light" },
+  "gfx.chromaticAberration": { ru: "Хроматическая аберрация", en: "Chromatic aberration" },
+  "gfx.liquidRefraction": { ru: "Преломление Liquid Glass", en: "Liquid Glass refraction" },
+  "gfx.realisticLighting": { ru: "Реалистичное освещение", en: "Realistic lighting" },
   "gfx.hint": { ru: "Изменения применяются мгновенно и сохраняются на устройстве.", en: "Changes apply instantly and are stored on this device." },
 
   "ai.title": { ru: "FLOW AI", en: "FLOW AI" },

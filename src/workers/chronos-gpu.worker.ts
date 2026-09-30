@@ -45,6 +45,10 @@ let pointerX = -1e4;
 let pointerY = -1e4;
 let pressed = 0;
 let dirtyAll = true;
+let dispersion = .22;
+let refraction = .48;
+let lighting = .55;
+let reducedLight = false;
 
 /* ------------------------------------------------------------------ WebGL2 */
 
@@ -78,6 +82,7 @@ in vec4 vMat;
 in vec2 vPx;
 uniform vec2 uPointer;
 uniform float uTime;
+uniform vec3 uOptics;
 out vec4 frag;
 
 float sdRound(vec2 p, vec2 b, float r) {
@@ -97,16 +102,16 @@ void main() {
   float halo = exp(max(d, 0.0) * -0.09);
 
   vec2 toP = vPx - uPointer;
-  float spec = exp(-dot(toP, toP) / 40000.0);
-  float sweep = 0.5 + 0.5 * sin((vLocal.x + vLocal.y) * 0.012 + uTime * 1.7);
+  float spec = exp(-dot(toP, toP) / 25000.0) * uOptics.z;
+  float incidence = clamp(dot(normalize(toP + vec2(0.001)), normalize(vLocal + vec2(0.001))), 0.0, 1.0);
+  float spectral = (smoothstep(-2.5, -0.5, d) - smoothstep(0.5, 2.5, d)) * uOptics.x;
 
   float glow = vMat.y;
-  vec3 cool = vec3(0.42, 0.72, 1.0);
-  vec3 warm = vec3(1.0, 0.86, 0.72);
-  vec3 tint = mix(cool, warm, sweep * 0.55 + spec * 0.45);
+  vec3 tint = mix(vec3(0.72, 0.88, 0.92), vec3(1.0, 0.93, 0.8), incidence * 0.65);
+  tint += spectral * vec3(0.20, -0.14, -0.24) * (0.5 + incidence * 0.5);
 
-  float a = inside * vMat.z + rim * 0.10 * glow + halo * 0.05 * glow + spec * 0.05 * glow;
-  vec3 col = tint * (rim * 0.9 + halo * 0.35 + spec * 0.6 + inside * 0.25);
+  float a = inside * vMat.z * (0.25 + uOptics.y * 0.25) + rim * 0.12 * glow * uOptics.y + halo * 0.02 * glow * uOptics.z + spec * 0.08 * glow;
+  vec3 col = tint * (rim * (0.5 + uOptics.y * 0.5) + halo * 0.12 + spec * 0.8 + inside * 0.14);
   frag = vec4(col * a, a);
 }`;
 
@@ -140,6 +145,7 @@ function createWebGL2(cv: OffscreenCanvas): Ctx | null {
   const uView = gl.getUniformLocation(prog, "uView");
   const uPointer = gl.getUniformLocation(prog, "uPointer");
   const uTime = gl.getUniformLocation(prog, "uTime");
+  const uOptics = gl.getUniformLocation(prog, "uOptics");
 
   const vao = gl.createVertexArray();
   gl.bindVertexArray(vao);
@@ -209,6 +215,7 @@ function createWebGL2(cv: OffscreenCanvas): Ctx | null {
         gl.uniform2f(uView, w, h);
         gl.uniform2f(uPointer, px, py);
         gl.uniform1f(uTime, t);
+        gl.uniform3f(uOptics, dispersion, refraction, reducedLight ? lighting * .2 : lighting);
         gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, count);
       }
       // Hardware blit of the completed back buffer to the screen buffer.
@@ -232,7 +239,7 @@ function createWebGL2(cv: OffscreenCanvas): Ctx | null {
 /* ------------------------------------------------------------------ WebGPU */
 
 const WGSL = `
-struct Params { view: vec4<f32>, pointer: vec4<f32> };
+ struct Params { view: vec4<f32>, pointer: vec4<f32>, optics: vec4<f32> };
 struct Inst { rect: vec4<f32>, mat: vec4<f32> };
 @group(0) @binding(0) var<uniform> params: Params;
 @group(0) @binding(1) var<storage, read> insts: array<Inst>;
@@ -276,12 +283,13 @@ fn fs(i: VOut) -> @location(0) vec4<f32> {
   let rim = exp(-abs(d) * 0.55) * step(-6.0, d);
   let halo = exp(max(d, 0.0) * -0.09);
   let toP = i.px - params.pointer.xy;
-  let spec = exp(-dot(toP, toP) / 40000.0);
-  let sweep = 0.5 + 0.5 * sin((i.local.x + i.local.y) * 0.012 + params.pointer.z * 1.7);
-  let tint = mix(vec3(0.42, 0.72, 1.0), vec3(1.0, 0.86, 0.72), sweep * 0.55 + spec * 0.45);
+   let spec = exp(-dot(toP, toP) / 25000.0) * params.optics.z;
+   let incidence = clamp(dot(normalize(toP + vec2(0.001)), normalize(i.local + vec2(0.001))), 0.0, 1.0);
+   let spectral = (smoothstep(-2.5, -0.5, d) - smoothstep(0.5, 2.5, d)) * params.optics.x;
+   let tint = mix(vec3(0.72, 0.88, 0.92), vec3(1.0, 0.93, 0.8), incidence * 0.65) + spectral * vec3(0.20, -0.14, -0.24) * (0.5 + incidence * 0.5);
   let glow = i.mat.y;
-  let a = inside * i.mat.z + rim * 0.10 * glow + halo * 0.05 * glow + spec * 0.05 * glow;
-  let col = tint * (rim * 0.9 + halo * 0.35 + spec * 0.6 + inside * 0.25);
+   let a = inside * i.mat.z * (0.25 + params.optics.y * 0.25) + rim * 0.12 * glow * params.optics.y + halo * 0.02 * glow * params.optics.z + spec * 0.08 * glow;
+   let col = tint * (rim * (0.5 + params.optics.y * 0.5) + halo * 0.12 + spec * 0.8 + inside * 0.14);
   return vec4(col * a, a);
 }`;
 
@@ -323,11 +331,11 @@ async function createWebGPU(cv: OffscreenCanvas): Promise<Ctx | null> {
     primitive: { topology: "triangle-strip" },
   });
 
-  const params = device.createBuffer({ size: 32, usage: BUF_UNIFORM | BUF_COPY_DST });
+   const params = device.createBuffer({ size: 48, usage: BUF_UNIFORM | BUF_COPY_DST });
   let storage: GPUBuffer | null = null;
   let bind: GPUBindGroup | null = null;
   let cap = 0;
-  const scratch = new Float32Array(8);
+   const scratch = new Float32Array(12);
 
   return {
     resize(w, h) {
@@ -355,6 +363,9 @@ async function createWebGPU(cv: OffscreenCanvas): Promise<Ctx | null> {
       scratch[4] = px;
       scratch[5] = py;
       scratch[6] = t;
+       scratch[8] = dispersion;
+       scratch[9] = refraction;
+       scratch[10] = reducedLight ? lighting * .2 : lighting;
       device.queue.writeBuffer(params, 0, scratch);
       device.queue.writeBuffer(storage!, 0, data, 0, count * STRIDE);
       const enc = device.createCommandEncoder();
@@ -486,6 +497,12 @@ self.onmessage = async (e: MessageEvent) => {
     }
     case "pause":
       paused = true;
+      break;
+    case "optics":
+      dispersion = Math.max(0, Math.min(1, Number(m.dispersion) || 0));
+      refraction = Math.max(0, Math.min(1, Number(m.refraction) || 0));
+      lighting = Math.max(0, Math.min(1, Number(m.lighting) || 0));
+      reducedLight = Boolean(m.reduced);
       break;
     case "resume":
       paused = false;

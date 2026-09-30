@@ -13,15 +13,18 @@ export type GraphicsSettings = {
   fps: number;           // background fps cap
   lightLevel: 0 | 1 | 2; // static, dynamic, photonic
   reducedLight: boolean; // suppress pulses, trails and intense bloom
+  chromaticAberration: number; // 0..100, edge-only spectral separation
+  liquidRefraction: number; // 0..100, glass body and rim strength
+  realisticLighting: number; // 0..100, incident light response
 };
 
 const KEY = "flow.gfx.v1";
 const EVT = "flow-gfx-change";
 
 export const PRESETS: Record<"low" | "balanced" | "ultra", Omit<GraphicsSettings, "preset">> = {
-  low:      { blur: 8,  saturation: 115, fluid: false, fluidOpacity: 16, glassAnim: false, caustics: false, motion: false, shadows: false, fps: 24, lightLevel: 0, reducedLight: true },
-  balanced: { blur: 20, saturation: 145, fluid: true,  fluidOpacity: 30, glassAnim: true,  caustics: false, motion: true,  shadows: true,  fps: 30, lightLevel: 1, reducedLight: false },
-  ultra:    { blur: 30, saturation: 165, fluid: true,  fluidOpacity: 48, glassAnim: true,  caustics: true,  motion: true,  shadows: true,  fps: 60, lightLevel: 2, reducedLight: false },
+  low:      { blur: 8,  saturation: 115, fluid: false, fluidOpacity: 16, glassAnim: false, caustics: false, motion: false, shadows: false, fps: 24, lightLevel: 0, reducedLight: true, chromaticAberration: 0, liquidRefraction: 12, realisticLighting: 18 },
+  balanced: { blur: 20, saturation: 145, fluid: true,  fluidOpacity: 30, glassAnim: true,  caustics: false, motion: true,  shadows: true,  fps: 30, lightLevel: 1, reducedLight: false, chromaticAberration: 22, liquidRefraction: 48, realisticLighting: 55 },
+  ultra:    { blur: 30, saturation: 165, fluid: true,  fluidOpacity: 48, glassAnim: true,  caustics: true,  motion: true,  shadows: true,  fps: 60, lightLevel: 2, reducedLight: false, chromaticAberration: 62, liquidRefraction: 88, realisticLighting: 90 },
 };
 
 export const DEFAULT_GFX: GraphicsSettings = { preset: "balanced", ...PRESETS.balanced };
@@ -44,6 +47,9 @@ export function applyGraphics(g: GraphicsSettings) {
   root.style.setProperty("--glass-blur", `${g.blur}px`);
   root.style.setProperty("--glass-sat", `${g.saturation}%`);
   root.style.setProperty("--fluid-opacity", String(g.fluidOpacity / 100));
+  root.style.setProperty("--glass-dispersion", String(Math.max(0, Math.min(100, g.chromaticAberration)) / 100));
+  root.style.setProperty("--glass-refraction", String(Math.max(0, Math.min(100, g.liquidRefraction)) / 100));
+  root.style.setProperty("--glass-lighting", String(Math.max(0, Math.min(100, g.realisticLighting)) / 100));
   root.classList.toggle("gfx-no-fluid", !g.fluid);
   root.classList.toggle("gfx-no-glass-anim", !g.glassAnim);
   root.classList.toggle("gfx-no-caustics", !g.caustics);

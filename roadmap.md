@@ -4,5 +4,6 @@
 - [x] Map graphics presets to Static, Dynamic, and Photonic levels
 - [x] Add Reduced Light controls and accessibility behavior
 - [x] Validate key screens, presets, and responsive rendering
-- [ ] Replace uniform light effects with material-specific, interaction-driven optics
+- [x] Replace uniform light effects with material-specific, interaction-driven optics
+- [x] Add adjustable chromatic aberration, Liquid Glass refraction, and realistic lighting across CSS and GPU
 - [ ] Verify wallet and auth rendering on desktop and mobile

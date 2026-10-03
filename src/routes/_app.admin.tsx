@@ -150,6 +150,14 @@ function AdminPage() {
         </div>
       </div>
 
+      <button
+        onClick={() => navigate({ to: "/dev" })}
+        className="lrf lrf-tap mb-3 flex w-full items-center justify-between !rounded-3xl p-4 text-sm font-semibold"
+      >
+        <span className="flex items-center gap-2"><LayoutGrid className="size-4 text-eco" /> Режим разработки · GitHub</span>
+        <span className="text-xs text-muted-foreground">→</span>
+      </button>
+
       {/* Stats */}
       <div className="lrf lrf-thick p-4">
         <div className="grid grid-cols-3 gap-3">

@@ -16,6 +16,7 @@ import { Route as AppWalletRouteImport } from './routes/_app.wallet'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
+import { Route as AppDevRouteImport } from './routes/_app.dev'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppVideoIndexRouteImport } from './routes/_app.video.index'
 import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
@@ -59,6 +60,11 @@ const AppLearnRoute = AppLearnRouteImport.update({
 const AppFeedRoute = AppFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDevRoute = AppDevRouteImport.update({
+  id: '/dev',
+  path: '/dev',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminRoute = AppAdminRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
+  '/dev': typeof AppDevRoute
   '/feed': typeof AppFeedRoute
   '/learn': typeof AppLearnRoute
   '/profile': typeof AppProfileRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
+  '/dev': typeof AppDevRoute
   '/feed': typeof AppFeedRoute
   '/learn': typeof AppLearnRoute
   '/profile': typeof AppProfileRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/_app/admin': typeof AppAdminRoute
+  '/_app/dev': typeof AppDevRoute
   '/_app/feed': typeof AppFeedRoute
   '/_app/learn': typeof AppLearnRoute
   '/_app/profile': typeof AppProfileRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/dev'
     | '/feed'
     | '/learn'
     | '/profile'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/dev'
     | '/feed'
     | '/learn'
     | '/profile'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/_app/admin'
+    | '/_app/dev'
     | '/_app/feed'
     | '/_app/learn'
     | '/_app/profile'
@@ -281,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dev': {
+      id: '/_app/dev'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof AppDevRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin': {
@@ -358,6 +377,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
+  AppDevRoute: typeof AppDevRoute
   AppFeedRoute: typeof AppFeedRoute
   AppLearnRoute: typeof AppLearnRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -375,6 +395,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
+  AppDevRoute: AppDevRoute,
   AppFeedRoute: AppFeedRoute,
   AppLearnRoute: AppLearnRoute,
   AppProfileRoute: AppProfileRoute,

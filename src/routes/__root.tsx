@@ -32,14 +32,14 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: import("@tanstack/react-router").ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <p className="font-mono text-xs uppercase tracking-widest text-destructive">Runtime error</p>
-        <h1 className="mt-3 text-xl font-semibold">{error.message}</h1>
+        <h1 className="mt-3 text-xl font-semibold">{(error as Error)?.message}</h1>
         <button
           onClick={() => { router.invalidate(); reset(); }}
           className="mt-6 inline-flex h-10 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background"

@@ -153,7 +153,11 @@ function DevAiChat({ branch, files, openPath, onApplied }: { branch: string; fil
       const r = await ask({ data: { branch, files, openPath, messages: next.slice(-12).map(({ role, content }) => ({ role, content })) } });
       const note = r.read.length ? `\n\nПрочитано: ${r.read.join(", ")}` : "";
       setMsgs((m) => [...m, { role: "assistant", content: (r.reply || "Готово") + note, edits: r.edits }]);
-    } catch (e) { toast.error((e as Error).message); }
+    } catch (e) {
+      const msg = (e as Error).message || "Неизвестная ошибка";
+      toast.error(msg);
+      setMsgs((m) => [...m, { role: "assistant", content: `Ошибка: ${msg}` }]);
+    }
     finally { setBusy(false); }
   };
 

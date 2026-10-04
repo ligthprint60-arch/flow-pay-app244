@@ -95,3 +95,96 @@ export const devSaveFile = createServerFn({ method: "POST" })
     });
     return { sha: r.content.sha as string, commit: r.commit.html_url as string };
   });
+
+async function askModel(system: string, messages: { role: string; content: string }[]) {
+  const key = process.env["LOVABLE_API_KEY"];
+  if (!key) throw new Error("AI не настроен");
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
+    body: JSON.stringify({
+      model: "openai/gpt-6-astra",
+      instructions: system,
+      input: messages,
+      reasoning: { effort: "low" },
+      store: false,
+      stream: true,
+    }),
+  });
+  if (!res.ok || !res.body) {
+    const t = await res.text().catch(() => "");
+    if (res.status === 402) throw new Error("Закончились AI-кредиты рабочего пространства");
+    if (res.status === 429) throw new Error("Слишком много запросов, подождите");
+    throw new Error(`AI [${res.status}]: ${t.slice(0, 300)}`);
+  }
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "", out = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop() ?? "";
+    for (const l of lines) {
+      if (!l.startsWith("data:")) continue;
+      const p = l.slice(5).trim();
+      if (!p || p === "[DONE]") continue;
+      try {
+        const ev = JSON.parse(p);
+        if (ev.type === "response.output_text.delta") out += ev.delta;
+        if (ev.type === "error" || ev.type === "response.failed") throw new Error("AI: ошибка генерации");
+      } catch (e) { if ((e as Error).message.startsWith("AI")) throw e; }
+    }
+  }
+  return out.trim();
+}
+
+function parseJson<T>(s: string): T {
+  const m = s.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error("AI вернул некорректный ответ");
+  return JSON.parse(m[0]) as T;
+}
+
+export const devAiChat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      branch: z.string().max(100),
+      files: z.array(z.string().max(300)).max(5000),
+      openPath: z.string().max(300).nullable(),
+      messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(8000) })).min(1).max(20),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    assertAdmin(context.claims as Record<string, unknown>);
+    const tree = data.files.filter((f) => !/\.(png|jpe?g|gif|webp|ico|lock|lockb)$/i.test(f) && !f.startsWith("src/components/ui/"));
+    const pick = await askModel(
+      `You are a code agent for a TanStack Start + React + Tailwind v4 + Supabase app. Repository files:\n${tree.join("\n")}\n` +
+        `Currently open file: ${data.openPath ?? "none"}.\nChoose up to 8 existing files you must read to fulfil the latest request. ` +
+        `Reply ONLY JSON: {"read":["path",...]}`,
+      data.messages,
+    );
+    const toRead = parseJson<{ read?: string[] }>(pick).read?.filter((p) => data.files.includes(p)).slice(0, 8) ?? [];
+    const contents: string[] = [];
+    for (const p of toRead) {
+      try {
+        const f = await gh(`repos/${OWNER}/${REPO}/contents/${encodeURI(p)}?ref=${encodeURIComponent(data.branch)}`);
+        contents.push(`===== ${p} =====\n${b64decode(f.content as string).slice(0, 60000)}`);
+      } catch { /* skip */ }
+    }
+    const answer = await askModel(
+      `You are FLOW Dev AI, a code agent with full access to this repository. Files:\n${tree.join("\n")}\n\n` +
+        `File contents:\n${contents.join("\n\n")}\n\n` +
+        `Fulfil the user's latest request. If code changes are needed, return the COMPLETE new content of each changed or created file. ` +
+        `Never edit src/integrations/supabase/*, .env or src/routeTree.gen.ts. Answer in the user's language. ` +
+        `Reply ONLY JSON: {"reply":"short explanation","edits":[{"path":"...","content":"full file content"}]}`,
+      data.messages,
+    );
+    const r = parseJson<{ reply?: string; edits?: { path: string; content: string }[] }>(answer);
+    const edits = (r.edits ?? []).filter(
+      (e) => typeof e.path === "string" && typeof e.content === "string" && !e.path.includes("..") &&
+        !/^(src\/integrations\/supabase\/|\.env|src\/routeTree\.gen\.ts)/.test(e.path),
+    );
+    return { reply: r.reply ?? "", read: toRead, edits };
+  });

@@ -96,7 +96,7 @@ export const devSaveFile = createServerFn({ method: "POST" })
     return { sha: r.content.sha as string, commit: r.commit.html_url as string };
   });
 
-async function askModel(system: string, messages: { role: string; content: string }[]) {
+async function askModel(system: string, messages: { role: string; content: string }[], schema: Record<string, unknown>) {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) throw new Error("AI не настроен");
   const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
@@ -107,6 +107,7 @@ async function askModel(system: string, messages: { role: string; content: strin
       instructions: system,
       input: messages,
       reasoning: { effort: "low" },
+      text: { format: { type: "json_schema", name: "out", strict: true, schema } },
       store: false,
       stream: true,
     }),
@@ -133,7 +134,10 @@ async function askModel(system: string, messages: { role: string; content: strin
       try {
         const ev = JSON.parse(p);
         if (ev.type === "response.output_text.delta") out += ev.delta;
-        if (ev.type === "error" || ev.type === "response.failed") throw new Error("AI: ошибка генерации");
+        if (ev.type === "error" || ev.type === "response.failed") {
+          console.error("AI stream error", p);
+          throw new Error(`AI: ${ev.error?.message ?? ev.response?.error?.message ?? "ошибка генерации"}`);
+        }
       } catch (e) { if ((e as Error).message.startsWith("AI")) throw e; }
     }
   }
@@ -141,10 +145,19 @@ async function askModel(system: string, messages: { role: string; content: strin
 }
 
 function parseJson<T>(s: string): T {
-  const m = s.match(/\{[\s\S]*\}/);
-  if (!m) throw new Error("AI вернул некорректный ответ");
-  return JSON.parse(m[0]) as T;
+  try { return JSON.parse(s) as T; } catch {
+    console.error("AI bad JSON", s.slice(0, 500));
+    throw new Error("AI вернул некорректный ответ, попробуйте ещё раз");
+  }
 }
+const READ_SCHEMA = { type: "object", additionalProperties: false, required: ["read"], properties: { read: { type: "array", items: { type: "string" } } } };
+const EDIT_SCHEMA = {
+  type: "object", additionalProperties: false, required: ["reply", "edits"],
+  properties: {
+    reply: { type: "string" },
+    edits: { type: "array", items: { type: "object", additionalProperties: false, required: ["path", "content"], properties: { path: { type: "string" }, content: { type: "string" } } } },
+  },
+};
 
 export const devAiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -164,6 +177,7 @@ export const devAiChat = createServerFn({ method: "POST" })
         `Currently open file: ${data.openPath ?? "none"}.\nChoose up to 8 existing files you must read to fulfil the latest request. ` +
         `Reply ONLY JSON: {"read":["path",...]}`,
       data.messages,
+      READ_SCHEMA,
     );
     const toRead = parseJson<{ read?: string[] }>(pick).read?.filter((p) => data.files.includes(p)).slice(0, 8) ?? [];
     const contents: string[] = [];
@@ -180,6 +194,7 @@ export const devAiChat = createServerFn({ method: "POST" })
         `Never edit src/integrations/supabase/*, .env or src/routeTree.gen.ts. Answer in the user's language. ` +
         `Reply ONLY JSON: {"reply":"short explanation","edits":[{"path":"...","content":"full file content"}]}`,
       data.messages,
+      EDIT_SCHEMA,
     );
     const r = parseJson<{ reply?: string; edits?: { path: string; content: string }[] }>(answer);
     const edits = (r.edits ?? []).filter(

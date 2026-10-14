@@ -475,3 +475,39 @@
 .light-static .light-control[data-lit], .reduced-light .light-control[data-lit] { background-image: none; }
 .gfx-no-glass-anim [data-struck]::before { animation: none; }
 @media (prefers-reduced-motion: reduce) { [data-struck]::before { animation: none; } }
+
+/* === TMUI Spatial Glass — material hierarchy (Surface / Acrylic / LRF) === */
+:root {
+  --background: #0B0D12;
+  --surface: rgb(22 25 32 / .94);
+  --surface-2: rgb(32 36 45 / .96);
+  --card: rgb(22 25 32 / .9);
+  --popover: rgb(18 21 28 / .96);
+  --border: rgb(255 255 255 / .08);
+  --muted-foreground: #9AA3B2;
+  --ring: #4C8DFF;
+  --fiat: #4C8DFF;
+}
+@layer utilities {
+  /* Nested lenses downgrade to opaque Surface: only top-level panels refract. */
+  .lrf .lrf, .lrf .lrf:not(.rounded-full) {
+    background: var(--surface-2);
+    backdrop-filter: none;
+    border-color: var(--border);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .05), 0 6px 18px -12px rgb(0 0 0 / .6);
+    border-radius: 20px;
+    animation: none;
+  }
+  .lrf .lrf::before, .lrf .lrf::after { display: none; }
+  /* Dialogs and sheets are Acrylic: frosted, auxiliary, no dispersion ring. */
+  [role="dialog"].lrf, [role="alertdialog"].lrf { border-radius: 32px; }
+  [role="dialog"].lrf::after, [role="alertdialog"].lrf::after { opacity: .18; background: linear-gradient(180deg, rgb(255 255 255 / .18), transparent 40%); }
+  /* Functional content stays sharp. */
+  .lrf :is(p, span, h1, h2, h3, h4, label, input, textarea, svg, .tabular) { filter: none; text-shadow: none; }
+  /* Geometry: buttons 12px, fields 20px, cards 28px. */
+  .light-control, button.mercury { border-radius: 12px; }
+  .light-control.rounded-full, .mercury.rounded-full { border-radius: 9999px; }
+  .light-input, input.light-input, textarea.light-input { border-radius: 20px; }
+  .lrf:not(.rounded-full) { border-radius: 28px; }
+  .lrf.rounded-full { border-radius: 9999px; }
+}

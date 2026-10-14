@@ -490,7 +490,7 @@
 }
 @layer utilities {
   /* Nested lenses downgrade to opaque Surface: only top-level panels refract. */
-  .lrf .lrf {
+  .lrf .lrf, .lrf .lrf:not(.rounded-full) {
     background: var(--surface-2);
     backdrop-filter: none;
     border-color: var(--border);

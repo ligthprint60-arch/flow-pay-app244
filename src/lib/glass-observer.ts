@@ -14,6 +14,26 @@
 import { allocNodeId, bind, setToggle, unbind } from "@/lib/chronos/runtime";
 
 let io: IntersectionObserver | null = null;
+const visible = new Set<HTMLElement>();
+const LENS_BUDGET = 3;
+let lensFrame = 0;
+
+/** TMUI Spatial Glass: at most three full optical lenses render at once
+ *  (navigation first, then the largest visible panels). Others keep the same
+ *  frosted body but skip dispersion and dynamic specular passes. */
+function assignLenses() {
+  lensFrame = 0;
+  const ranked = [...visible].filter((el) => el.isConnected && !el.parentElement?.closest(".lrf"));
+  ranked.sort((a, b) => {
+    const na = a.closest("nav") ? 1 : 0, nb = b.closest("nav") ? 1 : 0;
+    if (na !== nb) return nb - na;
+    const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+    return rb.width * rb.height - ra.width * ra.height;
+  });
+  const lenses = new Set(ranked.slice(0, LENS_BUDGET));
+  document.querySelectorAll<HTMLElement>(".lrf").forEach((el) => el.classList.toggle("lrf-lens", lenses.has(el)));
+}
+const scheduleLenses = () => { if (!lensFrame) lensFrame = requestAnimationFrame(assignLenses); };
 let mo: MutationObserver | null = null;
 const ids = new WeakMap<Element, number>();
 
@@ -37,7 +57,9 @@ export function startGlassObserver() {
       // buffer and applied in one batched frame by the Chronos consumer.
       for (const e of entries) {
         setToggle(nodeIdFor(e.target), "lrf-live", e.isIntersecting);
+        if (e.isIntersecting) visible.add(e.target as HTMLElement); else visible.delete(e.target as HTMLElement);
       }
+      scheduleLenses();
     },
     // Warm panels slightly before they enter, so nothing "starts" visibly.
     { rootMargin: "160px 0px" },
@@ -65,6 +87,8 @@ export function startGlassObserver() {
         if (!(n instanceof HTMLElement)) return;
         const id = ids.get(n);
         if (id !== undefined) unbind(id);
+        visible.delete(n);
+        scheduleLenses();
       });
     }
   });
@@ -76,6 +100,8 @@ export function startGlassObserver() {
   document.addEventListener("visibilitychange", onVisibility);
 
   return () => {
+    if (lensFrame) cancelAnimationFrame(lensFrame);
+    visible.clear();
     io?.disconnect();
     mo?.disconnect();
     io = null;

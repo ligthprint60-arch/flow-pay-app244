@@ -9,57 +9,42 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppWalletRouteImport } from './routes/_app.wallet'
-import { Route as AppProfileRouteImport } from './routes/_app.profile'
-import { Route as AppLearnRouteImport } from './routes/_app.learn'
-import { Route as AppFeedRouteImport } from './routes/_app.feed'
-import { Route as AppDevRouteImport } from './routes/_app.dev'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
-import { Route as AppVideoIndexRouteImport } from './routes/_app.video.index'
-import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
-import { Route as AppEcosystemIndexRouteImport } from './routes/_app.ecosystem.index'
+import { Route as AppDevRouteImport } from './routes/_app.dev'
+import { Route as AppFeedRouteImport } from './routes/_app.feed'
+import { Route as AppLearnRouteImport } from './routes/_app.learn'
+import { Route as AppProfileRouteImport } from './routes/_app.profile'
+import { Route as AppWalletRouteImport } from './routes/_app.wallet'
 import { Route as AppChatsIndexRouteImport } from './routes/_app.chats.index'
-import { Route as AppVideoVideoIdRouteImport } from './routes/_app.video.$videoId'
-import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
-import { Route as AppPartnersSlugRouteImport } from './routes/_app.partners.$slug'
-import { Route as AppEcosystemAppIdRouteImport } from './routes/_app.ecosystem.$appId'
 import { Route as AppChatsChatIdRouteImport } from './routes/_app.chats.$chatId'
+import { Route as AppEcosystemIndexRouteImport } from './routes/_app.ecosystem.index'
+import { Route as AppEcosystemAppIdRouteImport } from './routes/_app.ecosystem.$appId'
+import { Route as AppPartnersIndexRouteImport } from './routes/_app.partners.index'
+import { Route as AppPartnersSlugRouteImport } from './routes/_app.partners.$slug'
+import { Route as AppSandboxUsernameRouteImport } from './routes/_app.sandbox.$username'
+import { Route as AppVideoIndexRouteImport } from './routes/_app.video.index'
+import { Route as AppVideoVideoIdRouteImport } from './routes/_app.video.$videoId'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppWalletRoute = AppWalletRouteImport.update({
-  id: '/wallet',
-  path: '/wallet',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLearnRoute = AppLearnRouteImport.update({
-  id: '/learn',
-  path: '/learn',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFeedRoute = AppFeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDevRoute = AppDevRouteImport.update({
@@ -67,24 +52,24 @@ const AppDevRoute = AppDevRouteImport.update({
   path: '/dev',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminRoute = AppAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => AppRoute,
 } as any)
-const AppVideoIndexRoute = AppVideoIndexRouteImport.update({
-  id: '/video/',
-  path: '/video/',
+const AppLearnRoute = AppLearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
   getParentRoute: () => AppRoute,
 } as any)
-const AppPartnersIndexRoute = AppPartnersIndexRouteImport.update({
-  id: '/partners/',
-  path: '/partners/',
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
-const AppEcosystemIndexRoute = AppEcosystemIndexRouteImport.update({
-  id: '/ecosystem/',
-  path: '/ecosystem/',
+const AppWalletRoute = AppWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
   getParentRoute: () => AppRoute,
 } as any)
 const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
@@ -92,19 +77,14 @@ const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppVideoVideoIdRoute = AppVideoVideoIdRouteImport.update({
-  id: '/video/$videoId',
-  path: '/video/$videoId',
+const AppChatsChatIdRoute = AppChatsChatIdRouteImport.update({
+  id: '/chats/$chatId',
+  path: '/chats/$chatId',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSandboxUsernameRoute = AppSandboxUsernameRouteImport.update({
-  id: '/sandbox/$username',
-  path: '/sandbox/$username',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPartnersSlugRoute = AppPartnersSlugRouteImport.update({
-  id: '/partners/$slug',
-  path: '/partners/$slug',
+const AppEcosystemIndexRoute = AppEcosystemIndexRouteImport.update({
+  id: '/ecosystem/',
+  path: '/ecosystem/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEcosystemAppIdRoute = AppEcosystemAppIdRouteImport.update({
@@ -112,9 +92,29 @@ const AppEcosystemAppIdRoute = AppEcosystemAppIdRouteImport.update({
   path: '/ecosystem/$appId',
   getParentRoute: () => AppRoute,
 } as any)
-const AppChatsChatIdRoute = AppChatsChatIdRouteImport.update({
-  id: '/chats/$chatId',
-  path: '/chats/$chatId',
+const AppPartnersIndexRoute = AppPartnersIndexRouteImport.update({
+  id: '/partners/',
+  path: '/partners/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPartnersSlugRoute = AppPartnersSlugRouteImport.update({
+  id: '/partners/$slug',
+  path: '/partners/$slug',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSandboxUsernameRoute = AppSandboxUsernameRouteImport.update({
+  id: '/sandbox/$username',
+  path: '/sandbox/$username',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVideoIndexRoute = AppVideoIndexRouteImport.update({
+  id: '/video/',
+  path: '/video/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVideoVideoIdRoute = AppVideoVideoIdRouteImport.update({
+  id: '/video/$videoId',
+  path: '/video/$videoId',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -246,11 +246,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -260,39 +260,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/wallet': {
-      id: '/_app/wallet'
-      path: '/wallet'
-      fullPath: '/wallet'
-      preLoaderRoute: typeof AppWalletRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/profile': {
-      id: '/_app/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/learn': {
-      id: '/_app/learn'
-      path: '/learn'
-      fullPath: '/learn'
-      preLoaderRoute: typeof AppLearnRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/feed': {
-      id: '/_app/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof AppFeedRouteImport
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/dev': {
@@ -302,32 +281,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDevRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/admin': {
-      id: '/_app/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AppAdminRouteImport
+    '/_app/feed': {
+      id: '/_app/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/video/': {
-      id: '/_app/video/'
-      path: '/video'
-      fullPath: '/video/'
-      preLoaderRoute: typeof AppVideoIndexRouteImport
+    '/_app/learn': {
+      id: '/_app/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof AppLearnRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/partners/': {
-      id: '/_app/partners/'
-      path: '/partners'
-      fullPath: '/partners/'
-      preLoaderRoute: typeof AppPartnersIndexRouteImport
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/ecosystem/': {
-      id: '/_app/ecosystem/'
-      path: '/ecosystem'
-      fullPath: '/ecosystem/'
-      preLoaderRoute: typeof AppEcosystemIndexRouteImport
+    '/_app/wallet': {
+      id: '/_app/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AppWalletRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/chats/': {
@@ -337,25 +316,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatsIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/video/$videoId': {
-      id: '/_app/video/$videoId'
-      path: '/video/$videoId'
-      fullPath: '/video/$videoId'
-      preLoaderRoute: typeof AppVideoVideoIdRouteImport
+    '/_app/chats/$chatId': {
+      id: '/_app/chats/$chatId'
+      path: '/chats/$chatId'
+      fullPath: '/chats/$chatId'
+      preLoaderRoute: typeof AppChatsChatIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/sandbox/$username': {
-      id: '/_app/sandbox/$username'
-      path: '/sandbox/$username'
-      fullPath: '/sandbox/$username'
-      preLoaderRoute: typeof AppSandboxUsernameRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/partners/$slug': {
-      id: '/_app/partners/$slug'
-      path: '/partners/$slug'
-      fullPath: '/partners/$slug'
-      preLoaderRoute: typeof AppPartnersSlugRouteImport
+    '/_app/ecosystem/': {
+      id: '/_app/ecosystem/'
+      path: '/ecosystem'
+      fullPath: '/ecosystem/'
+      preLoaderRoute: typeof AppEcosystemIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/ecosystem/$appId': {
@@ -365,11 +337,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEcosystemAppIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/chats/$chatId': {
-      id: '/_app/chats/$chatId'
-      path: '/chats/$chatId'
-      fullPath: '/chats/$chatId'
-      preLoaderRoute: typeof AppChatsChatIdRouteImport
+    '/_app/partners/': {
+      id: '/_app/partners/'
+      path: '/partners'
+      fullPath: '/partners/'
+      preLoaderRoute: typeof AppPartnersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/partners/$slug': {
+      id: '/_app/partners/$slug'
+      path: '/partners/$slug'
+      fullPath: '/partners/$slug'
+      preLoaderRoute: typeof AppPartnersSlugRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/sandbox/$username': {
+      id: '/_app/sandbox/$username'
+      path: '/sandbox/$username'
+      fullPath: '/sandbox/$username'
+      preLoaderRoute: typeof AppSandboxUsernameRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/video/': {
+      id: '/_app/video/'
+      path: '/video'
+      fullPath: '/video/'
+      preLoaderRoute: typeof AppVideoIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/video/$videoId': {
+      id: '/_app/video/$videoId'
+      path: '/video/$videoId'
+      fullPath: '/video/$videoId'
+      preLoaderRoute: typeof AppVideoVideoIdRouteImport
       parentRoute: typeof AppRoute
     }
   }
